@@ -1,0 +1,111 @@
+body {
+  background: #fff;
+  font-family: 'Roboto', sans-serif;
+  font-smoothing: always;
+}
+
+.container {
+    margin: 0 auto;
+    padding: 0 20px;
+    max-width: 1400px;
+    min-width: 320px;
+}
+@media screen and (min-width: 768px) .profile {
+    padding-left: 65px;
+}
+
+.profile {
+  background: #fff;
+  position: relative;
+  top: 10px;
+  padding: 44px 0 45px 28px;
+}
+
+ul li,  p {
+    font-size: 16px;
+    line-height: 1.5;
+    font-weight: 300;
+    color: #555;
+}
+
+.profile-col.profile-col-img {
+  margin: 0 auto;
+  left: -14px;
+  width: 19.5%;
+  float: left;
+}
+
+.profile .profile-img {
+  overflow: hidden;
+  border-radius: 50%;
+  width: 100%;
+  margin: 0 0 30px;
+}
+
+.profile-col.profile-col-main {
+  width: 71.7%;
+  margin-left: 8.7%;
+  clear: none;
+  float: left;
+}
+
+.profile-header.profile-row {
+  padding: 9px 130px 10px 0;
+  border-bottom: 1px solid #EDEDED;
+}
+
+h2 {
+  padding-right: 48px;
+  font-size: 34px;
+  font-weight: 300;
+  color: #666;
+  margin: 0;
+  letter-spacing: -.01em;
+  padding-bottom: 3px;
+}
+
+p.title {
+    margin: 8px 0 0;
+    font-weight: 400;
+      font-size: 16px;
+    line-height: 1.5;
+    color: #555;
+}
+
+p.location {
+    margin: 0 0 10px;
+  font-size: 16px;
+    line-height: 1.5;
+    font-weight: 300;
+    color: #555;
+}
+
+.profile-row {
+    padding: 0 28px 45px 0;
+  padding-right: 130px;
+}
+
+h3 {
+    font-size: 24px;
+  font-weight: 300;
+    color: #666;
+  margin: 16px 0;
+}
+
+ul {
+    list-style: none;
+  padding: 0;
+    margin: 0;
+}
+
+li, li p {
+    margin: 8px 0;
+    padding: 0;
+}
+
+#experts-body .page-profile .profile ul li, #experts-body .page-profile .profile p {
+    font-size: 16px;
+    line-height: 1.5;
+    font-weight: 300;
+    color: #555;
+}
