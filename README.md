@@ -1,1 +1,0 @@
-# sumitridhal.github.io
