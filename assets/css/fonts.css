@@ -1,51 +1,23 @@
 @font-face {
-	font-family: brandon-grotesque;
-	src: url("../fonts/brandon_reg-webfont.woff") format("woff"),
-	url("../fonts/brandon_reg-webfont.woff2") format("woff2");
-	font-style: normal;
-	font-weight: normal;
-	}
-
+  font-family: brandon-grotesque;
+  font-style: lighter;
+	font-weight: 100;
+  src: url("../fonts/brandon-grotesque/BrandonGrotesque-Light.eot") format("eot"), url("../fonts/brandon-grotesque/BrandonGrotesque-Light.otf") format("opentype"), url("../fonts/brandon-grotesque/BrandonGrotesque-Light.woff") format("woff"), url("../fonts/brandon-grotesque/BrandonGrotesque-Light.ttf") format("truetype"), url("../fonts/brandon-grotesque/BrandonGrotesque-Light.svg#BrandonGrotesque-Light") format("svg");
+}
 @font-face {
-	font-family: brandon-grotesque;
-	src: url("../fonts/brandon_reg_it-webfont.woff") format("woff"),
-	url("../fonts/brandon_reg_it-webfont.woff2") format("woff2");
-	font-style: italic;
-	font-weight: normal;
-	}
-
-/* --- bold --- */
-
+  font-family: brandon-grotesque;
+  font-style: normal;
+  src: url("../fonts/brandon-grotesque/BrandonGrotesque-Regular.eot") format("eot"), url("../fonts/brandon-grotesque/BrandonGrotesque-Regular.otf") format("opentype"), url("../fonts/brandon-grotesque/BrandonGrotesque-Regular.woff") format("woff"), url("../fonts/brandon-grotesque/BrandonGrotesque-Regular.ttf") format("truetype"), url("../fonts/brandon-grotesque/BrandonGrotesque-Regular.svg#BrandonGrotesque-Regular") format("svg");
+}
 @font-face {
-	font-family: brandon-grotesque;
-	src: url("../fonts/brandon_bld-webfont.woff") format("woff"),
-	url("../fonts/brandon_bld-webfont.woff2") format("woff2");
-	font-style: normal;
-	font-weight: bold;
-	}
-
+  font-family: brandon-grotesque;
+  font-style: bold;
+  font-weight: 700;
+  src: url("../fonts/brandon-grotesque/BrandonGrotesque-Bold.eot") format("eot"), url("../fonts/brandon-grotesque/BrandonGrotesque-Bold.otf") format("opentype"), url("../fonts/brandon-grotesque/BrandonGrotesque-Bold.woff") format("woff"), url("../fonts/brandon-grotesque/BrandonGrotesque-Bold.ttf") format("truetype"), url("../fonts/brandon-grotesque/BrandonGrotesque-Bold.svg#BrandonGrotesque-Bold") format("svg");
+}
 @font-face {
-	font-family: brandon-grotesque;
-	src: url("../fonts/brandon_bld_it-webfont.woff") format("woff"),
-	url("../fonts/brandon_bld_it-webfont.woff2") format("woff2");
-	font-style: italic;
-	font-weight: bold;
-	}
-
-/* --- black --- */
-
-@font-face {
-	font-family: brandon-grotesque;
-	src: url("../fonts/brandon_blk-webfont.woff") format("woff"),
-	url("../fonts/brandon_blk-webfont.woff2") format("woff2");
-	font-style: normal;
-	font-weight: 900;
-	}
-
-@font-face {
-	font-family: brandon-grotesque;
-	src: url("../fonts/brandon_blk_it-webfont.woff") format("woff"),
-	url("../fonts/brandon_blk_it-webfont.woff2") format("woff2");
-	font-style: italic;
-	font-weight: 900;
-	}
+  font-family: brandon-grotesque;
+  font-style: bolder;
+  font-weight: 900;
+  src: url("../fonts/brandon-grotesque/BrandonGrotesque-Black.eot") format("eot"), url("../fonts/brandon-grotesque/BrandonGrotesque-Black.otf") format("opentype"), url("../fonts/brandon-grotesque/BrandonGrotesque-Black.woff") format("woff"), url("../fonts/brandon-grotesque/BrandonGrotesque-Black.ttf") format("truetype"), url("../fonts/brandon-grotesque/BrandonGrotesque-Black.svg#BrandonGrotesque-Black") format("svg");
+}

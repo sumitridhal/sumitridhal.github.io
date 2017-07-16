@@ -1,3 +1,10 @@
 /*******************************
      User Global Variables
 *******************************/
+
+@fontName : brandon-grotesque;
+@importGoogleFonts : false;
+
+@headerFont        : brandon-grotesque, 'Helvetica Neue', Arial, Helvetica, sans-serif;
+@pageFont          : brandon-grotesque, 'Helvetica Neue', Arial, Helvetica, sans-serif;
+@fontSmoothing     : antialiased;
