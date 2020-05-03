@@ -24,9 +24,9 @@
     "test": "ng test",
     "lint": "ng lint",
     "e2e": "ng e2e",
-    "app-build": "ng build --prod --base-href 'https://sumitridhal.github.io/'",
-    "prepublish": "ngh --dry-run",
-    "publish": "ngh --branch=master"
+    "prepublish": "ng build --prod --base-href 'https://sumitridhal.github.io/'",
+    "publish": "ngh --dry-run && ngh --branch=master",
+    "postpublish": "ngh"
   },
   "devDependencies": {
     "@angular-devkit/build-angular": "^0.901.4",
