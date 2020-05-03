@@ -1,0 +1,24 @@
+@import "../../../node_modules/bootstrap/scss/functions";
+@import "../../../node_modules/bootstrap/scss/variables";
+// @import "node_modules/bootstrap/scss/functions";
+
+// 2. Set your own initial variables
+$scheme-main: #f0f0f0;
+$grey-dark: #222222;
+$light: #e0e0e0;
+$danger: #e6261b;
+
+$theme-colors: (
+  "light": $light
+);
+
+// Body
+$body-bg: $scheme-main;
+$body-color: $grey-dark;
+
+// These are the defaults, but you can override any values
+$font-family-sans-serif: "Anton", "Segoe UI", Roboto, "Helvetica Neue", Arial, sans-serif;
+$font-family-serif: "Northwell-Alt", Georgia, "Times New Roman", Times, serif;
+$font-family-base: $font-family-sans-serif;
+
+@import "../../../node_modules/bootstrap/scss/bootstrap";
