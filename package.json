@@ -23,7 +23,10 @@
     "build": "ng build",
     "test": "ng test",
     "lint": "ng lint",
-    "e2e": "ng e2e"
+    "e2e": "ng e2e",
+    "app-build": "ng build --prod --base-href 'https://sumitridhal.github.io/'",
+    "prepublish": "ngh --dry-run",
+    "publish": "ngh"
   },
   "devDependencies": {
     "@angular-devkit/build-angular": "^0.901.4",
