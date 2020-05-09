@@ -1,0 +1,10 @@
+.navbar-brand {
+  height: 116px;
+  display: flex;
+  align-items: center;
+  margin-left: 1rem;
+  .img.logo {
+    height: 70px;
+    width: auto;
+  }
+}
