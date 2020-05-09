@@ -1,0 +1,24 @@
+@import url("https://fonts.googleapis.com/css2?family=Anton&family=Poppins");
+
+@font-face {
+  font-family: "Northwell-Alt";
+  src: url("assets/fonts/Northwell-Alt.eot");
+  src: url("assets/fonts/Northwell-Alt.eot?#iefix")
+      format("embedded-opentype"),
+    url("assets/fonts/Northwell-Alt.otf") format("opentype"),
+    url("assets/fonts/Northwell-Alt.svg") format("svg"),
+    url("assets/fonts/Northwell-Alt.ttf") format("truetype"),
+    url("assets/fonts/Northwell-Alt.woff") format("woff"),
+    url("assets/fonts/Northwell-Alt.woff2") format("woff2");
+  font-weight: normal;
+  font-style: normal;
+}
+
+
+.font-secondary {
+  font-family: 'Northwell-Alt';
+}
+
+.font-tertiary {
+  font-family: 'Poppins';
+}
