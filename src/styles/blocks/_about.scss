@@ -1,0 +1,178 @@
+@use '../variables' as *;
+
+.about-page {
+  max-width: 1100px;
+  margin: 0 auto;
+  padding: calc(#{$header-h} + 2rem) clamp(1rem, 4vw, 3rem) 4rem;
+}
+
+.about-page__intro {
+  margin-bottom: 2.5rem;
+}
+
+.about-page__kicker {
+  margin: 0 0 0.6rem;
+  color: rgba(235, 239, 248, 0.72);
+  text-transform: uppercase;
+  letter-spacing: 0.08em;
+  font-size: 0.75rem;
+}
+
+.about-page__headline {
+  margin: 0 0 0.75rem;
+  font-family: $font-display;
+  font-size: clamp(2rem, 4.4vw, 3.5rem);
+  line-height: 1;
+}
+
+.about-page__lead {
+  margin: 0;
+  max-width: 74ch;
+  color: rgba(235, 239, 248, 0.92);
+  font-size: clamp(1.02rem, 1.9vw, 1.35rem);
+  line-height: 1.45;
+}
+
+.about-page__highlights {
+  margin: 1.25rem 0 0;
+  padding: 0;
+  list-style: none;
+  display: grid;
+  gap: 0.7rem;
+}
+
+.about-page__highlights li {
+  margin: 0;
+  padding-left: 1rem;
+  position: relative;
+  color: rgba(235, 239, 248, 0.88);
+}
+
+.about-page__highlights li::before {
+  content: '';
+  position: absolute;
+  top: 0.6em;
+  left: 0;
+  width: 0.35rem;
+  height: 0.35rem;
+  border-radius: 999px;
+  background: rgba(185, 208, 255, 0.85);
+}
+
+.about-page__section-title {
+  margin: 0 0 1rem;
+  font-family: 'Iowan Old Style', 'Times New Roman', serif;
+  font-style: italic;
+  font-size: clamp(1.7rem, 3vw, 2.35rem);
+  font-weight: 500;
+}
+
+.about-page__experience-list {
+  display: grid;
+  gap: 1.1rem;
+}
+
+.about-page__experience-item {
+  border: 1px solid rgba(226, 233, 249, 0.22);
+  background: rgba(15, 26, 22, 0.45);
+  border-radius: 10px;
+  padding: 1.1rem;
+}
+
+.about-page__experience-header {
+  margin-bottom: 0.8rem;
+}
+
+.about-page__experience-header h3 {
+  margin: 0;
+  font-size: 1.2rem;
+}
+
+.about-page__experience-header p {
+  margin: 0.25rem 0 0;
+  color: rgba(235, 239, 248, 0.75);
+  font-size: 0.95rem;
+}
+
+.about-page__role + .about-page__role {
+  margin-top: 0.85rem;
+  padding-top: 0.85rem;
+  border-top: 1px solid rgba(226, 233, 249, 0.16);
+}
+
+.about-page__role-head {
+  display: flex;
+  flex-wrap: wrap;
+  justify-content: space-between;
+  gap: 0.45rem;
+  margin-bottom: 0.4rem;
+}
+
+.about-page__role-head h4 {
+  margin: 0;
+  font-size: 1rem;
+}
+
+.about-page__role-head span {
+  color: rgba(235, 239, 248, 0.72);
+  font-size: 0.9rem;
+}
+
+.about-page__role ul {
+  margin: 0;
+  padding-left: 1.1rem;
+  display: grid;
+  gap: 0.3rem;
+}
+
+.about-page__meta-grid {
+  margin-top: 2rem;
+  display: grid;
+  gap: 1rem;
+  grid-template-columns: repeat(2, minmax(0, 1fr));
+}
+
+.about-page__meta-card {
+  border: 1px solid rgba(226, 233, 249, 0.2);
+  border-radius: 10px;
+  padding: 1.1rem;
+  background: rgba(12, 20, 17, 0.4);
+}
+
+.about-page__meta-card h2 {
+  margin: 0 0 0.7rem;
+  font-size: 1.15rem;
+}
+
+.about-page__meta-card p {
+  margin: 0 0 1rem;
+}
+
+.about-page__meta-card ul {
+  margin: 0;
+  padding-left: 1.1rem;
+  display: grid;
+  gap: 0.4rem;
+}
+
+.about-page__skills {
+  padding: 0;
+  list-style: none;
+  display: flex;
+  gap: 0.45rem;
+  flex-wrap: wrap;
+}
+
+.about-page__skills li {
+  padding: 0.4rem 0.65rem;
+  border-radius: 999px;
+  border: 1px solid rgba(228, 236, 253, 0.22);
+  background: rgba(188, 206, 255, 0.12);
+  font-size: 0.88rem;
+}
+
+@media (max-width: 880px) {
+  .about-page__meta-grid {
+    grid-template-columns: 1fr;
+  }
+}

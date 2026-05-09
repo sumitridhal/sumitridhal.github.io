@@ -1,0 +1,6 @@
+{
+  "hero-aurora": "data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 16 9'%3E%3Cdefs%3E%3ClinearGradient id='g' x1='0' y1='0' x2='1' y2='1'%3E%3Cstop stop-color='%23081428'/%3E%3Cstop offset='1' stop-color='%231a4a7a'/%3E%3C/linearGradient%3E%3C/defs%3E%3Crect width='16' height='9' fill='url(%23g)'/%3E%3C/svg%3E",
+  "project-nebula": "data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 12 8'%3E%3Crect width='12' height='8' fill='%23120a1c'/%3E%3C/svg%3E",
+  "project-lattice": "data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 12 8'%3E%3Crect width='12' height='8' fill='%230a1418'/%3E%3C/svg%3E",
+  "project-signal": "data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 12 8'%3E%3Crect width='12' height='8' fill='%23140c0c'/%3E%3C/svg%3E"
+}

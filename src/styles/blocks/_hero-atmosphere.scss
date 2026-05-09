@@ -1,0 +1,336 @@
+@use '../variables' as *;
+
+@import url('https://fonts.cdnfonts.com/css/longsile');
+@import url('https://fonts.cdnfonts.com/css/thegoodmonolith');
+@import url('https://fonts.cdnfonts.com/css/pp-neue-montreal');
+
+.zoom-hero--kinetic {
+  background:
+    radial-gradient(circle at 18% 28%, rgba(116, 194, 160, 0.24), transparent 54%),
+    radial-gradient(circle at 84% 80%, rgba(13, 96, 56, 0.45), transparent 52%),
+    linear-gradient(165deg, #023218 0%, #033f21 58%, #032f19 100%);
+}
+
+.zoom-hero--kinetic .zoom-hero__veil {
+  background:
+    radial-gradient(ellipse 90% 70% at 50% 20%, transparent 38%, rgba(2, 18, 10, 0.5) 100%),
+    linear-gradient(
+      165deg,
+      rgba(3, 50, 30, 0.38) 0%,
+      transparent 45%,
+      rgba(3, 35, 22, 0.42) 100%
+    );
+}
+
+.hero-atmosphere--reduced .hero-atmosphere__hit {
+  pointer-events: none;
+  cursor: default;
+}
+
+.hero-atmosphere--reduced .hero-atmosphere__kinetic {
+  opacity: 0;
+  visibility: hidden;
+}
+
+.hero-atmosphere {
+  --hero-atmo-text: #ffcc00;
+  --hero-atmo-bg: transparent;
+  --hero-atmo-highlight: #ffcc00;
+  --hero-atmo-type-opacity: 0.05;
+
+  position: absolute;
+  inset: 0;
+  z-index: 0;
+  overflow: hidden;
+  pointer-events: none;
+  background-color: var(--hero-atmo-bg);
+  font-family: 'Longsile', ui-sans-serif, system-ui, sans-serif;
+}
+
+.hero-atmosphere__content {
+  position: relative;
+  z-index: 12;
+  pointer-events: auto;
+  overflow: hidden;
+  transition: opacity 0.45s ease;
+}
+
+.hero-atmosphere__content::after {
+  content: '';
+  position: absolute;
+  top: 0;
+  left: -8px;
+  width: 0;
+  height: 100%;
+  background: linear-gradient(
+    90deg,
+    rgba(255, 204, 0, 0.12) 0%,
+    rgba(255, 204, 0, 0.22) 50%,
+    rgba(255, 204, 0, 0.1) 100%
+  );
+  opacity: 0;
+  pointer-events: none;
+  z-index: 20;
+  transition:
+    width 0.5s cubic-bezier(0.34, 1.56, 0.64, 1),
+    opacity 0.3s ease;
+}
+
+.hero-atmosphere__content--highlight::after {
+  width: calc(100% + 16px);
+  opacity: 0.34;
+}
+
+.hero-atmosphere__content--highlight-reverse::after {
+  width: 0;
+  opacity: 0;
+  left: auto;
+  right: -8px;
+}
+
+.hero-atmosphere__gradient-bottom {
+  position: absolute;
+  bottom: 0;
+  left: 0;
+  width: 100%;
+  height: 40vh;
+  background: linear-gradient(to top, rgba(3, 47, 25, 0.92) 0%, rgba(3, 47, 25, 0) 100%);
+  z-index: 1;
+  pointer-events: none;
+}
+
+.hero-atmosphere__text-bg {
+  position: absolute;
+  inset: 0;
+  z-index: 2;
+  pointer-events: none;
+}
+
+.hero-atmosphere__text-item {
+  position: absolute;
+  color: var(--hero-atmo-text);
+  font-size: 0.8rem;
+  text-transform: uppercase;
+  opacity: 0.8;
+  white-space: nowrap;
+  font-family: 'TheGoodMonolith', ui-monospace, monospace;
+  z-index: 0;
+}
+
+.hero-atmosphere__text-item::after {
+  content: '';
+  position: absolute;
+  top: -2px;
+  left: -4px;
+  width: 0;
+  height: calc(100% + 4px);
+  background-color: var(--hero-atmo-highlight);
+  z-index: -1;
+  transition: width 0.5s cubic-bezier(0.34, 1.56, 0.64, 1);
+}
+
+.hero-atmosphere__text-item--highlight::after {
+  width: calc(100% + 8px);
+}
+
+.hero-atmosphere__text-item--highlight-reverse::after {
+  width: 0;
+  right: -4px;
+  left: auto;
+}
+
+.hero-atmosphere__main {
+  position: absolute;
+  inset: 0;
+  z-index: 10;
+  display: flex;
+  flex-direction: column;
+  justify-content: flex-end;
+  align-items: center;
+  padding-bottom: clamp(4rem, 14vh, 9rem);
+  pointer-events: none;
+}
+
+@media (min-width: 681px) {
+  .hero-atmosphere__main {
+    padding-bottom: clamp(5rem, 18vh, 11rem);
+  }
+}
+
+.hero-atmosphere__sliced {
+  position: relative;
+  width: auto;
+  max-width: 100%;
+  transform: translateZ(0);
+  pointer-events: none;
+}
+
+.hero-atmosphere__text-row {
+  position: relative;
+  width: 100%;
+  height: clamp(52px, 10vh, 100px);
+  margin: 6px 0;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  overflow: visible;
+  z-index: 100;
+}
+
+.hero-atmosphere__text-content,
+.hero-atmosphere__char,
+.hero-atmosphere__char-inner {
+  -webkit-font-smoothing: antialiased;
+  -moz-osx-font-smoothing: grayscale;
+  text-rendering: optimizeLegibility;
+  transform: translateZ(0);
+  will-change: transform;
+  backface-visibility: hidden;
+}
+
+.hero-atmosphere__text-content {
+  position: relative;
+  font-size: clamp(2.2rem, 8vw, 5.5rem);
+  font-weight: normal;
+  text-transform: uppercase;
+  height: 100%;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  z-index: 1;
+  color: var(--hero-atmo-text);
+  letter-spacing: 0;
+  transition: letter-spacing 0.5s ease;
+  visibility: visible;
+  font-family: 'Longsile', ui-sans-serif, system-ui, sans-serif;
+}
+
+.hero-atmosphere__text-row--active .hero-atmosphere__text-content {
+  letter-spacing: 4px;
+}
+
+.hero-atmosphere__char {
+  display: inline-block;
+  position: relative;
+  overflow: hidden;
+  max-width: 80px;
+  transition: max-width 0.64s cubic-bezier(0.86, 0, 0.07, 1);
+  margin-right: 0;
+}
+
+.hero-atmosphere__text-row--active .hero-atmosphere__char::after {
+  content: '';
+  position: absolute;
+  top: 0;
+  right: 0;
+  width: 1px;
+  height: 80%;
+  background-color: rgba(255, 204, 0, 0.2);
+  transform: none;
+  opacity: 0;
+  animation: hero-atmo-fadeIn 0.3s forwards;
+  animation-delay: calc(var(--char-index, 0) * 0.05s);
+}
+
+@keyframes hero-atmo-fadeIn {
+  to {
+    opacity: 1;
+  }
+}
+
+.hero-atmosphere__char:last-child::after {
+  display: none;
+}
+
+.hero-atmosphere__char-inner {
+  position: relative;
+  display: inline-block;
+  width: 100%;
+  height: 100%;
+  will-change: transform;
+  transform: translate3d(-12px, 0, 0);
+}
+
+.hero-atmosphere__hit {
+  position: absolute;
+  inset: 0;
+  z-index: 10;
+  pointer-events: none;
+}
+
+.hero-atmosphere__kinetic {
+  position: absolute;
+  height: 100vmax;
+  width: 100vmax;
+  text-transform: uppercase;
+  display: grid;
+  justify-content: center;
+  align-content: center;
+  text-align: center;
+  top: 50%;
+  left: 50%;
+  margin-top: -50vmax;
+  margin-left: -50vmax;
+  will-change: transform;
+  z-index: 5;
+  transform-style: preserve-3d;
+  pointer-events: none;
+  opacity: 1;
+}
+
+.hero-atmosphere__type-line {
+  white-space: nowrap;
+  font-size: clamp(3rem, 12vmin, 9rem);
+  line-height: 0.75;
+  font-weight: bold;
+  font-family: 'PP Neue Montreal', 'Neue Montreal', ui-sans-serif, system-ui, sans-serif;
+  color: #ffffff;
+  opacity: var(--hero-atmo-type-opacity);
+  user-select: none;
+  will-change: transform, opacity;
+  position: relative;
+}
+
+.hero-atmosphere__type-line--odd {
+  z-index: 50;
+}
+
+.hero-atmosphere__type-line--even {
+  z-index: 150;
+}
+
+@media screen and (max-width: 768px) {
+  .hero-atmosphere__text-content {
+    font-size: clamp(1.75rem, 11vw, 3.5rem);
+  }
+
+  .hero-atmosphere__text-row {
+    height: clamp(44px, 9vh, 72px);
+    margin: 4px 0;
+  }
+
+  .hero-atmosphere__text-item {
+    font-size: 0.65rem;
+  }
+
+  .hero-atmosphere__type-line {
+    font-size: clamp(2rem, 8vmin, 5rem);
+  }
+}
+
+@media (prefers-reduced-motion: reduce) {
+  .hero-atmosphere__char,
+  .hero-atmosphere__text-content,
+  .hero-atmosphere__text-item::after {
+    transition: none;
+  }
+
+  .hero-atmosphere__text-row--active .hero-atmosphere__text-content {
+    letter-spacing: 0;
+  }
+
+  .hero-atmosphere__text-row--active .hero-atmosphere__char::after {
+    animation: none;
+    opacity: 0;
+  }
+}

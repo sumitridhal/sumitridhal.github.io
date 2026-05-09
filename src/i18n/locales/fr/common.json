@@ -1,0 +1,11 @@
+{
+  "brand": "Sumit Ridhal",
+  "tagline": "Ingénierie créative pour le web ouvert",
+  "ctaWork": "Voir les projets",
+  "ctaContact": "Lancer un projet",
+  "sections": {
+    "hero": "Intro",
+    "work": "Projets",
+    "aboutTeaser": "Profil"
+  }
+}

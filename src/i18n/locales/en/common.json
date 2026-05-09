@@ -1,0 +1,11 @@
+{
+  "brand": "Sumit Ridhal",
+  "tagline": "Principal Software Engineer",
+  "ctaWork": "View work",
+  "ctaContact": "Start a project",
+  "sections": {
+    "hero": "Intro",
+    "work": "Selected work",
+    "aboutTeaser": "Profile"
+  }
+}

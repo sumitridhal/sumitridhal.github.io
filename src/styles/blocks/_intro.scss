@@ -1,0 +1,87 @@
+@use '../variables' as *;
+
+@import url('https://fonts.cdnfonts.com/css/longsile');
+
+.intro {
+  position: fixed;
+  inset: 0;
+  z-index: 60;
+  display: grid;
+  place-items: center;
+  background:
+    radial-gradient(circle at 18% 28%, rgba(116, 194, 160, 0.24), transparent 54%),
+    radial-gradient(circle at 84% 80%, rgba(13, 96, 56, 0.45), transparent 52%),
+    linear-gradient(165deg, #023218 0%, #033f21 58%, #032f19 100%);
+  opacity: 1;
+}
+
+.intro__veil {
+  position: absolute;
+  inset: 0;
+  pointer-events: none;
+  background:
+    radial-gradient(ellipse 90% 70% at 50% 20%, transparent 38%, rgba(2, 18, 10, 0.5) 100%),
+    linear-gradient(
+      165deg,
+      rgba(3, 50, 30, 0.38) 0%,
+      transparent 45%,
+      rgba(3, 35, 22, 0.42) 100%
+    );
+}
+
+.intro__inner {
+  position: relative;
+  z-index: 1;
+  text-align: center;
+  padding: 2rem;
+}
+
+.intro__line {
+  margin: 0;
+  font-family:
+    'Longsile',
+    ui-sans-serif,
+    system-ui,
+    sans-serif;
+  font-size: clamp(2.35rem, 7vw, 4.85rem);
+  letter-spacing: 0.06em;
+  line-height: 1.06;
+  text-transform: uppercase;
+  color: #ffcc00;
+}
+
+.intro__sub {
+  margin: 1.05rem 0 0;
+  font-family:
+    'Longsile',
+    ui-sans-serif,
+    system-ui,
+    sans-serif;
+  letter-spacing: 0.42em;
+  text-transform: uppercase;
+  font-size: clamp(0.55rem, 1.05vw, 0.82rem);
+  color: rgba(231, 245, 235, 0.78);
+}
+
+.intro__sub--tracked {
+  letter-spacing: 0.52em;
+}
+
+.intro__char {
+  display: inline-block;
+  overflow: hidden;
+  vertical-align: bottom;
+  margin-inline: -0.01em;
+  max-height: 3px;
+  will-change: max-height;
+}
+
+.intro__char--space .intro__char-inner {
+  min-width: 0.28em;
+  display: inline-block;
+}
+
+.intro__char-inner {
+  display: inline-block;
+  will-change: transform;
+}

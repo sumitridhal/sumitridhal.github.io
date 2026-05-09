@@ -1,0 +1,248 @@
+{
+  "home": {
+    "workHeading": "Projets choisis",
+    "blogHeading": "Ecrits",
+    "booksHeading": "Bibliotheque",
+    "aboutHeading": "À propos",
+    "aboutLead": "Ingenieur et auteur : produits full-stack, microservices et experiences guidees par l'IA. Je pilote les workflows agentiques et l'UX/UI IA chez Red Hat.",
+    "heroAtmosphere": {
+      "rows": {
+        "1": "INGÉNIEUR",
+        "2": "CRÉATIF&DÉVELOPPEUR",
+        "3": "MENTOR"
+      },
+      "kinetic": {
+        "engineer": "ingenieur",
+        "systems": "systemes",
+        "mentor": "mentor"
+      },
+      "floaters": {
+        "principal": {
+          "base": "PRINCIPAL",
+          "alt1": "SENIOR",
+          "alt2": "TECH LEAD",
+          "alt3": "MENTOR"
+        },
+        "engineer": {
+          "base": "INGÉNIEUR",
+          "alt1": "RÉSOLVEUR",
+          "alt2": "PENSEUR SYSTÈME",
+          "alt3": "MAKER"
+        },
+        "aiWorkflows": {
+          "base": "WORKFLOWS IA",
+          "alt1": "ORCHESTRATION D'AGENTS",
+          "alt2": "ROUTAGE MODÈLES",
+          "alt3": "HUMAIN + IA"
+        },
+        "react18": {
+          "base": "REACT 18",
+          "alt1": "EXCELLENCE FRONT",
+          "alt2": "UIS INTERACTIVES",
+          "alt3": "MOTION UX"
+        },
+        "nodejs": {
+          "base": "NODE.JS",
+          "alt1": "EXÉCUTION BACKEND",
+          "alt2": "SERVICE MESH",
+          "alt3": "CŒUR STABLE"
+        },
+        "amp": {
+          "base": "&",
+          "alt1": "+",
+          "alt2": "→",
+          "alt3": "="
+        },
+        "kubernetes": {
+          "base": "KUBERNETES",
+          "alt1": "CLOUD NATIVE",
+          "alt2": "MONTÉE EN CHARGE",
+          "alt3": "EXPLOITABILITÉ"
+        },
+        "redHat": {
+          "base": "RED HAT",
+          "alt1": "IMPACT ENTREPRISE",
+          "alt2": "ÉQUIPE PLATEFORME",
+          "alt3": "OPEN SOURCE"
+        },
+        "vercelAiSdk": {
+          "base": "VERCEL AI SDK",
+          "alt1": "OUTILS AVANCÉS",
+          "alt2": "OUTILS AGENTS",
+          "alt3": "EXPÉRIMENTATION"
+        },
+        "productionUx": {
+          "base": "UX EN PRODUCTION",
+          "alt1": "VALEUR UTILISATEUR",
+          "alt2": "IMPACT MESURÉ",
+          "alt3": "PLAISIR"
+        },
+        "performance": {
+          "base": "PERFORMANCES",
+          "alt1": "FAIBLE LATENCE",
+          "alt2": "BUDGETS",
+          "alt3": "RÉACTIF"
+        },
+        "platforms": {
+          "base": "PLATEFORMES",
+          "alt1": "INTÉGRATIONS",
+          "alt2": "APIS",
+          "alt3": "COHÉSION"
+        },
+        "reliability": {
+          "base": "FIABILITÉ",
+          "alt1": "RÉSILIENCE",
+          "alt2": "SRE",
+          "alt3": "CONFIANCE"
+        },
+        "delivery": {
+          "base": "LIVRAISON",
+          "alt1": "VITESSE",
+          "alt2": "ROLLBACK SÛR",
+          "alt3": "RÉGULARITÉ"
+        },
+        "letterP": {
+          "base": "P",
+          "alt1": "PRÉCISION",
+          "alt2": "PATTERNS",
+          "alt3": "AISANCE"
+        },
+        "letterR": {
+          "base": "R",
+          "alt1": "RIGUEUR",
+          "alt2": "RUNTIME",
+          "alt3": "RYTHME"
+        },
+        "letterA": {
+          "base": "A",
+          "alt1": "ARCHITECTURE",
+          "alt2": "AUTOMATION",
+          "alt3": "ATTITUDE"
+        },
+        "letterG": {
+          "base": "G",
+          "alt1": "GARDE",
+          "alt2": "GITOPS",
+          "alt3": "CROISSANCE"
+        },
+        "letterM": {
+          "base": "M",
+          "alt1": "MESURE",
+          "alt2": "MONITORAGE",
+          "alt3": "MOMENT"
+        },
+        "letterT": {
+          "base": "T",
+          "alt1": "TRACE",
+          "alt2": "TRACES",
+          "alt3": "TON"
+        },
+        "letterI": {
+          "base": "I",
+          "alt1": "INSIGHT",
+          "alt2": "INCIDENTS",
+          "alt3": "INTENTION"
+        },
+        "letterS": {
+          "base": "S",
+          "alt1": "SLOs",
+          "alt2": "SECURITY",
+          "alt3": "STORY"
+        },
+        "letterIntro": {
+          "base": "LIVRAISON À TDV",
+          "alt1": "À L'HEURE",
+          "alt2": "RISQUE RÉDUIT",
+          "alt3": "JUSTE TAILLE"
+        },
+        "agenticSystems": {
+          "base": "SYSTÈMES AGENTIQUES",
+          "alt1": "PRODUITS IA",
+          "alt2": "WORKFLOW ENGINES",
+          "alt3": "READY FUTUR"
+        },
+        "enterpriseScale": {
+          "base": "ÉCHELLE ENTREPRISE",
+          "alt1": "HAUT DÉBIT",
+          "alt2": "MULTI-TENANT",
+          "alt3": "VALEUR DURABLE"
+        },
+        "mentoring": {
+          "base": "MENTORAT",
+          "alt1": "COACHING",
+          "alt2": "CROISSANCE ÉQUIPE",
+          "alt3": "ACCOMPAGNEMENT"
+        },
+        "communities": {
+          "base": "COMMUNAUTÉS",
+          "alt1": "PARTAGE DE SAVOIR",
+          "alt2": "MEETUPS",
+          "alt3": "CONNEXION"
+        },
+        "deploymentStat": {
+          "base": "DÉPLOIEMENT -80%",
+          "alt1": "RÉDUCTION LEAD TIME",
+          "alt2": "GAINS PIPELINE",
+          "alt3": "VÉLOCITÉ ÉQUIPE"
+        },
+        "usersStat": {
+          "base": "10K+ UTILISATEURS",
+          "alt1": "ADOPTION",
+          "alt2": "ÉCHELLE PLATEFORME",
+          "alt3": "IMPACT RÉEL"
+        },
+        "engineering": {
+          "base": "INGÉNIERIE",
+          "alt1": "CRAFTSMANSHIP",
+          "alt2": "SOLUTION DESIGN",
+          "alt3": "CURIOSITÉ"
+        },
+        "leadership": {
+          "base": "LEADERSHIP",
+          "alt1": "PROPRIÉTÉ",
+          "alt2": "ALIGNEMENT",
+          "alt3": "EMPATHIE"
+        },
+        "clarity": {
+          "base": "CLARTÉ",
+          "alt1": "COMMUNICATION",
+          "alt2": "DOCUMENTATION",
+          "alt3": "FOCUS"
+        },
+        "execution": {
+          "base": "EXÉCUTION",
+          "alt1": "LIVRAISON",
+          "alt2": "PRIORISATION",
+          "alt3": "SUIVI"
+        },
+        "automate": {
+          "base": "AUTOMATISER",
+          "alt1": "PIPELINES",
+          "alt2": "IAC",
+          "alt3": "SUPPRIMER TOIL"
+        },
+        "iterate": {
+          "base": "ITÉRER",
+          "alt1": "SHIP RAPIDE",
+          "alt2": "DELIVERY CONTINUE",
+          "alt3": "APPRENDRE VITE"
+        }
+      }
+    }
+  },
+  "about": {
+    "title": "À propos",
+    "body": "Ingenieur logiciel principal avec une expertise approfondie en React, Node.js, microservices et architecture d'applications centrees sur l'IA.",
+    "kicker": "Profil",
+    "experienceHeading": "Experience professionnelle",
+    "skillsHeading": "Competences cles",
+    "educationHeading": "Formation",
+    "communityHeading": "Communaute"
+  },
+  "project": {
+    "back": "Tous les projets",
+    "role": "Rôle",
+    "year": "Année",
+    "stack": "Stack"
+  }
+}

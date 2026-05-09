@@ -1,0 +1,23 @@
+@use '../variables' as *;
+
+.webgl-canvas {
+  position: absolute;
+  inset: 0;
+  overflow: hidden;
+}
+
+.webgl-canvas__gl {
+  display: block;
+  width: 100%;
+  height: 100%;
+}
+
+.webgl-canvas--static {
+  background: radial-gradient(
+      120% 80% at 20% 10%,
+      rgba(91, 192, 190, 0.35),
+      transparent 55%
+    ),
+    radial-gradient(90% 70% at 80% 0%, rgba(255, 77, 109, 0.35), transparent 50%),
+    linear-gradient(165deg, #05060a, #0a1428 45%, #05060a);
+}

@@ -1,0 +1,54 @@
+@use '../variables' as *;
+
+.project-page {
+  padding: calc(#{$header-h} + 2rem) 1.5rem 4rem;
+}
+
+.project-page__back {
+  display: inline-flex;
+  margin-bottom: 1.5rem;
+  font-size: 0.85rem;
+  letter-spacing: 0.12em;
+  text-transform: uppercase;
+  color: $color-muted;
+  border-bottom: 1px solid rgba(255, 255, 255, 0.12);
+  padding-bottom: 0.2rem;
+}
+
+.project-page__title {
+  font-family: $font-display;
+  font-size: clamp(2rem, 5vw, 3.2rem);
+  font-weight: 800;
+  letter-spacing: -0.04em;
+  margin: 0 0 1rem;
+}
+
+.project-page__tagline {
+  margin: 0 0 2rem;
+  font-size: 1.1rem;
+  color: $color-muted;
+  max-width: 40rem;
+  line-height: 1.55;
+}
+
+.project-page__meta {
+  list-style: none;
+  margin: 0 0 2rem;
+  padding: 0;
+  display: grid;
+  gap: 0.75rem;
+  font-size: 0.95rem;
+  color: $color-muted;
+}
+
+.project-page__meta strong {
+  color: $color-text;
+  font-weight: 600;
+}
+
+.project-page__figure {
+  margin: 0;
+  border-radius: $radius-lg;
+  overflow: hidden;
+  border: 1px solid rgba(255, 255, 255, 0.08);
+}
