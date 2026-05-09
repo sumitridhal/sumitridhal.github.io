@@ -13,6 +13,11 @@ export const HOME: Metadata = {
   DESCRIPTION: "Astro Nano is a minimal and lightweight blog and portfolio.",
 };
 
+export const ABOUT: Metadata = {
+  TITLE: "About",
+  DESCRIPTION: "A short introduction and selected writing.",
+};
+
 export const BLOG: Metadata = {
   TITLE: "Blog",
   DESCRIPTION: "A collection of articles on topics I am passionate about.",
