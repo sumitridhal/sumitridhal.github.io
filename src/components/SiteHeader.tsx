@@ -64,10 +64,6 @@ export function SiteHeader() {
     }
   }, [langOpen])
 
-  useEffect(() => {
-    setLangOpen(false)
-  }, [location.pathname])
-
   if (isHomeRoute) {
     return (
       <header className="site-header site-header--home">
@@ -117,13 +113,6 @@ export function SiteHeader() {
 
   return (
     <header className="site-header">
-      <button
-        type="button"
-        className="site-header__brand"
-        onClick={() => navigate(hrefHome(locale))}
-      >
-        {t('common.brand')}
-      </button>
       <nav className="site-header__nav" aria-label="Primary">
         <button
           type="button"
