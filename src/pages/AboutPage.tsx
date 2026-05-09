@@ -20,9 +20,6 @@ type AboutContent = {
   lead: string
   highlights: string[]
   experience: ExperienceItem[]
-  skills: string[]
-  education: string
-  community: string[]
 }
 
 export function AboutPage() {
@@ -94,25 +91,6 @@ export function AboutPage() {
             ],
           },
         ],
-        skills: [
-          'Agentic Workflows',
-          'Vercel AI SDK',
-          'React 18',
-          'TypeScript 5',
-          'Node.js 18',
-          'GraphQL',
-          'PostgreSQL',
-          'Kubernetes',
-          'Docker',
-          'GitHub Actions',
-        ],
-        education:
-          'B.Tech. in Computer Science, Guru Gobind Singh Indraprastha University (2013)',
-        community: [
-          'Organizer, Pune JavaScript Group (2022 - Present)',
-          'Hackathon Mentor, TechFest India (2022 - 2023)',
-          'Volunteer, Natural History Society of Northumbria (2023)',
-        ],
       },
       de: {
         headline: 'Principal Software Engineer',
@@ -177,25 +155,6 @@ export function AboutPage() {
               },
             ],
           },
-        ],
-        skills: [
-          'Agentische Workflows',
-          'Vercel AI SDK',
-          'React 18',
-          'TypeScript 5',
-          'Node.js 18',
-          'GraphQL',
-          'PostgreSQL',
-          'Kubernetes',
-          'Docker',
-          'GitHub Actions',
-        ],
-        education:
-          'Bachelor of Technology in Informatik, Guru Gobind Singh Indraprastha University (2013)',
-        community: [
-          'Organizer, Pune JavaScript Group (2022 - Heute)',
-          'Hackathon Mentor, TechFest India (2022 - 2023)',
-          'Volunteer, Natural History Society of Northumbria (2023)',
         ],
       },
       fr: {
@@ -262,25 +221,6 @@ export function AboutPage() {
             ],
           },
         ],
-        skills: [
-          'Workflows agentiques',
-          'Vercel AI SDK',
-          'React 18',
-          'TypeScript 5',
-          'Node.js 18',
-          'GraphQL',
-          'PostgreSQL',
-          'Kubernetes',
-          'Docker',
-          'GitHub Actions',
-        ],
-        education:
-          'B.Tech informatique, Guru Gobind Singh Indraprastha University (2013)',
-        community: [
-          'Organisateur, Pune JavaScript Group (2022 - présent)',
-          'Mentor hackathon, TechFest India (2022 - 2023)',
-          'Bénévole, Natural History Society of Northumbria (2023)',
-        ],
       },
       hi: {
         headline: 'प्रमुख सॉफ्टवेयर इंजीनियर',
@@ -346,25 +286,6 @@ export function AboutPage() {
             ],
           },
         ],
-        skills: [
-          'Agentic Workflows',
-          'Vercel AI SDK',
-          'React 18',
-          'TypeScript 5',
-          'Node.js 18',
-          'GraphQL',
-          'PostgreSQL',
-          'Kubernetes',
-          'Docker',
-          'GitHub Actions',
-        ],
-        education:
-          'कंप्यूटर साइंस में B.Tech, गुरु गोबिंद सिंह इंद्रप्रस्थ विश्वविद्यालय (2013)',
-        community: [
-          'आयोजक, Pune JavaScript Group (2022 - वर्तमान)',
-          'हैकाथॉन मेंटॉर, TechFest India (2022 - 2023)',
-          'स्वयंसेवक, Natural History Society of Northumbria (2023)',
-        ],
       },
     }
   }, [])
@@ -409,27 +330,6 @@ export function AboutPage() {
             </article>
           ))}
         </div>
-      </section>
-
-      <section className="about-page__meta-grid">
-        <article className="about-page__meta-card">
-          <h2>{t('pages.about.skillsHeading')}</h2>
-          <ul className="about-page__skills">
-            {localized.skills.map((skill) => (
-              <li key={skill}>{skill}</li>
-            ))}
-          </ul>
-        </article>
-        <article className="about-page__meta-card">
-          <h2>{t('pages.about.educationHeading')}</h2>
-          <p>{localized.education}</p>
-          <h2>{t('pages.about.communityHeading')}</h2>
-          <ul>
-            {localized.community.map((item) => (
-              <li key={item}>{item}</li>
-            ))}
-          </ul>
-        </article>
       </section>
     </article>
   )
