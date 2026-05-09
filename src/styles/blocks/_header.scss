@@ -11,6 +11,7 @@
   padding: 0 1.5rem;
   mix-blend-mode: difference;
   color: #fff;
+  width: max-content;
 }
 
 .site-header--home {
@@ -49,6 +50,7 @@
 }
 
 .site-header__lang-icon {
+  stroke: #ac9228;
   width: 1.25rem;
   height: 1.25rem;
 }
