@@ -37,3 +37,7 @@ export function hrefWork(locale: Locale, projectSlug: string): string {
 export function hrefHome(locale: Locale): string {
   return `/${locale}`;
 }
+
+export function hrefWriting(locale: Locale, slug: string): string {
+  return `/${locale}/writing/${slug}`;
+}
