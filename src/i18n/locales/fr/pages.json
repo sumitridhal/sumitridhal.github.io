@@ -234,15 +234,35 @@
     "title": "À propos",
     "body": "Ingenieur logiciel principal avec une expertise approfondie en React, Node.js, microservices et architecture d'applications centrees sur l'IA.",
     "kicker": "Profil",
-    "experienceHeading": "Experience professionnelle",
-    "skillsHeading": "Competences cles",
-    "educationHeading": "Formation",
-    "communityHeading": "Communaute"
+    "experienceHeading": "Experience professionnelle"
   },
   "project": {
     "back": "Tous les projets",
     "role": "Rôle",
     "year": "Année",
     "stack": "Stack"
+  },
+  "writing": {
+    "back": "Tous les textes"
+  },
+  "footer": {
+    "intro": "Ingenieur et auteur — explorer des idees via le logiciel, des notes et des experiences. Ce site rassemble des projets choisis et des articles occasionnels.",
+    "exploreHeading": "Explorer",
+    "linkWork": "Projets",
+    "linkWritings": "Ecrits",
+    "linkAbout": "À propos",
+    "tagline": "Ouvert aux collaborations interessantes et au mentorat.",
+    "latestHeading": "Dernier article",
+    "readPostCta": "Lire l'article",
+    "elsewhereHeading": "Ailleurs",
+    "emptyWritings": "De nouveaux articles arrivent bientot.",
+    "social": {
+      "githubLabel": "GitHub",
+      "githubHref": "https://github.com/sumitridhal",
+      "linkedinLabel": "LinkedIn",
+      "linkedinHref": "https://www.linkedin.com/in/sumitridhal",
+      "viewAll": "Tout voir",
+      "viewAllHref": "https://github.com/sumitridhal"
+    }
   }
 }

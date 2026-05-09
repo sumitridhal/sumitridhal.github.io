@@ -234,15 +234,35 @@
     "title": "About",
     "body": "Principal Software Engineer with deep expertise in React, Node.js, microservices, and AI-centric application architecture.",
     "kicker": "Profile",
-    "experienceHeading": "Work experience",
-    "skillsHeading": "Core skills",
-    "educationHeading": "Education",
-    "communityHeading": "Community involvement"
+    "experienceHeading": "Work experience"
   },
   "project": {
     "back": "All work",
     "role": "Role",
     "year": "Year",
     "stack": "Stack"
+  },
+  "writing": {
+    "back": "All writings"
+  },
+  "footer": {
+    "intro": "Engineer and writer exploring ideas through software, notes, and experiments. This site collects selected work and occasional long-form notes.",
+    "exploreHeading": "Explore",
+    "linkWork": "Work",
+    "linkWritings": "Writings",
+    "linkAbout": "About",
+    "tagline": "Open to interesting collaborations and mentoring conversations.",
+    "latestHeading": "Latest blog",
+    "readPostCta": "Read post",
+    "elsewhereHeading": "Elsewhere",
+    "emptyWritings": "New writing is on the way. Check back soon.",
+    "social": {
+      "githubLabel": "GitHub",
+      "githubHref": "https://github.com/sumitridhal",
+      "linkedinLabel": "LinkedIn",
+      "linkedinHref": "https://www.linkedin.com/in/sumitridhal",
+      "viewAll": "View all",
+      "viewAllHref": "https://github.com/sumitridhal"
+    }
   }
 }

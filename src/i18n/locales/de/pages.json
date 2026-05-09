@@ -234,15 +234,35 @@
     "title": "Ueber",
     "body": "Principal Software Engineer mit fundierter Erfahrung in React, Node.js, Microservices und KI-zentrierter Applikationsarchitektur.",
     "kicker": "Profil",
-    "experienceHeading": "Berufserfahrung",
-    "skillsHeading": "Kernkompetenzen",
-    "educationHeading": "Ausbildung",
-    "communityHeading": "Community Engagement"
+    "experienceHeading": "Berufserfahrung"
   },
   "project": {
     "back": "Alle Projekte",
     "role": "Rolle",
     "year": "Jahr",
     "stack": "Stack"
+  },
+  "writing": {
+    "back": "Alle Texte"
+  },
+  "footer": {
+    "intro": "Ingenieur und Autor — Ideen durch Software, Notizen und Experimente. Diese Seite sammelt ausgewaehlte Arbeit und gelegentlich laengere Texte.",
+    "exploreHeading": "Entdecken",
+    "linkWork": "Arbeit",
+    "linkWritings": "Texte",
+    "linkAbout": "Ueber",
+    "tagline": "Offen fuer spannende Kooperationen und Mentoring.",
+    "latestHeading": "Neuester Blog",
+    "readPostCta": "Beitrag lesen",
+    "elsewhereHeading": "Woanders",
+    "emptyWritings": "Neue Texte folgen bald.",
+    "social": {
+      "githubLabel": "GitHub",
+      "githubHref": "https://github.com/sumitridhal",
+      "linkedinLabel": "LinkedIn",
+      "linkedinHref": "https://www.linkedin.com/in/sumitridhal",
+      "viewAll": "Alle anzeigen",
+      "viewAllHref": "https://github.com/sumitridhal"
+    }
   }
 }

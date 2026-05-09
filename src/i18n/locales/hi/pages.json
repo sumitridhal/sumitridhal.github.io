@@ -234,15 +234,35 @@
     "title": "परिचय",
     "body": "React, Node.js, माइक्रोसर्विसेज़ और AI-केंद्रित आर्किटेक्चर में गहरी विशेषज्ञता के साथ प्रिंसिपल सॉफ्टवेयर इंजीनियर।",
     "kicker": "प्रोफ़ाइल",
-    "experienceHeading": "अनुभव",
-    "skillsHeading": "मुख्य कौशल",
-    "educationHeading": "शिक्षा",
-    "communityHeading": "समुदाय"
+    "experienceHeading": "अनुभव"
   },
   "project": {
     "back": "सभी प्रोजेक्ट",
     "role": "भूमिका",
     "year": "वर्ष",
     "stack": "स्टैक"
+  },
+  "writing": {
+    "back": "सभी लेख"
+  },
+  "footer": {
+    "intro": "सॉफ्टवेयर, नोट्स और प्रयोगों के ज़रिए विचारों की खोज करने वाले इंजीनियर और लेखक। यहाँ चुनिंदा काम और लंबे लेख इकट्ठे हैं।",
+    "exploreHeading": "खोजें",
+    "linkWork": "काम",
+    "linkWritings": "लेख",
+    "linkAbout": "परिचय",
+    "tagline": "दिलचस्प सहयोग और मेंटरिंग बातचीत के लिए तैयार।",
+    "latestHeading": "नवीनतम ब्लॉग",
+    "readPostCta": "पोस्ट पढ़ें",
+    "elsewhereHeading": "अन्य जगह",
+    "emptyWritings": "नए लेख जल्द आएंगे।",
+    "social": {
+      "githubLabel": "GitHub",
+      "githubHref": "https://github.com/sumitridhal",
+      "linkedinLabel": "LinkedIn",
+      "linkedinHref": "https://www.linkedin.com/in/sumitridhal",
+      "viewAll": "सभी देखें",
+      "viewAllHref": "https://github.com/sumitridhal"
+    }
   }
 }
