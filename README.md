@@ -71,3 +71,11 @@ export default defineConfig([
   },
 ])
 ```
+
+## Publishing to GitHub Pages
+
+This repository deploys with [`.github/workflows/deploy-pages.yml`](.github/workflows/deploy-pages.yml) (build to `dist`, copy `index.html` to `404.html` for client-side routing).
+
+**One-time setup on GitHub:** open **Settings → Pages → Build and deployment**, set **Source** to **GitHub Actions**, then save. Until that is set, the **deploy** job can fail while **build** succeeds.
+
+After enabling, push any commit or use **Actions → Deploy to GitHub Pages → Run workflow** to redeploy. The site URL is [https://sumitridhal.github.io/](https://sumitridhal.github.io/).
