@@ -12,18 +12,17 @@ import 'locomotive-scroll/dist/locomotive-scroll.css'
 import { HeroAtmosphere } from '@/components/HeroAtmosphere'
 import { useI18n } from '@/contexts/I18nContext'
 import { projects } from '@/data/projectsData'
-import { hrefAbout, hrefWork, type Locale } from '@/i18n/routes'
+import { writings } from '@/data/writingsData'
+import {
+  hrefAbout,
+  hrefWork,
+  hrefWriting,
+  type Locale,
+} from '@/i18n/routes'
 import { usePrefersReducedMotion } from '@/hooks/usePrefersReducedMotion'
 import { useLenis } from '@/providers/LenisProvider'
 import { lenisService } from '@/services/lenisService'
 import { preloadImages } from '@/utils/imagePreloadCache'
-
-type WritingItem = {
-  id: string
-  title: Record<Locale, string>
-  date: string
-  category: string
-}
 
 type BookItem = {
   id: string
@@ -46,42 +45,6 @@ function spineWidthFromPages(pages: number): string {
   const t = (clamped - minPages) / (maxPages - minPages)
   return `${Math.round(minW + t * (maxW - minW))}px`
 }
-
-const writings: WritingItem[] = [
-  {
-    id: 'making-claude-code-shareable',
-    title: {
-      en: 'Making Claude Code sessions shareable',
-      de: 'Claude-Code-Sitzungen teilbar machen',
-      fr: 'Rendre les sessions Claude Code partageables',
-      hi: 'Claude Code सत्र साझा करने योग्य बनाना',
-    },
-    date: '16/02',
-    category: 'Dev',
-  },
-  {
-    id: 'claude-code-bash-mode',
-    title: {
-      en: 'Claude Code bash mode',
-      de: 'Claude-Code-Bash-Modus',
-      fr: 'Mode bash Claude Code',
-      hi: 'Claude Code बैश मोड',
-    },
-    date: '20/01',
-    category: 'TIL',
-  },
-  {
-    id: 'vibe-coding-bookshelf',
-    title: {
-      en: 'Vibe coding a bookshelf with Claude Code',
-      de: 'Ein Buecherregal mit Claude Code bauen',
-      fr: 'Coder une bibliotheque avec Claude Code',
-      hi: 'Claude Code के साथ वाइब कोडिंग बुकशेल्फ',
-    },
-    date: '27/12',
-    category: 'Dev',
-  },
-]
 
 const bookshelf: BookItem[] = [
   {
@@ -303,15 +266,10 @@ export function HomePage() {
   }, [])
 
   useEffect(() => {
-    document.body.classList.add('home-theme')
-    return () => {
-      document.body.classList.remove('home-theme')
-    }
-  }, [])
-
-  useEffect(() => {
-    if (location.hash !== '#work') return
-    const el = document.getElementById('work')
+    const hash = location.hash
+    const sectionId = hash === '#work' ? 'work' : hash === '#writings' ? 'writings' : null
+    if (!sectionId) return
+    const el = document.getElementById(sectionId)
     if (!el) return
     const id = requestAnimationFrame(() => {
       const lenis = lenisService.instance
@@ -475,11 +433,16 @@ export function HomePage() {
         <h2 className="home-listing__heading">{t('pages.home.blogHeading')}</h2>
         <div className="home-listing__rows" role="list">
           {writings.map((item) => (
-            <article key={item.id} className="home-listing__row" role="listitem">
+            <Link
+              key={item.id}
+              to={hrefWriting(locale, item.id)}
+              className="home-listing__row"
+              role="listitem"
+            >
               <p className="home-listing__title">{item.title[locale]}</p>
               <p className="home-listing__date">{item.date}</p>
               <span className="home-listing__tag">{item.category}</span>
-            </article>
+            </Link>
           ))}
         </div>
       </section>
