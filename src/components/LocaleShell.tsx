@@ -1,13 +1,25 @@
+import { useEffect } from 'react'
 import { Navigate, Outlet, useParams } from 'react-router-dom'
 
 import { defaultLocale, isLocale } from '@/i18n/routes'
 
 import { MobileMenu } from '@/components/MobileMenu'
+import { SiteFooter } from '@/components/SiteFooter'
 import { SiteHeader } from '@/components/SiteHeader'
 
 export function LocaleShell() {
   const { lang } = useParams<{ lang: string }>()
-  if (!isLocale(lang)) {
+  const localeOk = isLocale(lang)
+
+  useEffect(() => {
+    if (!localeOk) return
+    document.body.classList.add('home-theme')
+    return () => {
+      document.body.classList.remove('home-theme')
+    }
+  }, [localeOk])
+
+  if (!localeOk) {
     return <Navigate to={`/${defaultLocale}`} replace />
   }
 
@@ -18,6 +30,7 @@ export function LocaleShell() {
         <main className="app__main">
           <Outlet />
         </main>
+        <SiteFooter />
       </div>
       <MobileMenu />
     </div>
