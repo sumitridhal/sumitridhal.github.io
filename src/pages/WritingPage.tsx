@@ -30,16 +30,16 @@ export function WritingPage() {
 
   const writing = useMemo(() => getWritingBySlug(slug), [slug])
   const paragraphs = useMemo(
-    () => (writing ? paragraphsForWriting(writing, locale) : []),
-    [writing, locale],
+    () => (writing ? paragraphsForWriting(writing) : []),
+    [writing],
   )
   const titleLines = useMemo(
-    () => (writing ? titleLinesForWriting(writing, locale) : []),
-    [writing, locale],
+    () => (writing ? titleLinesForWriting(writing) : []),
+    [writing],
   )
   const asideParagraphs = useMemo(
-    () => (writing ? asideParagraphsForWriting(writing, locale) : []),
-    [writing, locale],
+    () => (writing ? asideParagraphsForWriting(writing) : []),
+    [writing],
   )
   const figureRows = writing?.figureRows ?? []
 
