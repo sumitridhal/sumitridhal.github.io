@@ -243,7 +243,13 @@
     "stack": "Stack"
   },
   "writing": {
-    "back": "All writings"
+    "back": "All writings",
+    "galleryCategory": "Writings",
+    "galleryHeroTitle": "Writings",
+    "galleryHeroLead": "Essays and notes on engineering practice, creative coding, and the tools that shape how we build software. Open any title below to read the full piece.",
+    "readArticle": "Read article",
+    "galleryListLink": "Home listing",
+    "asideLabel": "Technical notes"
   },
   "footer": {
     "intro": "Engineer and writer exploring ideas through software, notes, and experiments. This site collects selected work and occasional long-form notes.",
