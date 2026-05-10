@@ -380,7 +380,7 @@ export function HomePage() {
       </section>
 
       <section id="work" className="work">
-        <h2 className="work__heading">{t('pages.home.workHeading')}</h2>
+        <h2 className="work__heading">Selected projects</h2>
         <div className="work__layout">
           <div
             className="work__list"
@@ -430,7 +430,7 @@ export function HomePage() {
       </section>
 
       <section id="writings" className="home-listing">
-        <h2 className="home-listing__heading">{t('pages.home.blogHeading')}</h2>
+        <h2 className="home-listing__heading">Writings</h2>
         <div className="home-listing__rows" role="list">
           {writings.map((item) => (
             <Link
@@ -439,7 +439,7 @@ export function HomePage() {
               className="home-listing__row"
               role="listitem"
             >
-              <p className="home-listing__title">{item.title[locale]}</p>
+              <p className="home-listing__title">{item.title}</p>
               <p className="home-listing__date">{item.date}</p>
               <span className="home-listing__tag">{item.category}</span>
             </Link>
@@ -448,7 +448,7 @@ export function HomePage() {
       </section>
 
       <section id="books" className="bookshelf">
-        <h2 className="bookshelf__heading">{t('pages.home.booksHeading')}</h2>
+        <h2 className="bookshelf__heading">Bookshelf</h2>
         <div className="bookshelf__viewport" ref={booksViewportRef} tabIndex={0}>
           <div className="bookshelf__track" ref={booksTrackRef} role="list">
             {books.map((book) => (
