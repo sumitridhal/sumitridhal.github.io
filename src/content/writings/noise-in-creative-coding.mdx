@@ -1,0 +1,37 @@
+export const writingMeta = {
+  "id": "noise-in-creative-coding",
+  "order": 18,
+  "title": "Noise in Creative Coding",
+  "date": "10/05",
+  "category": "Creative code",
+  "excerpt": "Noise is an indispensable tool for creative coding. We use it to generate all kinds of organic effects like clouds, landscapes, and contours. Or to move and distort objects with a more lifelike behaviour than easing…",
+  "titleLines": [
+    "Noise in",
+    "Creative Coding"
+  ],
+  "asideParagraphs": [
+    "Simplest way is 'fractal Brownian motion' or basic octave summation. Start with one layer that has a particular frequency or amplitude, then double the frequency and halve the amplitude as you go. The halving and doubling are often called persistence and lacunarity.",
+    "In shaders, sample your noise in tangent space when warping meshes so lighting stays coherent. On the CPU, prefer precomputed tables or tileable textures if you need thousands of agents reading the same field each frame."
+  ],
+  "figureRows": [
+    [
+      "grain",
+      "cloud",
+      "flow",
+      "branch"
+    ],
+    [
+      "grad",
+      "glow",
+      "warp",
+      "mesh"
+    ]
+  ],
+  "coverSrc": "https://picsum.photos/seed/noise-in-creative-coding/960/720"
+}
+
+Noise is an indispensable tool for creative coding. We use it to generate all kinds of organic effects like clouds, landscapes, and contours. Or to move and distort objects with a more lifelike behaviour than easing alone can suggest.
+
+The trick is choosing a field that reads well at the scale of your canvas: value noise for grit, gradient noise when you need continuity, and layered octaves when you want detail without a single harsh frequency dominating the frame.
+
+When you map noise to colour or displacement, keep a slow control surface—amplitude, rotation, seed—so the piece stays tunable in performance. The goal is not randomness for its own sake but a controlled distribution that still surprises on every run.
