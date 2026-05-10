@@ -1,14 +1,71 @@
 import type { Locale } from '@/i18n/routes'
 
+/** CSS-only thumbnails for the writing article figure grid. */
+export type WritingFigureVariant =
+  | 'grain'
+  | 'cloud'
+  | 'flow'
+  | 'branch'
+  | 'grad'
+  | 'glow'
+  | 'warp'
+  | 'mesh'
+
 export type WritingItem = {
   id: string
   title: Record<Locale, string>
   date: string
   category: string
   bodyParagraphs: Record<Locale, string[]>
+  /** Two-line hero title; falls back to a single line from `title`. */
+  titleLines?: Record<Locale, string[]>
+  /** Right-column technical aside (accent monospace). */
+  asideParagraphs?: Record<Locale, string[]>
+  /** Rows of figure cells (e.g. 4 per row). */
+  figureRows?: WritingFigureVariant[][]
 }
 
 export const writings: WritingItem[] = [
+  {
+    id: 'noise-in-creative-coding',
+    title: {
+      en: 'Noise in Creative Coding',
+      de: 'Rauschen im Creative Coding',
+      fr: 'Le bruit en creative coding',
+      hi: 'क्रिएटिव कोडिंग में नॉइज़',
+    },
+    titleLines: {
+      en: ['Noise in', 'Creative Coding'],
+      de: ['Rauschen im', 'Creative Coding'],
+      fr: ['Le bruit en', 'creative coding'],
+      hi: ['क्रिएटिव कोडिंग में', 'नॉइज़'],
+    },
+    date: '10/05',
+    category: 'Creative code',
+    figureRows: [
+      ['grain', 'cloud', 'flow', 'branch'],
+      ['grad', 'glow', 'warp', 'mesh'],
+    ],
+    bodyParagraphs: {
+      en: [
+        'Noise is an indispensable tool for creative coding. We use it to generate all kinds of organic effects like clouds, landscapes, and contours. Or to move and distort objects with a more lifelike behaviour than easing alone can suggest.',
+        'The trick is choosing a field that reads well at the scale of your canvas: value noise for grit, gradient noise when you need continuity, and layered octaves when you want detail without a single harsh frequency dominating the frame.',
+        'When you map noise to colour or displacement, keep a slow control surface—amplitude, rotation, seed—so the piece stays tunable in performance. The goal is not randomness for its own sake but a controlled distribution that still surprises on every run.',
+      ],
+      de: [],
+      fr: [],
+      hi: [],
+    },
+    asideParagraphs: {
+      en: [
+        "Simplest way is 'fractal Brownian motion' or basic octave summation. Start with one layer that has a particular frequency or amplitude, then double the frequency and halve the amplitude as you go. The halving and doubling are often called persistence and lacunarity.",
+        'In shaders, sample your noise in tangent space when warping meshes so lighting stays coherent. On the CPU, prefer precomputed tables or tileable textures if you need thousands of agents reading the same field each frame.',
+      ],
+      de: [],
+      fr: [],
+      hi: [],
+    },
+  },
   {
     id: 'making-claude-code-shareable',
     title: {
@@ -16,6 +73,12 @@ export const writings: WritingItem[] = [
       de: 'Claude-Code-Sitzungen teilbar machen',
       fr: 'Rendre les sessions Claude Code partageables',
       hi: 'Claude Code सत्र साझा करने योग्य बनाना',
+    },
+    titleLines: {
+      en: ['Making Claude Code', 'sessions shareable'],
+      de: ['Claude-Code-Sitzungen', 'teilbar machen'],
+      fr: ['Sessions Claude Code', 'partageables'],
+      hi: ['Claude Code सत्र', 'साझा करने योग्य'],
     },
     date: '16/02',
     category: 'Dev',
@@ -38,6 +101,12 @@ export const writings: WritingItem[] = [
       fr: 'Mode bash Claude Code',
       hi: 'Claude Code बैश मोड',
     },
+    titleLines: {
+      en: ['Claude Code', 'bash mode'],
+      de: ['Claude-Code-', 'Bash-Modus'],
+      fr: ['Mode bash', 'Claude Code'],
+      hi: ['Claude Code', 'बैश मोड'],
+    },
     date: '20/01',
     category: 'TIL',
     bodyParagraphs: {
@@ -58,6 +127,12 @@ export const writings: WritingItem[] = [
       de: 'Ein Buecherregal mit Claude Code bauen',
       fr: 'Coder une bibliotheque avec Claude Code',
       hi: 'Claude Code के साथ वाइब कोडिंग बुकशेल्फ',
+    },
+    titleLines: {
+      en: ['Vibe coding a bookshelf', 'with Claude Code'],
+      de: ['Ein Buecherregal', 'mit Claude Code bauen'],
+      fr: ['Coder une bibliotheque', 'avec Claude Code'],
+      hi: ['Claude Code के साथ', 'वाइब कोडिंग बुकशेल्फ'],
     },
     date: '27/12',
     category: 'Dev',
@@ -83,4 +158,36 @@ export function paragraphsForWriting(item: WritingItem, locale: Locale): string[
   const localized = item.bodyParagraphs[locale]
   if (localized.length > 0) return localized
   return item.bodyParagraphs.en
+}
+
+export function titleLinesForWriting(item: WritingItem, locale: Locale): string[] {
+  const localized = item.titleLines?.[locale]
+  if (localized && localized.length > 0) return localized
+  const enLines = item.titleLines?.en
+  if (enLines && enLines.length > 0) return enLines
+  return [writingTitle(item, locale)]
+}
+
+export function asideParagraphsForWriting(item: WritingItem, locale: Locale): string[] {
+  const localized = item.asideParagraphs?.[locale]
+  if (localized && localized.length > 0) return localized
+  const enAside = item.asideParagraphs?.en
+  return enAside && enAside.length > 0 ? enAside : []
+}
+
+export function writingTitle(item: WritingItem, locale: Locale): string {
+  const localized = item.title[locale]
+  if (localized.trim()) return localized
+  return item.title.en
+}
+
+export function excerptFromWriting(item: WritingItem, locale: Locale): string {
+  const p = paragraphsForWriting(item, locale)[0] ?? ''
+  if (!p) return ''
+  const max = 220
+  if (p.length <= max) return p
+  const slice = p.slice(0, max)
+  const lastSpace = slice.lastIndexOf(' ')
+  const cut = lastSpace > 80 ? slice.slice(0, lastSpace) : slice
+  return `${cut.trimEnd()}…`
 }
