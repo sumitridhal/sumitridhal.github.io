@@ -1,0 +1,18 @@
+export const writingMeta = {
+  "id": "making-claude-code-shareable",
+  "order": 19,
+  "title": "Making Claude Code sessions shareable",
+  "date": "16/02",
+  "category": "Dev",
+  "excerpt": "Pairing on a hard problem is easier when someone can see the same transcript, file picks, and tool output you do. The friction is rarely the model; it is packaging context so another engineer—or your future self—can…",
+  "titleLines": [
+    "Making Claude Code",
+    "sessions shareable"
+  ]
+}
+
+Pairing on a hard problem is easier when someone can see the same transcript, file picks, and tool output you do. The friction is rarely the model; it is packaging context so another engineer—or your future self—can replay the reasoning without re-asking half the questions.
+
+Start by treating the session as an artifact: a short README in the repo that links to the branch, lists the key decisions, and points to any scripts or env vars that matter. If you use Claude Code in the terminal, capture the high-signal turns (plan, diff summary, test commands) in commit messages or a changelog entry instead of pasting the entire log.
+
+When you need a literal handoff, export the smallest slice that still tells the story: the final patch, the failing test name, and one paragraph on what you tried that did not work. Shareable sessions are curated, not raw dumps—and that curation is what makes them useful across teams and time zones.
