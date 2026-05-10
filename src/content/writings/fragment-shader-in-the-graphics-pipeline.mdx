@@ -1,0 +1,22 @@
+export const writingMeta = {
+  "id": "fragment-shader-in-the-graphics-pipeline",
+  "order": 4,
+  "title": "Where the fragment shader sits in the graphics pipeline",
+  "date": "16/05",
+  "category": "Graphics",
+  "excerpt": "Geometry stages turn mesh data into clip-space vertices; rasterization then walks the triangles and asks, for each covered sample, what colour and depth to contribute. The fragment shader is that per-sample programme:…",
+  "titleLines": [
+    "Where the fragment shader",
+    "sits in the pipeline"
+  ],
+  "asideParagraphs": [
+    "MSAA runs coverage at higher resolution than your shader may execute; understand whether your target API invokes the fragment shader once per sample or per pixel for edge pixels.",
+    "Blending reads the destination colour your shader just wrote—ordering passes still matters for transparency even when each pass is “just” a fullscreen triangle."
+  ]
+}
+
+Geometry stages turn mesh data into clip-space vertices; rasterization then walks the triangles and asks, for each covered sample, what colour and depth to contribute. The fragment shader is that per-sample programme: it receives interpolated varyings built from vertex outputs, runs in parallel across thousands of pixels, and hands back values the fixed-function back end blends into the render target.
+
+Uniforms and bound resources are shared across invocations; varyings differ per pixel because they are the result of perspective-correct interpolation across the primitive. That split is why you push bone matrices as uniforms but pass UVs or normals as varyings, and why a bug in one vertex attribute shows up as a smooth gradient of wrong instead of a single wrong constant.
+
+Fixed-function pieces still matter around the shader: depth tests and early depth rejection, multisample coverage, and blend equations all run after your outputs are defined. A discard or a write to depth can interact with early-z; compute passes, in contrast, have no rasterizer at all—useful when you need scatter writes, but a different contract than the graphics pipeline sketched in a first mental model for WebGPU in the browser.

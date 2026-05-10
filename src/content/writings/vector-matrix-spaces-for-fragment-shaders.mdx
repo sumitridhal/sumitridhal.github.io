@@ -1,0 +1,31 @@
+export const writingMeta = {
+  "id": "vector-matrix-spaces-for-fragment-shaders",
+  "order": 6,
+  "title": "Vector, matrix, and coordinate spaces for fragment shaders",
+  "date": "14/05",
+  "category": "Creative code",
+  "excerpt": "GPUs habitually use column vectors and multiply on the left: p_clip = P * V * M * p_object. Each matrix encodes a change of basis—translation, rotation, scale, projection—so debugging is often asking “which space is…",
+  "titleLines": [
+    "Vectors, matrices, and",
+    "spaces in fragment shaders"
+  ],
+  "asideParagraphs": [
+    "NDC spans roughly −1 to 1 before the viewport transform; remember perspective divide w when reconstructing view rays from depth.",
+    "A row-vector convention flips multiplication order; shader snippets pasted from papers need one conscious transpose pass."
+  ],
+  "figureRows": [
+    [
+      "mesh",
+      "warp",
+      "flow",
+      "grad"
+    ]
+  ],
+  "coverSrc": "https://picsum.photos/seed/vector-matrix-spaces-for-fragment-shaders/960/720"
+}
+
+GPUs habitually use column vectors and multiply on the left: p_clip = P * V * M * p_object. Each matrix encodes a change of basis—translation, rotation, scale, projection—so debugging is often asking “which space is this vector in right now?” rather than hunting a typo in a trig identity.
+
+Normals transform by the inverse-transpose of the upper 3x3 when you allow non-uniform scale; tangents and bitangents follow the same linear part. Fragment code that lights surfaces needs everything in a common space, usually world or view, even when the artistic idea started in object units or in a UV chart.
+
+UV coordinates are a 2D parameterization of the mesh, not a guarantee of orthogonality or uniform scale; aspect and stretching show up directly in procedural stripes and noise fields. Sampling noise in tangent space when warping meshes so lighting stays coherent is the same discipline: pick the space first, then write the math, as in the noise-in-creative-coding note on fields and continuity.
