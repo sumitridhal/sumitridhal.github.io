@@ -56,7 +56,7 @@ export function WritingsGalleryPage() {
       io.disconnect()
       gsap.killTweensOf(targets)
     }
-  }, [locale, reducedMotion])
+  }, [reducedMotion])
 
   return (
     <div ref={rootRef} className="writings-gallery">
@@ -83,7 +83,7 @@ export function WritingsGalleryPage() {
                   className="writings-gallery__row"
                 >
                   <span className="writings-gallery__row-title">
-                    {writingTitle(item, locale)}
+                    {writingTitle(item)}
                   </span>
                   <span className="writings-gallery__row-meta">{item.date}</span>
                 </Link>
