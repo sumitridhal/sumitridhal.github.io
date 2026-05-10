@@ -13,8 +13,8 @@ body.route-writing .site-header:not(.site-header--home) {
   width: 100%;
   max-width: none;
   justify-content: space-between;
-  background: $color-writing-mustard;
-  color: $color-writing-forest;
+  background: transparent;
+  color: var(--writing-hero);
   border-top: 6px solid $color-writing-forest;
 }
 
