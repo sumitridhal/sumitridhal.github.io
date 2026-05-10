@@ -1,0 +1,18 @@
+export const writingMeta = {
+  "id": "falloff-vocabulary-for-lights",
+  "order": 12,
+  "title": "Falloff, rim, and sharpness as a lighting vocabulary",
+  "date": "24/04",
+  "category": "Creative code",
+  "excerpt": "Most readable lighting in fragments is a handful of terms multiplied together: a diffuse lobe that respects normals, a specular highlight with a tunable power, and edge terms like Fresnel or rim that stop materials from…",
+  "titleLines": [
+    "Falloff, rim, and sharpness",
+    "as a lighting vocabulary"
+  ]
+}
+
+Most readable lighting in fragments is a handful of terms multiplied together: a diffuse lobe that respects normals, a specular highlight with a tunable power, and edge terms like Fresnel or rim that stop materials from turning into plastic soup.
+
+Falloff is where you sell scale. A hard inverse square reads physically grounded until your units are wrong and everything blows out. Inverse square with a small offset, smooth minimums, or artist-authored curves are all acceptable if the image holds together under animation.
+
+Name your knobs for the art director, not the paper: “edge glow” beats “Schlick approximation” in a UI even when the implementation is standard. The shader is done when someone can iterate mood without reading vector math.
