@@ -1,0 +1,22 @@
+export const writingMeta = {
+  "id": "github-pages-spa-fallback",
+  "order": 0,
+  "title": "Shipping a Vite SPA to GitHub Pages without losing deep links",
+  "date": "20/05",
+  "category": "TIL",
+  "excerpt": "GitHub Pages serves static files from your branch or workflow artifact. When someone opens `/en/writing/some-slug` directly—or hits refresh—the server looks for a real file at that path. A client-rendered React app only…",
+  "titleLines": [
+    "Shipping a Vite SPA to",
+    "GitHub Pages deep links"
+  ],
+  "asideParagraphs": [
+    "This repo copies `dist/index.html` to `dist/404.html` in the build script; the README calls out enabling “GitHub Actions” as the Pages source so the deploy job matches what contributors run locally.",
+    "If you ever move the site under a subpath, you will also need a matching `base` in Vite and router configuration; user/org pages at the domain root avoid that extra moving part."
+  ]
+}
+
+GitHub Pages serves static files from your branch or workflow artifact. When someone opens `/en/writing/some-slug` directly—or hits refresh—the server looks for a real file at that path. A client-rendered React app only has `index.html` at the root, so the host answers 404 unless you teach it otherwise.
+
+The small trick that keeps React Router working is copying the built `index.html` to `404.html` after `vite build`. GitHub Pages uses `404.html` as a fallback for unknown routes, so the browser still loads your bundle, the router reads the URL, and the correct page mounts. It is not glamorous, but it is the difference between shareable URLs and mystery failures in DMs.
+
+Wire that copy into the same `npm run build` you already run in CI so nobody deploys without it. Pair it with Actions as the Pages source and you get reproducible builds, a clear audit trail, and no manual drag-and-drop step to forget.
