@@ -38,6 +38,10 @@ export function hrefHome(locale: Locale): string {
   return `/${locale}`;
 }
 
+export function hrefWritings(locale: Locale): string {
+  return `/${locale}/writing`;
+}
+
 export function hrefWriting(locale: Locale, slug: string): string {
   return `/${locale}/writing/${slug}`;
 }
