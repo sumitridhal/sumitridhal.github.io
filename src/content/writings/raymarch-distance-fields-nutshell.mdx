@@ -1,0 +1,30 @@
+export const writingMeta = {
+  "id": "raymarch-distance-fields-nutshell",
+  "order": 15,
+  "title": "Raymarching signed distance fields without the hype",
+  "date": "01/04",
+  "category": "Creative code",
+  "excerpt": "A signed distance field answers one question: how far am I from the nearest surface, signed so the inside is negative and the outside is positive. March a ray in steps no larger than that distance and you rarely tunnel…",
+  "titleLines": [
+    "Raymarching signed",
+    "distance fields, plainly"
+  ],
+  "asideParagraphs": [
+    "Sphere tracing is the common name for stepping by the SDF value; do not confuse it with analytic sphere intersection in classic ray tracing.",
+    "Normal vectors come from sampling the SDF six times on a small epsilon offset; cache those samples if you also need ambient occlusion nearby."
+  ],
+  "figureRows": [
+    [
+      "grain",
+      "cloud",
+      "flow",
+      "branch"
+    ]
+  ]
+}
+
+A signed distance field answers one question: how far am I from the nearest surface, signed so the inside is negative and the outside is positive. March a ray in steps no larger than that distance and you rarely tunnel through thin geometry, which is why the technique loves organic shapes.
+
+The cost is iterations. Empty space is cheap; grazing angles and fine filigree are not. Caps on maximum steps, minimum step sizes, and relaxed spheres for shadows are where production shaders spend their complexity budget.
+
+Start with a single primitive—sphere or box—then compose with unions, smooth unions, and domain repetition. Composition is the skill; the march loop is mostly bookkeeping once intuition clicks.
