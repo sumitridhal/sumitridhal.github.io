@@ -1,0 +1,29 @@
+@use '../variables' as *;
+
+body.route-writing {
+  color-scheme: dark;
+}
+
+body.route-writing .app__main {
+  background: $color-writing-forest-deep;
+}
+
+body.route-writing .site-header:not(.site-header--home) {
+  mix-blend-mode: normal;
+  width: 100%;
+  max-width: none;
+  justify-content: space-between;
+  background: $color-writing-mustard;
+  color: $color-writing-forest;
+  border-top: 6px solid $color-writing-forest;
+}
+
+body.route-writing .site-header:not(.site-header--home) .site-header__burger {
+  border-color: rgba(45, 62, 39, 0.45);
+}
+
+body.route-writing .site-header:not(.site-header--home) .site-header__burger:hover,
+body.route-writing .site-header:not(.site-header--home) .site-header__burger:focus-visible {
+  border-color: rgba(45, 62, 39, 0.75);
+  background: rgba(45, 62, 39, 0.06);
+}

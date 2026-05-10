@@ -1,67 +1,302 @@
 @use '../variables' as *;
 
 .writing-page {
-  max-width: 46rem;
+  --writing-fg: #{$color-text};
+  --writing-fg-soft: #{$color-muted};
+  --writing-aside: #{$color-accent-soft};
+  --writing-hero: #f2f5ff;
+  --writing-edge: rgba(233, 184, 88, 0.14);
+
+  max-width: 72rem;
   margin: 0 auto;
-  padding: calc(#{$header-h} + 2rem) clamp(1rem, 4vw, 2rem) 4rem;
+  padding: calc(#{$header-h} + 1.25rem) clamp(1rem, 3vw, 1.75rem) 4rem;
+  background: $color-writing-forest-deep;
+  color: var(--writing-fg);
+  min-height: calc(100vh - #{$header-h});
+}
+
+.writing-page__toolbar {
+  display: flex;
+  flex-wrap: wrap;
+  align-items: center;
+  justify-content: space-between;
+  gap: 1rem 1.5rem;
+  margin-bottom: 2rem;
 }
 
 .writing-page__back {
   display: inline-flex;
-  margin-bottom: 1.5rem;
-  font-size: 0.85rem;
-  letter-spacing: 0.12em;
+  font-size: 0.8rem;
+  font-weight: 700;
+  font-family: $font-writing-display;
+  letter-spacing: 0.14em;
   text-transform: uppercase;
-  color: rgba(232, 236, 244, 0.72);
-  border-bottom: 1px solid rgba(255, 255, 255, 0.12);
-  padding-bottom: 0.2rem;
+  color: var(--writing-fg-soft);
+  border-bottom: 1px solid var(--writing-edge);
+  padding-bottom: 0.25rem;
+}
+
+.writing-page__back:hover,
+.writing-page__back:focus-visible {
+  color: var(--writing-hero);
+  border-bottom-color: rgba(233, 184, 88, 0.45);
 }
 
 .writing-page__meta {
-  margin: 0 0 0.75rem;
+  margin: 0;
   display: flex;
   flex-wrap: wrap;
   align-items: center;
   gap: 0.65rem 1rem;
-  font-size: 0.9rem;
-  color: rgba(232, 236, 244, 0.78);
-}
-
-.writing-page__date {
-  margin: 0;
+  font-size: 0.85rem;
+  font-family: $font-writing-mono;
+  color: var(--writing-fg-soft);
 }
 
 .writing-page__tag {
   display: inline-flex;
   align-items: center;
-  justify-content: center;
-  min-height: 1.75rem;
-  padding: 0 0.75rem;
-  border-radius: 999px;
-  font-size: 0.85rem;
-  color: #f3f7ff;
-  background: rgba(180, 196, 255, 0.22);
+  min-height: 1.65rem;
+  padding: 0 0.65rem;
+  border-radius: 2px;
+  font-size: 0.78rem;
+  font-weight: 600;
+  font-family: $font-writing-display;
+  letter-spacing: 0.06em;
+  text-transform: uppercase;
+  color: $color-writing-forest-deep;
+  background: $color-writing-mustard;
 }
 
-.writing-page__title {
-  margin: 0 0 1.5rem;
-  font-family: $font-display;
-  font-size: clamp(1.75rem, 4vw, 2.75rem);
+.writing-page__hero {
+  margin-bottom: clamp(1.5rem, 3vw, 2.25rem);
+}
+
+.writing-page__headline {
+  margin: 0;
+  font-family: $font-writing-display;
   font-weight: 800;
+  font-size: clamp(2.4rem, 7.5vw, 4.75rem);
+  line-height: 0.98;
   letter-spacing: -0.03em;
-  line-height: 1.12;
+  color: var(--writing-hero);
+}
+
+.writing-page__headline-line {
+  display: block;
+}
+
+.writing-page__figures {
+  margin-bottom: clamp(1.75rem, 3vw, 2.5rem);
+  display: flex;
+  flex-direction: column;
+  gap: 0.65rem;
+}
+
+.writing-page__figure-row {
+  display: grid;
+  grid-template-columns: repeat(4, 1fr);
+  gap: 0.65rem;
+}
+
+@media (max-width: 640px) {
+  .writing-page__figure-row {
+    grid-template-columns: repeat(2, 1fr);
+  }
+}
+
+.writing-page__cell {
+  aspect-ratio: 1;
+  border-radius: 2px;
+  border: 1px solid var(--writing-edge);
+  overflow: hidden;
+  background: #050608;
+}
+
+.writing-page__cell--grain {
+  background-color: #060708;
+  background-image:
+    repeating-radial-gradient(
+      circle at 20% 30%,
+      rgba(255, 255, 255, 0.22) 0 0.5px,
+      transparent 0.5px 2.5px
+    ),
+    repeating-radial-gradient(
+      circle at 78% 64%,
+      rgba(255, 255, 255, 0.12) 0 0.5px,
+      transparent 0.5px 3px
+    ),
+    repeating-radial-gradient(
+      circle at 44% 82%,
+      rgba(255, 255, 255, 0.18) 0 0.5px,
+      transparent 0.5px 2px
+    );
+  filter: contrast(1.15);
+}
+
+.writing-page__cell--cloud {
+  background:
+    radial-gradient(ellipse 90% 70% at 38% 42%, rgba(210, 218, 235, 0.42), transparent 58%),
+    radial-gradient(ellipse 55% 45% at 72% 28%, rgba(170, 182, 205, 0.28), transparent 52%),
+    radial-gradient(ellipse 40% 35% at 22% 78%, rgba(140, 155, 180, 0.18), transparent 48%),
+    #07090d;
+}
+
+.writing-page__cell--flow {
+  position: relative;
+  background: #040506;
+}
+
+.writing-page__cell--flow::before {
+  content: '';
+  position: absolute;
+  inset: -40%;
+  background: repeating-conic-gradient(
+    from 12deg at 50% 50%,
+    transparent 0deg 2.5deg,
+    rgba(255, 255, 255, 0.07) 2.5deg 3.2deg
+  );
+  opacity: 0.85;
+  mask-image: radial-gradient(ellipse 55% 55% at 50% 50%, black 20%, transparent 72%);
+}
+
+.writing-page__cell--flow::after {
+  content: '';
+  position: absolute;
+  inset: 0;
+  background: radial-gradient(circle at 50% 50%, transparent 22%, rgba(0, 0, 0, 0.55) 68%);
+}
+
+.writing-page__cell--branch {
+  background:
+    linear-gradient(118deg, transparent 46%, rgba(255, 255, 255, 0.35) 47.5%, rgba(255, 255, 255, 0.35) 48.5%, transparent 50%),
+    linear-gradient(72deg, transparent 52%, rgba(255, 255, 255, 0.22) 53.5%, rgba(255, 255, 255, 0.22) 54.5%, transparent 56%),
+    linear-gradient(156deg, transparent 38%, rgba(255, 255, 255, 0.18) 40%, rgba(255, 255, 255, 0.18) 41%, transparent 43%),
+    linear-gradient(12deg, transparent 58%, rgba(255, 255, 255, 0.12) 60%, rgba(255, 255, 255, 0.12) 61%, transparent 63%),
+    #030405;
+}
+
+.writing-page__cell--grad {
+  background: linear-gradient(148deg, #6ba8f0 0%, #c9daf8 42%, #f4f7ff 100%);
+}
+
+.writing-page__cell--glow {
+  background: radial-gradient(
+    circle at 50% 48%,
+    rgba(255, 120, 95, 0.95) 0%,
+    rgba(200, 55, 45, 0.45) 32%,
+    rgba(35, 18, 14, 0.98) 72%
+  );
+}
+
+.writing-page__cell--warp {
+  position: relative;
+  background: radial-gradient(
+    circle at 42% 44%,
+    rgba(255, 110, 88, 0.9) 0%,
+    rgba(160, 45, 38, 0.5) 38%,
+    rgba(12, 10, 14, 0.98) 74%
+  );
+}
+
+.writing-page__cell--warp::before {
+  content: '';
+  position: absolute;
+  inset: -18%;
+  background: conic-gradient(
+    from 200deg at 50% 50%,
+    rgba(110, 160, 255, 0.35),
+    transparent 32%,
+    rgba(110, 160, 255, 0.2) 58%,
+    transparent 78%
+  );
+  opacity: 0.55;
+  transform: rotate(-8deg) scale(1.15);
+  mix-blend-mode: screen;
+}
+
+.writing-page__cell--mesh {
+  position: relative;
+  background: radial-gradient(
+    circle at 50% 50%,
+    rgba(255, 95, 75, 0.55) 0%,
+    rgba(40, 22, 20, 0.95) 62%
+  );
+}
+
+.writing-page__cell--mesh::before {
+  content: '';
+  position: absolute;
+  inset: 0;
+  background-image:
+    linear-gradient(90deg, rgba(120, 175, 255, 0.22) 1px, transparent 1px),
+    linear-gradient(0deg, rgba(120, 175, 255, 0.22) 1px, transparent 1px);
+  background-size: 11px 11px;
+  opacity: 0.9;
+  transform: perspective(120px) rotateX(12deg) rotateZ(-6deg) scale(1.08);
+  transform-origin: center;
+}
+
+.writing-page__grid {
+  display: grid;
+  grid-template-columns: minmax(0, 1fr) minmax(12rem, 17.5rem);
+  gap: clamp(1.75rem, 4vw, 3.5rem);
+  align-items: start;
+}
+
+.writing-page__grid--single {
+  grid-template-columns: minmax(0, 1fr);
+}
+
+@media (max-width: 900px) {
+  .writing-page__grid:not(.writing-page__grid--single) {
+    grid-template-columns: 1fr;
+  }
+
+  .writing-page__aside {
+    border-left: none;
+    border-top: 1px solid var(--writing-edge);
+    padding-left: 0;
+    padding-top: 1.5rem;
+  }
 }
 
 .writing-page__body {
-  font-size: 1.05rem;
-  line-height: 1.65;
-  color: rgba(235, 239, 248, 0.92);
+  font-family: $font-writing-mono;
+  font-size: clamp(0.88rem, 1.35vw, 0.95rem);
+  font-weight: 400;
+  line-height: 1.72;
+  color: rgba(232, 236, 244, 0.94);
 }
 
 .writing-page__body p {
-  margin: 0 0 1.1rem;
+  margin: 0 0 1.15rem;
 }
 
 .writing-page__body p:last-child {
   margin-bottom: 0;
+}
+
+.writing-page__aside {
+  margin: 0;
+  padding-left: 1.25rem;
+  border-left: 1px solid var(--writing-edge);
+  font-family: $font-writing-mono;
+  font-size: clamp(0.82rem, 1.2vw, 0.88rem);
+  line-height: 1.68;
+  color: var(--writing-aside);
+}
+
+.writing-page__aside p {
+  margin: 0 0 1.1rem;
+}
+
+.writing-page__aside p:last-child {
+  margin-bottom: 0;
+}
+
+.writing-page__aside p:first-child::before {
+  content: '* ';
+  color: $color-accent;
+  font-weight: 600;
 }
