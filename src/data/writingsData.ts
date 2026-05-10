@@ -27,6 +27,70 @@ export type WritingItem = {
 
 export const writings: WritingItem[] = [
   {
+    id: 'github-pages-spa-fallback',
+    title: 'Shipping a Vite SPA to GitHub Pages without losing deep links',
+    titleLines: ['Shipping a Vite SPA to', 'GitHub Pages deep links'],
+    date: '20/05',
+    category: 'TIL',
+    bodyParagraphs: [
+      'GitHub Pages serves static files from your branch or workflow artifact. When someone opens `/en/writing/some-slug` directly—or hits refresh—the server looks for a real file at that path. A client-rendered React app only has `index.html` at the root, so the host answers 404 unless you teach it otherwise.',
+      'The small trick that keeps React Router working is copying the built `index.html` to `404.html` after `vite build`. GitHub Pages uses `404.html` as a fallback for unknown routes, so the browser still loads your bundle, the router reads the URL, and the correct page mounts. It is not glamorous, but it is the difference between shareable URLs and mystery failures in DMs.',
+      'Wire that copy into the same `npm run build` you already run in CI so nobody deploys without it. Pair it with Actions as the Pages source and you get reproducible builds, a clear audit trail, and no manual drag-and-drop step to forget.',
+    ],
+    asideParagraphs: [
+      'This repo copies `dist/index.html` to `dist/404.html` in the build script; the README calls out enabling “GitHub Actions” as the Pages source so the deploy job matches what contributors run locally.',
+      'If you ever move the site under a subpath, you will also need a matching `base` in Vite and router configuration; user/org pages at the domain root avoid that extra moving part.',
+    ],
+  },
+  {
+    id: 'view-transitions-react-router',
+    title: 'Wrapping React Router navigation in the View Transitions API',
+    titleLines: ['View Transitions API', 'with React Router'],
+    date: '19/05',
+    category: 'Dev',
+    bodyParagraphs: [
+      'The View Transitions API gives the browser a snapshot before and after a DOM update and animates between them. React Router’s `navigate()` is just a state transition: if you call it inside `document.startViewTransition`, the same route change can feel connected instead of abrupt.',
+      'The ergonomic win is centralizing the guard in one hook. Wrap `useNavigate` so every intentional navigation goes through the same helper: if `startViewTransition` exists, use it; otherwise call `navigate` immediately so Safari and older Chromium do not regress.',
+      'CSS names default transitions (`::view-transition-old` / `::view-transition-new`) or per-element `view-transition-name` when you want a hero image or headline to carry across. Start subtle—opacity and a slight translate—before you chase multi-phase choreography; the API rewards restraint.',
+    ],
+    asideParagraphs: [
+      'Keep the callback passed to `startViewTransition` synchronous from the browser’s perspective: kick off `navigate` inside it, not after an awaited network round trip, or the snapshot timing gets fuzzy.',
+      'Reduced-motion users still deserve instant navigation; pair transitions with `prefers-reduced-motion` checks the same way you would for GSAP or CSS keyframes elsewhere on the site.',
+    ],
+  },
+  {
+    id: 'locale-prefix-without-i18n-library',
+    title: 'Locale prefixes and JSON bundles without an i18n framework',
+    titleLines: ['Locale prefixes', 'without an i18n framework'],
+    date: '18/05',
+    category: 'Dev',
+    bodyParagraphs: [
+      'Not every multilingual marketing site needs `i18next`. Here the URL carries the locale as the first segment, `App` reads `pathnameLocale`, and a thin `I18nProvider` supplies `t("namespace.key")` over static JSON imports. TypeScript still checks shape at build time because the bundles are real modules.',
+      'Localized path slugs—`about` versus `uber`, `work` versus `projekte`—live next to the same route table as small helpers (`hrefAbout`, `hrefWork`). That keeps links honest: you generate URLs from functions instead of hand-pasting strings that drift when copy changes.',
+      'Long-form “writings” stay as typed data in one file so excerpts, asides, and gallery cards share one source of truth. UI chrome stays in JSON per locale. The split avoids running markdown pipelines for strings that are really part of the design system, not a CMS export.',
+    ],
+    asideParagraphs: [
+      'Fallback is simple: try the active locale’s JSON path, then English, then emit the key—good enough for incremental translation without blocking ship.',
+      'Remember to update `hrefWritings` callers when you add routes; centralized helpers pay rent the first time you grep for broken links before release.',
+    ],
+  },
+  {
+    id: 'lenis-gsap-scroll-loop',
+    title: 'Driving Lenis from GSAP’s ticker instead of fighting two rAF loops',
+    titleLines: ['Lenis on GSAP’s ticker', 'instead of two rAF loops'],
+    date: '17/05',
+    category: 'Dev',
+    bodyParagraphs: [
+      'Lenis smooths scroll by integrating wheel and touch deltas over time. Out of the box it wants `requestAnimationFrame`. GSAP already owns a ticker for timelines and layout-driven motion. Running two independent animation clocks on the same page is how you get one-frame lag or jitter that is hard to reproduce on a desktop alone.',
+      'The fix here is to construct Lenis with `autoRaf: false` and call `lenis.raf(time)` from the GSAP ticker callback. One clock drives both scroll physics and tweens, so easing on scroll-linked effects lines up with the numbers Lenis reports.',
+      'The home bookshelf still uses Locomotive Scroll for a different layout model. That is intentional: reach for the tool that matches the section’s DOM and art direction instead of forcing one global scroll controller to be clever everywhere. Shared principles—respect reduced motion, measure before you animate—matter more than dependency count.',
+    ],
+    asideParagraphs: [
+      '`gsap.ticker.lagSmoothing` is enabled alongside Lenis init here to tame tab-throttling spikes; profile on a low-power laptop before copying the exact numbers.',
+      'Destroy Lenis on teardown if you ever mount the provider in tests or Storybook so the ticker listener does not leak between stories.',
+    ],
+  },
+  {
     id: 'fragment-shader-in-the-graphics-pipeline',
     title: 'Where the fragment shader sits in the graphics pipeline',
     titleLines: ['Where the fragment shader', 'sits in the pipeline'],
