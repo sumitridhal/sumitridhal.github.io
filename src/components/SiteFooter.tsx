@@ -13,10 +13,10 @@ export function SiteFooter() {
 
   const home = hrefHome(locale)
   const excerpt = useMemo(
-    () => (latest ? excerptFromWriting(latest, locale) : ''),
-    [latest, locale],
+    () => (latest ? excerptFromWriting(latest) : ''),
+    [latest],
   )
-  const title = latest ? writingTitle(latest, locale) : ''
+  const title = latest ? writingTitle(latest) : ''
 
   return (
     <footer className="site-footer">
@@ -87,9 +87,31 @@ export function SiteFooter() {
 
       <div className="site-footer__band site-footer__band--lower">
         <div className="site-footer__inner site-footer__grid site-footer__grid--lower">
-          <div className="site-footer__visual" aria-hidden>
-            <span className="site-footer__visual-mark">SR</span>
-          </div>
+          {latest ? (
+            <Link
+              className={`site-footer__visual${latest.coverSrc ? ' site-footer__visual--cover' : ''}`}
+              to={hrefWriting(locale, latest.id)}
+              aria-label={title}
+            >
+              {latest.coverSrc ? (
+                <img
+                  className="site-footer__visual-img"
+                  src={latest.coverSrc}
+                  alt=""
+                  width={960}
+                  height={720}
+                  loading="lazy"
+                  decoding="async"
+                />
+              ) : (
+                <span className="site-footer__visual-mark">SR</span>
+              )}
+            </Link>
+          ) : (
+            <div className="site-footer__visual" aria-hidden>
+              <span className="site-footer__visual-mark">SR</span>
+            </div>
+          )}
 
           <div className="site-footer__col site-footer__col--blog">
             <h2 className="site-footer__heading site-footer__heading--invert site-footer__heading--serif">
