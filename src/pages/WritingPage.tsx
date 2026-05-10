@@ -4,8 +4,7 @@ import { Navigate, useParams } from 'react-router-dom'
 import { useI18n } from '@/contexts/I18nContext'
 import {
   asideParagraphsForWriting,
-  getWritingBySlug,
-  paragraphsForWriting,
+  getWritingEntryBySlug,
   titleLinesForWriting,
   type WritingFigureVariant,
 } from '@/data/writingsData'
@@ -28,11 +27,9 @@ export function WritingPage() {
   const { locale, t } = useI18n()
   const navigate = useViewTransitionNavigate()
 
-  const writing = useMemo(() => getWritingBySlug(slug), [slug])
-  const paragraphs = useMemo(
-    () => (writing ? paragraphsForWriting(writing) : []),
-    [writing],
-  )
+  const entry = useMemo(() => getWritingEntryBySlug(slug), [slug])
+  const writing = entry?.meta
+  const Body = entry?.Body
   const titleLines = useMemo(
     () => (writing ? titleLinesForWriting(writing) : []),
     [writing],
@@ -43,7 +40,7 @@ export function WritingPage() {
   )
   const figureRows = writing?.figureRows ?? []
 
-  if (!slug || !writing) {
+  if (!slug || !writing || !Body) {
     return <Navigate to={hrefWritings(locale)} replace />
   }
 
@@ -98,9 +95,7 @@ export function WritingPage() {
       >
         <div className="writing-page__main">
           <div className="writing-page__body">
-            {paragraphs.map((p, i) => (
-              <p key={i}>{p}</p>
-            ))}
+            <Body />
           </div>
         </div>
 
