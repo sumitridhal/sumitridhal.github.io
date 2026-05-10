@@ -1,8 +1,5 @@
 {
   "home": {
-    "workHeading": "Projets choisis",
-    "blogHeading": "Ecrits",
-    "booksHeading": "Bibliotheque",
     "aboutHeading": "À propos",
     "aboutLead": "Ingenieur et auteur : produits full-stack, microservices et experiences guidees par l'IA. Je pilote les workflows agentiques et l'UX/UI IA chez Red Hat.",
     "heroAtmosphere": {
