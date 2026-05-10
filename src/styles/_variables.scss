@@ -4,8 +4,15 @@ $color-text: #e8ecf4;
 $color-muted: #8b93a7;
 $color-accent: #ff4d6d;
 $color-accent-soft: #5bc0be;
+$color-writing-mustard: #e9b858;
+$color-writing-forest: #2d3e27;
+$color-writing-forest-deep: #1e2a1a;
 $font-sans: 'DM Sans', system-ui, sans-serif;
-$font-display: 'Syne', system-ui, sans-serif;
+$font-display: 'Outfit', system-ui, sans-serif;
+$font-writing-display: 'Outfit', system-ui, sans-serif;
+$font-writing-serif: 'Newsreader', 'Georgia', 'Times New Roman', serif;
+$font-writing-mono: 'JetBrains Mono', ui-monospace, 'Cascadia Code', 'SF Mono',
+  Menlo, Consolas, monospace;
 $radius-lg: 18px;
 $header-h: 72px;
 $ease-out: cubic-bezier(0.22, 1, 0.36, 1);
