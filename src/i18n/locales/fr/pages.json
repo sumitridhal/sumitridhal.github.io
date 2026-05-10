@@ -243,7 +243,13 @@
     "stack": "Stack"
   },
   "writing": {
-    "back": "Tous les textes"
+    "back": "Tous les textes",
+    "galleryCategory": "Ecrits",
+    "galleryHeroTitle": "Ecrits",
+    "galleryHeroLead": "Essais et notes sur la pratique du developpement, le creative coding et les outils qui faconnent la facon dont nous construisons des logiciels. Chaque titre ci-dessous ouvre le texte integral.",
+    "readArticle": "Lire l'article",
+    "galleryListLink": "Liste sur l'accueil",
+    "asideLabel": "Notes techniques"
   },
   "footer": {
     "intro": "Ingenieur et auteur — explorer des idees via le logiciel, des notes et des experiences. Ce site rassemble des projets choisis et des articles occasionnels.",

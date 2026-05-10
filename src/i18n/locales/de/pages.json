@@ -243,7 +243,13 @@
     "stack": "Stack"
   },
   "writing": {
-    "back": "Alle Texte"
+    "back": "Alle Texte",
+    "galleryCategory": "Texte",
+    "galleryHeroTitle": "Texte",
+    "galleryHeroLead": "Essays und Notizen zu Engineering-Praxis, Creative Coding und den Werkzeugen, die praegen, wie wir Software bauen. Jeder Titel unten oeffnet den vollen Text.",
+    "readArticle": "Artikel lesen",
+    "galleryListLink": "Liste auf der Startseite",
+    "asideLabel": "Technische Notizen"
   },
   "footer": {
     "intro": "Ingenieur und Autor — Ideen durch Software, Notizen und Experimente. Diese Seite sammelt ausgewaehlte Arbeit und gelegentlich laengere Texte.",
