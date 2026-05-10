@@ -1,0 +1,22 @@
+export const writingMeta = {
+  "id": "webgpu-first-mental-model",
+  "order": 11,
+  "title": "A first mental model for WebGPU in the browser",
+  "date": "02/05",
+  "category": "Graphics",
+  "excerpt": "WebGPU asks you to think in explicit queues, bind groups, and pipelines instead of the implicit state machine many of us grew up with in immediate-mode GL. That verbosity is the contract: the driver gets a smaller…",
+  "titleLines": [
+    "A first mental model",
+    "for WebGPU in the browser"
+  ],
+  "asideParagraphs": [
+    "Pipeline layout mismatch is the new “wrong uniform slot”: always validate bind group indices against the shader during CI, not only at author time.",
+    "Prefer explicit `copyBufferToTexture` staging for uploads you do once; stream uploads only when profiling proves you need them."
+  ]
+}
+
+WebGPU asks you to think in explicit queues, bind groups, and pipelines instead of the implicit state machine many of us grew up with in immediate-mode GL. That verbosity is the contract: the driver gets a smaller decision surface, which tends to mean more predictable performance on integrated GPUs and laptops.
+
+A tiny ergonomic layer on top—typed shader nodes, macro helpers, or a scene graph that emits pipelines—can buy readability without hiding the two things that still matter: how often you switch pipelines and how wide your memory barriers are. Abstractions that obscure those two knobs eventually show up as jank.
+
+Reach for WebGPU when you need compute shaders beside graphics, large structured buffers, or tighter control over multi-pass rendering. Stay on WebGL when your asset is stable, your audience still includes older Safari constraints, or the port cost outweighs a single fullscreen effect.
