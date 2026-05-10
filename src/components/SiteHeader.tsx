@@ -5,6 +5,7 @@ import { useAppState } from '@/contexts/AppStateContext'
 import {
   aboutSegment,
   hrefHome,
+  hrefWritings,
   locales,
   type Locale,
 } from '@/i18n/routes'
@@ -136,6 +137,13 @@ export function SiteHeader() {
           }
         >
           {t('nav.work')}
+        </button>
+        <button
+          type="button"
+          className="site-header__link"
+          onClick={() => navigate(hrefWritings(locale))}
+        >
+          {t('nav.writings')}
         </button>
       </nav>
       <button

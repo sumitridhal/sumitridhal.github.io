@@ -2,30 +2,9 @@ import { useMemo } from 'react'
 import { Link } from 'react-router-dom'
 
 import { useI18n } from '@/contexts/I18nContext'
-import {
-  paragraphsForWriting,
-  writings,
-  type WritingItem,
-} from '@/data/writingsData'
+import { excerptFromWriting, writings, writingTitle } from '@/data/writingsData'
 import { useViewTransitionNavigate } from '@/hooks/useViewTransitionNavigate'
-import { hrefAbout, hrefHome, hrefWriting, type Locale } from '@/i18n/routes'
-
-function writingTitle(item: WritingItem, locale: Locale): string {
-  const localized = item.title[locale]
-  if (localized.trim()) return localized
-  return item.title.en
-}
-
-function excerptFromWriting(item: WritingItem, locale: Locale): string {
-  const p = paragraphsForWriting(item, locale)[0] ?? ''
-  if (!p) return ''
-  const max = 220
-  if (p.length <= max) return p
-  const slice = p.slice(0, max)
-  const lastSpace = slice.lastIndexOf(' ')
-  const cut = lastSpace > 80 ? slice.slice(0, lastSpace) : slice
-  return `${cut.trimEnd()}…`
-}
+import { hrefAbout, hrefHome, hrefWriting, hrefWritings } from '@/i18n/routes'
 
 export function SiteFooter() {
   const { locale, t } = useI18n()
@@ -60,7 +39,7 @@ export function SiteFooter() {
                 </Link>
               </li>
               <li>
-                <Link className="site-footer__link" to={{ pathname: home, hash: 'writings' }}>
+                <Link className="site-footer__link" to={hrefWritings(locale)}>
                   {t('pages.footer.linkWritings')}
                 </Link>
               </li>
@@ -97,7 +76,7 @@ export function SiteFooter() {
                 </Link>
               </li>
               <li>
-                <Link className="site-footer__nav-link" to={{ pathname: home, hash: 'writings' }}>
+                <Link className="site-footer__nav-link" to={hrefWritings(locale)}>
                   {t('pages.footer.linkWritings')}
                 </Link>
               </li>
