@@ -1,0 +1,22 @@
+export const writingMeta = {
+  "id": "fragment-kernels-blur-and-edges",
+  "order": 8,
+  "title": "Fragment kernels for blur, sharpen, and edges",
+  "date": "12/05",
+  "category": "Graphics",
+  "excerpt": "Many image operations are local: each output pixel is a weighted sum of neighbours in a kernel. A Gaussian blur is separable, meaning two 1D passes with a small tap count approximate a fat 2D convolution with far fewer…",
+  "titleLines": [
+    "Fragment kernels",
+    "for blur and edges"
+  ],
+  "asideParagraphs": [
+    "Kernel radius times resolution is work; widen blur by downsampling half-res first, then upsample with a small filter.",
+    "Linear sampling can fuse two taps when weights align with texel spacing; profile before micro-optimizing."
+  ]
+}
+
+Many image operations are local: each output pixel is a weighted sum of neighbours in a kernel. A Gaussian blur is separable, meaning two 1D passes with a small tap count approximate a fat 2D convolution with far fewer texture reads—exactly the kind of pass budgeting full-screen passes as a design language encourages when a chain is getting heavy.
+
+Box filters are fewer taps but ring in frequency space; Gaussians cost more but decay smoothly. Sobel and unsharp masks are the same machinery with different weights: one estimates gradients for edges, the other adds a high-pass residual back onto the image for crispness.
+
+When a pass must read its own freshly written pixels in the same frame—iterative blur radius, some solvers—you pair surfaces and swap; ping-pong buffers and why GPUs like pairs is the longer story on naming read versus write and precision. For a single separable blur you usually only need two passes and no feedback loop.

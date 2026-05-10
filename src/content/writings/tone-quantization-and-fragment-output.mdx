@@ -1,0 +1,22 @@
+export const writingMeta = {
+  "id": "tone-quantization-and-fragment-output",
+  "order": 9,
+  "title": "Tone, quantization, and the last mile to the screen",
+  "date": "11/05",
+  "category": "Graphics",
+  "excerpt": "Linear light is where physically plausible adds and lighting accumulations behave; display encoding—sRGB or PQ—is where human contrast perception is honoured. Doing heavy grading in the wrong space creates muddy shadows…",
+  "titleLines": [
+    "Tone, quantization, and",
+    "the last mile to the screen"
+  ],
+  "asideParagraphs": [
+    "sRGB framebuffers apply roughly gamma 2.2 on write; linear HDR targets need different monitoring assumptions.",
+    "A final +1/255 hash is not a substitute for understanding whether banding came from the grade or from display pipeline dithering."
+  ]
+}
+
+Linear light is where physically plausible adds and lighting accumulations behave; display encoding—sRGB or PQ—is where human contrast perception is honoured. Doing heavy grading in the wrong space creates muddy shadows or neon highs; the fragment shader is often where you apply a filmic curve or shoulder before the values hit an 8-bit swap chain.
+
+Bit depth sets how many distinct steps exist between black and white. Gentle slopes survive quantization; aggressive lifts on a vignette or sky reveal stair steps that no amount of artistic intent can hide. Fix the curve or widen the buffer before you reach for texture-space rescue.
+
+Dither spreads quantization error into high-frequency noise the eye integrates away—that whole vocabulary lives in when dithering rescues an 8-bit gradient. Halftone rhythm and dot screens are the story in dots, halftone, and the print room in a fragment shader. Here the focus is where in the chain you quantize, with what buffer precision, and whether the stairs came from the grade or from the display path.
