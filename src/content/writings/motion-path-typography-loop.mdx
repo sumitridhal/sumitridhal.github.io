@@ -1,0 +1,87 @@
+import { WritingMotionPathTilesPreviewLazy } from '@/components/writings/WritingMotionPathTilesPreviewLazy'
+
+export const writingMeta = {
+  id: 'motion-path-typography-loop',
+  order: -2,
+  title: 'Tiles on a loop: arc-length motion path and stacking',
+  date: '11/05',
+  category: 'UI',
+  excerpt:
+    'Treat one SVG path as the spine of the composition: sample it by arc length so squares stay evenly spaced, align each tile to the tangent, then break tie order where the path crosses itself.',
+  titleLines: ['Tiles on a loop', 'arc-length path and stacking'],
+  coverSrc: '/writings/motion-path-typography-loop.png',
+  asideParagraphs: [
+    'CSS Motion Path (`offset-path` / `offset-distance` / `offset-rotate: auto`) can replace hand sampling where browser support matches your audience; keep a `getPointAtLength` fallback if you need identical geometry in older engines.',
+    'Painter order in the DOM caps how “correct” self-crossing stacks can look; for publication-grade depth, consider one canvas or WebGL pass with explicit sort keys per sample.',
+  ],
+}
+
+Some layouts look like typography design until you notice every square shares one constraint: **they all ride the same invisible track**. The track is an SVG path. Each tile is a small component instance (glyph, palette, weight), but its screen pose comes from geometry, not from absolute `top` / `left` in Figma space.
+
+## One path, many instances
+
+Author a single `<path d="…">` in a stable view box—here `0 0 960 360`. The path should read as one continuous stroke: flat approach, tight vertical loop, flat exit. Tiles are not positioned by hand; they are **indexed samples** along that stroke. Content inside each tile stays ordinary React (or plain HTML), which keeps the demo easy to extend into a CMS-driven strip.
+
+## Even spacing means arc length
+
+If you place tiles at equal spacing in Bézier *parameter* space, the eye sees clumping in tight curvature. The fix is to walk the path by **arc length**: let `L = path.getTotalLength()` and choose distances `s_i = (i / n) * L` (optionally shifted by an animation phase). The browser gives you [`getPointAtLength(s)`](https://developer.mozilla.org/en-US/docs/Web/API/SVGGeometryElement/getPointAtLength) on the same `<path>` element you render.
+
+```ts
+const L = path.getTotalLength()
+const u = (i / n + phase) % 1
+const s = u * L
+const p = path.getPointAtLength(s)
+```
+
+That three-line core is the whole placement policy.
+
+## Tangent rotation without a plugin
+
+The path does not expose an analytic tangent in the DOM, but a tiny finite difference works well: sample `p` at `s` and again at `s + ε` (clamp `ε` so you stay inside `(0, L)`). The angle of the chord is the tangent direction up to sampling error—good enough for chunky squares at screen scale.
+
+```ts
+const ε = 5
+const p2 = path.getPointAtLength(Math.min(s + ε, L - 0.001))
+const deg = (Math.atan2(p2.y - p.y, p2.x - p.x) * 180) / Math.PI
+```
+
+Apply `transform: translate(-50%, -50%) rotate(${deg}deg)` with `left` / `top` expressed as percentages of the same view box so the layout scales with the figure width. This keeps the preview free of GSAP’s `MotionPathPlugin` while staying honest about what the math is doing.
+
+If you already run GSAP elsewhere, the plugin is a fine alternative: it wraps the same sampling idea behind a tween-friendly API. For a lightweight article embed, direct DOM updates from `requestAnimationFrame` are predictable and easy to tree-shake around.
+
+## CSS Motion Path as a sibling technique
+
+Modern engines support [CSS Motion Path](https://developer.mozilla.org/en-US/docs/Web/CSS/CSS_motion_path): `offset-path: path("…")`, per-tile `offset-distance`, and `offset-rotate: auto` for tangent alignment. That can shrink your JavaScript to almost nothing when you only need static poses or keyframed `offset-distance`. Treat support tables as part of the design brief; the hand-sampled approach above remains the portable baseline.
+
+## Where the path crosses itself
+
+Naive stacking—`z-index: i` in DOM order—fails when two samples sit on different strands of the same loop: the later index is not always the occluder. A pragmatic DOM fix is a **small heuristic**: classify samples whose normalized distance `u = s / L` falls into the loop window and whose sampled `y` sits below a split line as a “rear strand,” and subtract a constant from their `z-index` so the forward strand wins at the crossing. It is not a full painter’s algorithm, but it reads as intentional in a hero-sized figure.
+
+The preview below uses that pattern; tune the `u` window and `y` threshold when you change the path.
+
+<WritingMotionPathTilesPreviewLazy />
+
+The preview is lazy-loaded so the writings index route does not pay for the animation loop until you open this note.
+
+## Motion and reduced preference
+
+When `prefers-reduced-motion: reduce` is active, the preview keeps the same arc-length placement but **stops the phase animation**—one readable still frame instead of drifting tiles. That mirrors how other writing embeds on this site gate continuous motion.
+
+<figure className="writing-inline-figure">
+  <img
+    src="/writings/motion-path-typography-loop.png"
+    alt="Reference layout: typographic squares following a smooth path through a vertical loop"
+    loading="lazy"
+    decoding="async"
+  />
+</figure>
+
+The still above is a **reference mood** for the article (spacing, tangent alignment, overlap). The live embed uses original glyphs and palettes so the page stays self-contained.
+
+## What to steal first
+
+- **Path-first authoring** in a fixed view box, then `%`-based placement so the figure tracks responsive width.
+- **Arc-length indexing** for any “beads on a wire” layout, not only loops.
+- **Explicit stacking policy** wherever one stroke crosses another; document the heuristic so future-you knows which samples are allowed to win.
+
+Optional next steps—scroll-scrubbed phase with `ScrollTrigger`, or moving the strip into canvas if you need hundreds of tiles—are the same pipeline with a different presenter.
