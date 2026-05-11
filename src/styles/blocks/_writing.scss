@@ -277,6 +277,158 @@
   margin-bottom: 0;
 }
 
+.writing-page__body code {
+  padding: 0.1em 0.38em;
+  border-radius: 2px;
+  font-size: 0.9em;
+  font-family: $font-writing-mono;
+  color: rgba(244, 248, 255, 0.96);
+  background: rgba(12, 16, 22, 0.85);
+  border: 1px solid rgba(233, 184, 88, 0.12);
+}
+
+.writing-page__body pre {
+  margin: 0 0 1.15rem;
+  padding: 1rem 1.15rem;
+  overflow-x: auto;
+  border-radius: 2px;
+  border: 1px solid var(--writing-edge);
+  background: rgba(4, 5, 7, 0.94);
+  box-shadow: inset 0 1px 0 rgba(255, 255, 255, 0.04);
+}
+
+.writing-page__body pre code {
+  padding: 0;
+  border: none;
+  background: transparent;
+  font-size: clamp(0.8rem, 1.15vw, 0.88rem);
+  line-height: 1.55;
+  color: rgba(220, 228, 240, 0.95);
+  white-space: pre;
+  display: block;
+}
+
+.writing-page__body .writing-inline-figure {
+  margin: 0 0 1.25rem;
+  border-radius: 2px;
+  border: 1px solid var(--writing-edge);
+  overflow: hidden;
+  background: rgba(5, 6, 8, 0.55);
+}
+
+.writing-page__body .writing-inline-figure img {
+  display: block;
+  width: 100%;
+  height: auto;
+}
+
+.writing-page__body .writing-shader-demo {
+  margin: 0 0 1.25rem;
+  padding: 0;
+  border-radius: 2px;
+  border: 1px solid var(--writing-edge);
+  background: rgba(4, 5, 7, 0.94);
+  box-shadow: inset 0 1px 0 rgba(255, 255, 255, 0.04);
+  overflow: hidden;
+}
+
+.writing-page__body .writing-shader-demo__caption {
+  margin: 0;
+  padding: 0.65rem 1rem 0.65rem;
+  font-family: $font-writing-display;
+  font-size: 0.72rem;
+  font-weight: 700;
+  letter-spacing: 0.12em;
+  text-transform: uppercase;
+  color: $color-writing-mustard;
+}
+
+.writing-page__body .writing-shader-demo__controls {
+  display: flex;
+  flex-wrap: wrap;
+  gap: 0.4rem;
+  padding: 0.5rem 1rem 0.35rem;
+}
+
+.writing-page__body .writing-shader-demo__controls button {
+  font-family: $font-writing-mono;
+  font-size: 0.72rem;
+  font-weight: 600;
+  letter-spacing: 0.04em;
+  text-transform: uppercase;
+  padding: 0.35rem 0.55rem;
+  border-radius: 2px;
+  border: 1px solid rgba(233, 184, 88, 0.22);
+  color: rgba(200, 210, 224, 0.9);
+  background: rgba(12, 16, 22, 0.85);
+  cursor: pointer;
+}
+
+.writing-page__body .writing-shader-demo__controls button:hover,
+.writing-page__body .writing-shader-demo__controls button:focus-visible {
+  color: var(--writing-hero);
+  border-color: rgba(233, 184, 88, 0.45);
+  outline: none;
+}
+
+.writing-page__body .writing-shader-demo__controls button.is-active {
+  color: $color-writing-forest-deep;
+  background: $color-writing-mustard;
+  border-color: rgba(233, 184, 88, 0.55);
+}
+
+.writing-page__body .writing-shader-demo__control-stack {
+  display: flex;
+  flex-direction: column;
+  gap: 0.45rem;
+  padding: 0.5rem 1rem 0.35rem;
+}
+
+.writing-page__body .writing-shader-demo__control-row {
+  display: flex;
+  flex-wrap: wrap;
+  align-items: center;
+  gap: 0.5rem 0.75rem;
+  font-family: $font-writing-mono;
+  font-size: 0.78rem;
+  color: rgba(200, 210, 224, 0.88);
+}
+
+.writing-page__body .writing-shader-demo__control-row input[type='range'] {
+  flex: 1;
+  min-width: 8rem;
+  accent-color: $color-writing-mustard;
+}
+
+.writing-page__body .writing-shader-demo__canvas-wrap {
+  position: relative;
+  width: 100%;
+}
+
+.writing-page__body .writing-shader-demo__canvas {
+  display: block;
+  width: 100%;
+  height: 100%;
+  vertical-align: middle;
+}
+
+.writing-page__body .writing-shader-demo__fallback {
+  position: absolute;
+  inset: 0;
+  margin: 0;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  padding: 1rem;
+  font-family: $font-writing-mono;
+  font-size: 0.82rem;
+  line-height: 1.5;
+  text-align: center;
+  color: rgba(200, 210, 224, 0.88);
+  background: rgba(4, 5, 7, 0.92);
+  z-index: 1;
+}
+
 .writing-page__aside {
   margin: 0;
   padding-left: 1.25rem;
