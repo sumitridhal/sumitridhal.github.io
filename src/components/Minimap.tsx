@@ -2,14 +2,15 @@ import { useEffect, useState } from 'react'
 import { useMatch } from 'react-router-dom'
 
 import { useI18n } from '@/contexts/I18nContext'
+import { hrefHome } from '@/i18n/routes'
 import { useLenis } from '@/providers/LenisProvider'
 
 const SECTIONS = ['hero', 'work', 'about-teaser'] as const
 
 export function Minimap() {
-  const { locale, t } = useI18n()
+  const { t } = useI18n()
   const lenis = useLenis()
-  const onHome = useMatch({ path: `/${locale}`, end: true })
+  const onHome = useMatch({ path: hrefHome, end: true })
   const [active, setActive] = useState<string>('hero')
 
   useEffect(() => {
