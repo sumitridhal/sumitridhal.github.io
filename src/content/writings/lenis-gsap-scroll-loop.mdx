@@ -17,6 +17,18 @@ export const writingMeta = {
 
 Lenis smooths scroll by integrating wheel and touch deltas over time. Out of the box it wants `requestAnimationFrame`. GSAP already owns a ticker for timelines and layout-driven motion. Running two independent animation clocks on the same page is how you get one-frame lag or jitter that is hard to reproduce on a desktop alone.
 
+```ts
+const lenis = new Lenis({ autoRaf: false })
+gsap.ticker.add((time) => {
+  lenis.raf(time * 1000)
+})
+gsap.ticker.lagSmoothing(0)
+```
+
 The fix here is to construct Lenis with `autoRaf: false` and call `lenis.raf(time)` from the GSAP ticker callback. One clock drives both scroll physics and tweens, so easing on scroll-linked effects lines up with the numbers Lenis reports.
+
+<figure className="writing-inline-figure">
+  <img src="/writings/lenis-gsap-scroll-loop.png" alt={writingMeta.title} loading="lazy" decoding="async" />
+</figure>
 
 The home bookshelf still uses Locomotive Scroll for a different layout model. That is intentional: reach for the tool that matches the section’s DOM and art direction instead of forcing one global scroll controller to be clever everywhere. Shared principles—respect reduced motion, measure before you animate—matter more than dependency count.

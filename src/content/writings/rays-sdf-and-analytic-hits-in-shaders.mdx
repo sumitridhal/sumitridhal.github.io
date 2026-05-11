@@ -1,3 +1,5 @@
+import { WritingShaderDemo } from '@/components/writings/WritingShaderDemo'
+
 export const writingMeta = {
   "id": "rays-sdf-and-analytic-hits-in-shaders",
   "order": 7,
@@ -17,6 +19,29 @@ export const writingMeta = {
 
 A ray is an origin plus a direction, r(t) = o + t d with t ≥ 0. Analytic tests solve for t in closed form: a sphere reduces to a quadratic, an axis-aligned box to slab intersections, a plane to a single division. Those hits are cheap, deterministic, and easy to reason about in a fragment or compute shader when your scene is really a handful of primitives.
 
+<WritingShaderDemo
+  preset="analyticRaySphere"
+  ariaLabel="2D slice showing a ray intersecting a circle with a closed-form quadratic hit"
+  caption="Fragment: analytic ray vs sphere"
+/>
+
+```glsl
+bool hitSphere(vec3 ro, vec3 rd, vec3 c, float r, out float t) {
+  vec3 oc = ro - c;
+  float b = dot(oc, rd);
+  float c2 = dot(oc, oc) - r * r;
+  float h = b * b - c2;
+  if (h < 0.0) return false;
+  h = sqrt(h);
+  t = -b - h;
+  return t > 0.0;
+}
+```
+
 A signed distance field returns the shortest distance to a surface, negative inside and positive outside. You combine fields with min for unions, max for intersections, and smooth blends for fillets; the gradient of the field points toward the nearest surface, so a central difference on six taps gives a normal without storing mesh topology.
+
+<figure className="writing-inline-figure">
+  <img src="/writings/rays-sdf-and-analytic-hits-in-shaders.png" alt={writingMeta.title} loading="lazy" decoding="async" />
+</figure>
 
 Raymarching steps along the ray using the SDF value as a conservative stride; the companion piece on raymarching signed distance fields without the hype owns iteration caps, grazing angles, and production shortcuts. Here the takeaway is definitions—what distance means—and how analytic hits and SDFs share the same ray parameter t even when the search strategy differs.

@@ -1,3 +1,5 @@
+import { WritingShaderDemo } from '@/components/writings/WritingShaderDemo'
+
 export const writingMeta = {
   "id": "fragment-shader-in-the-graphics-pipeline",
   "order": 4,
@@ -17,6 +19,29 @@ export const writingMeta = {
 
 Geometry stages turn mesh data into clip-space vertices; rasterization then walks the triangles and asks, for each covered sample, what colour and depth to contribute. The fragment shader is that per-sample programme: it receives interpolated varyings built from vertex outputs, runs in parallel across thousands of pixels, and hands back values the fixed-function back end blends into the render target.
 
+<WritingShaderDemo
+  preset="fragmentPipelineUv"
+  ariaLabel="Per-fragment UV field animated as a colour gradient across the triangle"
+  caption="One invocation per pixel: varyings across UV"
+/>
+
+```glsl
+#version 300 es
+precision highp float;
+in vec2 vUv;
+in vec3 vNormal;
+layout(location = 0) out vec4 fragColor;
+
+void main() {
+  vec3 n = normalize(vNormal);
+  fragColor = vec4(0.5 + 0.5 * n, 1.0);
+}
+```
+
 Uniforms and bound resources are shared across invocations; varyings differ per pixel because they are the result of perspective-correct interpolation across the primitive. That split is why you push bone matrices as uniforms but pass UVs or normals as varyings, and why a bug in one vertex attribute shows up as a smooth gradient of wrong instead of a single wrong constant.
+
+<figure className="writing-inline-figure">
+  <img src="/writings/fragment-shader-in-the-graphics-pipeline.png" alt={writingMeta.title} loading="lazy" decoding="async" />
+</figure>
 
 Fixed-function pieces still matter around the shader: depth tests and early depth rejection, multisample coverage, and blend equations all run after your outputs are defined. A discard or a write to depth can interact with early-z; compute passes, in contrast, have no rasterizer at all—useful when you need scatter writes, but a different contract than the graphics pipeline sketched in a first mental model for WebGPU in the browser.
