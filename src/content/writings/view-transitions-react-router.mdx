@@ -17,6 +17,22 @@ export const writingMeta = {
 
 The View Transitions API gives the browser a snapshot before and after a DOM update and animates between them. React Router’s `navigate()` is just a state transition: if you call it inside `document.startViewTransition`, the same route change can feel connected instead of abrupt.
 
+```ts
+function navigateWithTransition(to: string) {
+  if (!document.startViewTransition) {
+    navigate(to)
+    return
+  }
+  document.startViewTransition(() => {
+    navigate(to)
+  })
+}
+```
+
 The ergonomic win is centralizing the guard in one hook. Wrap `useNavigate` so every intentional navigation goes through the same helper: if `startViewTransition` exists, use it; otherwise call `navigate` immediately so Safari and older Chromium do not regress.
+
+<figure className="writing-inline-figure">
+  <img src="/writings/view-transitions-react-router.png" alt={writingMeta.title} loading="lazy" decoding="async" />
+</figure>
 
 CSS names default transitions (`::view-transition-old` / `::view-transition-new`) or per-element `view-transition-name` when you want a hero image or headline to carry across. Start subtle—opacity and a slight translate—before you chase multi-phase choreography; the API rewards restraint.
