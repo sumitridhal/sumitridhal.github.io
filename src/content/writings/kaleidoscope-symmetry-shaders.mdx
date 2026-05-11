@@ -1,0 +1,50 @@
+import { WritingKaleidoscopeR3fPreviewLazy } from '@/components/writings/WritingKaleidoscopeR3fPreviewLazy'
+
+export const writingMeta = {
+  id: 'kaleidoscope-symmetry-shaders',
+  order: -5,
+  title: 'Kaleidoscope symmetry in shaders',
+  date: '11/05',
+  category: 'Creative code',
+  excerpt:
+    'N-fold kaleidoscopes are dihedral symmetry: fold the plane into a wedge, mirror its edges, and repeat. In fragment space that is a few lines of polar re-mapping before your usual distance or colour functions.',
+  titleLines: ['Kaleidoscope', 'symmetry in shaders'],
+  asideParagraphs: [
+    'Odd versus even fold counts change whether you need an explicit mirror step or can rely on angle wrapping alone; test both with a solid colour wedge first.',
+    'Animating the symmetry axis is a 2D rotation on UV before folding; keep aspect ratio in mind or circles become ellipses at the fold.',
+  ],
+  coverSrc: 'https://picsum.photos/seed/kaleidoscope-symmetry-shaders/960/640',
+}
+
+A digital kaleidoscope imposes **finite symmetry** on whatever pattern you would have drawn in the plane. The dihedral group **D_N** captures **N rotations** and **N reflections**; the shader-friendly view is: map every point into one canonical **sector** of angle `2π / N`, optionally mirror within that sector, then evaluate your motif once.
+
+<WritingKaleidoscopeR3fPreviewLazy />
+
+## Polar fold
+
+Move UVs so the symmetry centre sits at the origin, convert to polar coordinates `(r, θ)`, then **wrap** the angle into `[-π / N, π / N]` and reflect if needed so both edges of the wedge match.
+
+```glsl
+const float PI = 3.14159265;
+
+vec2 kaleidoscope(vec2 uv, float n) {
+  float a = atan(uv.y, uv.x);
+  float r = length(uv);
+  float wedge = 2.0 * PI / n;
+  a = mod(a, wedge);
+  if (a > wedge * 0.5) a = wedge - a; // mirror within wedge
+  return vec2(cos(a), sin(a)) * r;
+}
+```
+
+After `kaleidoscope(uv, float(N))`, feed the result into your distance field, noise sample, or bitmap lookup. What looked like a single smear becomes **N copies** arranged around the centre without duplicating geometry.
+
+## Seams and precision
+
+At `θ ≈ ±π / N` two branches of the fold meet. Small floating-point bias can produce **one-pixel seams**—usually fixable by clamping the wrapped angle with a tiny epsilon or by ensuring your inner pattern is symmetric enough that both sides agree. If you see a dark line, bias `mod` toward the interior of the wedge before the mirror test.
+
+## Motion and palette
+
+Rotating the input UV before folding spins the whole star; **offsetting `a` by time** slides the motif around the ring while the symmetry count stays fixed. Because symmetry multiplies contrast, saturated palettes and hard edges read clearer than smooth photographic gradients, which turn muddy where five or eight copies meet.
+
+Use kaleidoscope symmetry as a **cheap multiplier** on top of work you already planned to do once per pixel: one SDF evaluation, one noise lookup, one photograph warp—then let the fold handle repetition.

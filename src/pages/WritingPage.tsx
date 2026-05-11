@@ -24,7 +24,7 @@ const figureLabels: Record<WritingFigureVariant, string> = {
 
 export function WritingPage() {
   const { slug } = useParams<{ slug: string }>()
-  const { locale, t } = useI18n()
+  const { t } = useI18n()
   const navigate = useViewTransitionNavigate()
 
   const entry = useMemo(() => getWritingEntryBySlug(slug), [slug])
@@ -41,7 +41,7 @@ export function WritingPage() {
   const figureRows = writing?.figureRows ?? []
 
   if (!slug || !writing || !Body) {
-    return <Navigate to={hrefWritings(locale)} replace />
+    return <Navigate to={hrefWritings} replace />
   }
 
   const hasAside = asideParagraphs.length > 0
@@ -53,7 +53,7 @@ export function WritingPage() {
         <button
           type="button"
           className="writing-page__back"
-          onClick={() => navigate(hrefWritings(locale))}
+          onClick={() => navigate(hrefWritings)}
         >
           {t('pages.writing.back')}
         </button>
