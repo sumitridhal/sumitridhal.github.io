@@ -1,0 +1,35 @@
+import { WritingGridPixelRevealPreviewLazy } from '@/components/writings/WritingGridPixelRevealPreviewLazy'
+
+export const writingMeta = {
+  id: 'grid-pixel-image-reveal',
+  order: -1,
+  title: 'Grid pixel image reveal',
+  date: '11/05',
+  category: 'UI',
+  excerpt:
+    'A simple way to mimic editorial “pixel rain” is a fixed grid of tiles on top of a photo: each cell fades out once a global progress crosses its own threshold. Here is a compact version you can scrub by hand.',
+  titleLines: ['Grid pixel', 'image reveal'],
+  coverSrc: 'https://picsum.photos/seed/grid-pixel-image-reveal/960/640',
+  asideParagraphs: [
+    'Hundreds of DOM nodes are fine for a static article embed; if you need thousands of cells or mobile GPUs, move the mask into one canvas or WebGL pass.',
+    '`prefers-reduced-motion` should skip the choreography: this preview jumps to a fully revealed frame and disables the slider.',
+  ],
+}
+
+Editorial sites sometimes hide a hero photograph behind a **grid of blocks** that dissolve in irregular bands—denser toward the bottom, sparse at the top—so the image feels like it is resolving through noise rather than wiping with a single rectangle.
+
+## Thresholds, not keyframes
+
+Give every cell a number `t` in `[0, 1]`. Drive one scalar `progress` (from scroll, time, or a control). While `progress` is below `t`, the tile stays opaque; once `progress` passes `t`, fade the tile out. Bias `t` upward for rows near the bottom and add pseudo-random jitter so the silhouette stays jagged instead of a horizontal line.
+
+That is the whole model: one timeline value, many independent comparisons. Scroll-linked demos usually map `progress` from `ScrollTrigger`; this note uses a **slider** so you can inspect the same mapping without fighting page scroll.
+
+<WritingGridPixelRevealPreviewLazy />
+
+## DOM versus canvas
+
+The embed above is pure DOM: an `<img>` and a CSS grid of small `div`s whose opacity follows `progress`. It is easy to reason about and avoids canvas readback rules for cross-origin textures. The tradeoff is cell count: a few hundred nodes is acceptable here; much denser grids belong on a single `<canvas>` or a GPU quad with a shader that encodes thresholds in a texture.
+
+## Motion preferences
+
+Readers who prefer reduced motion should not have to scrub past hundreds of tiles. The live preview respects `prefers-reduced-motion: reduce` by forcing a fully revealed image and disabling the range control.
