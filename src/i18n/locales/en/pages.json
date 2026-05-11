@@ -248,6 +248,20 @@
     "galleryListLink": "Home listing",
     "asideLabel": "Technical notes"
   },
+  "experiments": {
+    "galleryCategory": "Experiments",
+    "galleryHeroLead": "Motion timelines, WebGL scenes, and fragment shaders — small studies and prototypes. Previews are placeholders until each piece is wired up live.",
+    "kindGsapHeading": "GSAP",
+    "kindThreeHeading": "Three.js",
+    "kindShaderHeading": "Shaders",
+    "homeHeading": "Experiments",
+    "homeLead": "Interactive sketches: timeline motion, 3D scenes, and GPU shaders. Jump into a category or open the full gallery.",
+    "tileGsap": "GSAP",
+    "tileThree": "Three.js",
+    "tileShader": "Shaders",
+    "viewAll": "View all experiments",
+    "galleryListLink": "Home experiments"
+  },
   "footer": {
     "intro": "Engineer and writer exploring ideas through software, notes, and experiments. This site collects selected work and occasional long-form notes.",
     "exploreHeading": "Explore",
