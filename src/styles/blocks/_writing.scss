@@ -277,6 +277,38 @@
   margin-bottom: 0;
 }
 
+.writing-page__body a {
+  color: $color-writing-mustard;
+  text-decoration: underline;
+  text-underline-offset: 0.18em;
+  text-decoration-thickness: 1px;
+  text-decoration-color: rgba(233, 184, 88, 0.55);
+}
+
+.writing-page__body a:hover,
+.writing-page__body a:focus-visible {
+  color: #f2d78a;
+  text-decoration-color: rgba(242, 215, 138, 0.95);
+}
+
+.writing-page__body a code {
+  color: inherit;
+  border-color: rgba(233, 184, 88, 0.28);
+}
+
+.writing-page__aside a {
+  color: $color-writing-mustard;
+  text-decoration: underline;
+  text-underline-offset: 0.18em;
+  text-decoration-color: rgba(233, 184, 88, 0.5);
+}
+
+.writing-page__aside a:hover,
+.writing-page__aside a:focus-visible {
+  color: #f2d78a;
+  text-decoration-color: rgba(242, 215, 138, 0.9);
+}
+
 .writing-page__body code {
   padding: 0.1em 0.38em;
   border-radius: 2px;
@@ -428,6 +460,1598 @@
   color: rgba(200, 210, 224, 0.88);
   background: rgba(4, 5, 7, 0.92);
   z-index: 1;
+}
+
+.writing-page__body .writing-infinite-canvas-preview {
+  margin: 0 0 1.25rem;
+  padding: 0;
+  border-radius: 2px;
+  border: 1px solid var(--writing-edge);
+  background: rgba(4, 5, 7, 0.94);
+  box-shadow: inset 0 1px 0 rgba(255, 255, 255, 0.04);
+  overflow: hidden;
+}
+
+.writing-page__body .writing-infinite-canvas-preview__caption {
+  margin: 0;
+  padding: 0.65rem 1rem 0.65rem;
+  font-family: $font-writing-display;
+  font-size: 0.72rem;
+  font-weight: 700;
+  letter-spacing: 0.12em;
+  text-transform: uppercase;
+  color: $color-writing-mustard;
+}
+
+.writing-page__body .writing-infinite-canvas-preview__canvas-wrap {
+  position: relative;
+  width: 100%;
+}
+
+.writing-page__body .writing-infinite-canvas-preview__canvas {
+  display: block;
+  width: 100%;
+  height: 100%;
+  vertical-align: middle;
+}
+
+.writing-page__body .writing-infinite-canvas-preview__fallback {
+  position: absolute;
+  inset: 0;
+  margin: 0;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  padding: 1rem;
+  font-family: $font-writing-mono;
+  font-size: 0.82rem;
+  line-height: 1.5;
+  text-align: center;
+  color: rgba(200, 210, 224, 0.88);
+  background: rgba(4, 5, 7, 0.92);
+  z-index: 1;
+}
+
+.writing-page__body .writing-infinite-canvas-preview--skeleton .writing-infinite-canvas-preview__caption {
+  color: rgba(233, 184, 88, 0.55);
+}
+
+.writing-page__body .writing-infinite-canvas-preview__skeleton-panel {
+  position: absolute;
+  inset: 0;
+  margin: 0.5rem;
+  border-radius: 1px;
+  border: 1px dashed rgba(233, 184, 88, 0.22);
+  background: linear-gradient(
+    105deg,
+    rgba(18, 22, 30, 0.95) 0%,
+    rgba(28, 34, 46, 0.9) 40%,
+    rgba(18, 22, 30, 0.95) 80%
+  );
+  background-size: 200% 100%;
+  animation: writing-infinite-canvas-skeleton-shimmer 1.1s ease-in-out infinite;
+}
+
+@keyframes writing-infinite-canvas-skeleton-shimmer {
+  0% {
+    background-position: 100% 0;
+  }
+
+  100% {
+    background-position: -100% 0;
+  }
+}
+
+@media (prefers-reduced-motion: reduce) {
+  .writing-page__body .writing-infinite-canvas-preview__skeleton-panel {
+    animation: none;
+    background: rgba(18, 22, 30, 0.95);
+  }
+}
+
+.writing-page__body .writing-generative-play-preview {
+  margin: 0 0 1.25rem;
+  padding: 0;
+  border-radius: 2px;
+  border: 1px solid var(--writing-edge);
+  background: rgba(4, 5, 7, 0.94);
+  box-shadow: inset 0 1px 0 rgba(255, 255, 255, 0.04);
+  overflow: hidden;
+}
+
+.writing-page__body .writing-generative-play-preview__caption {
+  margin: 0;
+  padding: 0.65rem 1rem 0.55rem;
+  font-family: $font-writing-display;
+  font-size: 0.72rem;
+  font-weight: 700;
+  letter-spacing: 0.12em;
+  text-transform: uppercase;
+  color: $color-writing-mustard;
+}
+
+.writing-page__body .writing-generative-play-preview__hud {
+  display: flex;
+  flex-direction: column;
+  gap: 0.4rem;
+  padding: 0.45rem 1rem 0.55rem;
+  border-bottom: 1px solid rgba(255, 255, 255, 0.06);
+}
+
+.writing-page__body .writing-generative-play-preview__control-row {
+  display: flex;
+  flex-wrap: wrap;
+  align-items: center;
+  gap: 0.45rem 0.65rem;
+  font-family: $font-writing-mono;
+  font-size: 0.76rem;
+  color: rgba(200, 210, 224, 0.88);
+}
+
+.writing-page__body .writing-generative-play-preview__control-row label {
+  flex: 0 0 7.5rem;
+  min-width: 5rem;
+}
+
+.writing-page__body .writing-generative-play-preview__control-row input[type='range'] {
+  flex: 1;
+  min-width: 6rem;
+  accent-color: $color-writing-mustard;
+}
+
+.writing-page__body .writing-generative-play-preview__control-value {
+  flex: 0 0 2.6rem;
+  text-align: right;
+  font-variant-numeric: tabular-nums;
+  color: rgba(200, 210, 224, 0.72);
+}
+
+.writing-page__body .writing-generative-play-preview__canvas-wrap {
+  position: relative;
+  width: 100%;
+}
+
+.writing-page__body .writing-generative-play-preview__canvas {
+  display: block;
+  width: 100%;
+  height: 100%;
+  vertical-align: middle;
+}
+
+.writing-page__body .writing-generative-play-preview__fallback {
+  position: absolute;
+  inset: 0;
+  margin: 0;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  padding: 1rem;
+  font-family: $font-writing-mono;
+  font-size: 0.82rem;
+  line-height: 1.5;
+  text-align: center;
+  color: rgba(200, 210, 224, 0.88);
+  background: rgba(4, 5, 7, 0.92);
+  z-index: 1;
+}
+
+.writing-page__body .writing-generative-play-preview--skeleton .writing-generative-play-preview__caption {
+  color: rgba(233, 184, 88, 0.55);
+}
+
+.writing-page__body .writing-generative-play-preview__skeleton-panel {
+  position: absolute;
+  inset: 0;
+  margin: 0.5rem;
+  border-radius: 1px;
+  border: 1px dashed rgba(233, 184, 88, 0.22);
+  background: linear-gradient(
+    105deg,
+    rgba(18, 22, 30, 0.95) 0%,
+    rgba(28, 34, 46, 0.9) 40%,
+    rgba(18, 22, 30, 0.95) 80%
+  );
+  background-size: 200% 100%;
+  animation: writing-infinite-canvas-skeleton-shimmer 1.1s ease-in-out infinite;
+}
+
+@media (prefers-reduced-motion: reduce) {
+  .writing-page__body .writing-generative-play-preview__skeleton-panel {
+    animation: none;
+    background: rgba(18, 22, 30, 0.95);
+  }
+}
+
+.writing-page__body .writing-invader-fractal-preview {
+  margin: 0 0 1.25rem;
+  padding: 0;
+  border-radius: 2px;
+  border: 1px solid var(--writing-edge);
+  background: rgba(4, 5, 7, 0.94);
+  box-shadow: inset 0 1px 0 rgba(255, 255, 255, 0.04);
+  overflow: hidden;
+}
+
+.writing-page__body .writing-invader-fractal-preview__caption {
+  margin: 0;
+  padding: 0.65rem 1rem 0.55rem;
+  font-family: $font-writing-display;
+  font-size: 0.72rem;
+  font-weight: 700;
+  letter-spacing: 0.12em;
+  text-transform: uppercase;
+  color: $color-writing-mustard;
+}
+
+.writing-page__body .writing-invader-fractal-preview__toolbar {
+  padding: 0.35rem 1rem 0.55rem;
+  border-bottom: 1px solid rgba(255, 255, 255, 0.06);
+}
+
+.writing-page__body .writing-invader-fractal-preview__random {
+  font-family: $font-writing-mono;
+  font-size: 0.72rem;
+  font-weight: 600;
+  letter-spacing: 0.04em;
+  text-transform: uppercase;
+  padding: 0.4rem 0.65rem;
+  border-radius: 2px;
+  border: 1px solid rgba(233, 184, 88, 0.28);
+  color: rgba(200, 210, 224, 0.92);
+  background: rgba(12, 16, 22, 0.88);
+  cursor: pointer;
+}
+
+.writing-page__body .writing-invader-fractal-preview__random:hover,
+.writing-page__body .writing-invader-fractal-preview__random:focus-visible {
+  color: var(--writing-hero);
+  border-color: rgba(233, 184, 88, 0.48);
+  outline: none;
+}
+
+.writing-page__body .writing-invader-fractal-preview__body {
+  display: flex;
+  flex-wrap: wrap;
+  align-items: flex-end;
+  justify-content: center;
+  gap: 0.75rem 1rem;
+  padding: 0.75rem 1rem 1rem;
+}
+
+.writing-page__body .writing-invader-fractal-preview__label {
+  margin: 0 0 0.35rem;
+  font-family: $font-writing-mono;
+  font-size: 0.68rem;
+  letter-spacing: 0.06em;
+  text-transform: uppercase;
+  color: rgba(200, 210, 224, 0.65);
+}
+
+.writing-page__body .writing-invader-fractal-preview__half,
+.writing-page__body .writing-invader-fractal-preview__full {
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+}
+
+.writing-page__body .writing-invader-fractal-preview__mini,
+.writing-page__body .writing-invader-fractal-preview__grid {
+  display: grid;
+  gap: 3px;
+  padding: 6px;
+  border-radius: 2px;
+  border: 1px solid rgba(233, 184, 88, 0.18);
+  background: rgba(10, 12, 18, 0.98);
+}
+
+.writing-page__body .writing-invader-fractal-preview__mini span,
+.writing-page__body .writing-invader-fractal-preview__grid span {
+  aspect-ratio: 1;
+  width: clamp(10px, 2.4vw, 18px);
+  border-radius: 1px;
+}
+
+.writing-page__body .writing-invader-fractal-preview__grid span {
+  width: clamp(12px, 3.2vw, 22px);
+}
+
+.writing-page__body .writing-invader-fractal-preview__mini span.is-on,
+.writing-page__body .writing-invader-fractal-preview__grid span.is-on {
+  background: rgba(12, 14, 18, 0.98);
+  box-shadow: inset 0 0 0 1px rgba(233, 184, 88, 0.35);
+}
+
+.writing-page__body .writing-invader-fractal-preview__mini span.is-off,
+.writing-page__body .writing-invader-fractal-preview__grid span.is-off {
+  background: rgba(230, 236, 245, 0.94);
+}
+
+.writing-page__body .writing-invader-fractal-preview__arrow {
+  font-family: $font-writing-mono;
+  font-size: 1.25rem;
+  color: rgba(233, 184, 88, 0.55);
+  padding-bottom: 1.25rem;
+}
+
+.writing-page__body .writing-invader-fractal-preview--skeleton .writing-invader-fractal-preview__caption {
+  color: rgba(233, 184, 88, 0.55);
+}
+
+.writing-page__body .writing-invader-fractal-preview__skeleton-bar {
+  height: 7rem;
+  margin: 0.5rem 1rem 1rem;
+  border-radius: 2px;
+  border: 1px dashed rgba(233, 184, 88, 0.22);
+  background: linear-gradient(
+    105deg,
+    rgba(18, 22, 30, 0.95) 0%,
+    rgba(28, 34, 46, 0.9) 40%,
+    rgba(18, 22, 30, 0.95) 80%
+  );
+  background-size: 200% 100%;
+  animation: writing-infinite-canvas-skeleton-shimmer 1.1s ease-in-out infinite;
+}
+
+@media (prefers-reduced-motion: reduce) {
+  .writing-page__body .writing-invader-fractal-preview__skeleton-bar {
+    animation: none;
+    background: rgba(18, 22, 30, 0.95);
+  }
+}
+
+.writing-page__body .writing-grid-pixel-reveal {
+  margin: 0 0 1.25rem;
+  padding: 0;
+  border-radius: 2px;
+  border: 1px solid var(--writing-edge);
+  background: rgba(4, 5, 7, 0.94);
+  box-shadow: inset 0 1px 0 rgba(255, 255, 255, 0.04);
+  overflow: hidden;
+}
+
+.writing-page__body .writing-grid-pixel-reveal__caption {
+  margin: 0;
+  padding: 0.65rem 1rem 0.65rem;
+  font-family: $font-writing-display;
+  font-size: 0.72rem;
+  font-weight: 700;
+  letter-spacing: 0.12em;
+  text-transform: uppercase;
+  color: $color-writing-mustard;
+}
+
+.writing-page__body .writing-grid-pixel-reveal__body {
+  padding: 0.65rem 0.85rem 0.85rem;
+  display: flex;
+  flex-direction: column;
+  gap: 0.75rem;
+}
+
+.writing-page__body .writing-grid-pixel-reveal__stage {
+  position: relative;
+  width: 100%;
+  aspect-ratio: 16 / 10;
+  border-radius: 2px;
+  overflow: hidden;
+  border: 1px solid rgba(233, 184, 88, 0.14);
+  background: rgba(8, 10, 14, 0.98);
+}
+
+.writing-page__body .writing-grid-pixel-reveal__img {
+  position: absolute;
+  inset: 0;
+  width: 100%;
+  height: 100%;
+  object-fit: cover;
+  display: block;
+}
+
+.writing-page__body .writing-grid-pixel-reveal__grid {
+  position: absolute;
+  inset: 0;
+  display: grid;
+  grid-template-columns: repeat(28, 1fr);
+  grid-template-rows: repeat(18, 1fr);
+  pointer-events: none;
+}
+
+.writing-page__body .writing-grid-pixel-reveal__cell {
+  min-width: 0;
+  min-height: 0;
+  transition: opacity 0.12s ease-out;
+}
+
+.writing-page__body .writing-grid-pixel-reveal__controls {
+  display: flex;
+  flex-direction: column;
+  gap: 0.35rem;
+}
+
+.writing-page__body .writing-grid-pixel-reveal__label {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  gap: 0.75rem;
+  font-family: $font-writing-mono;
+  font-size: 0.78rem;
+  color: rgba(200, 210, 224, 0.92);
+}
+
+.writing-page__body .writing-grid-pixel-reveal__value {
+  font-variant-numeric: tabular-nums;
+  color: rgba(233, 184, 88, 0.88);
+}
+
+.writing-page__body .writing-grid-pixel-reveal__range {
+  width: 100%;
+  accent-color: rgba(233, 184, 88, 0.85);
+  cursor: pointer;
+}
+
+.writing-page__body .writing-grid-pixel-reveal__range:disabled {
+  opacity: 0.45;
+  cursor: not-allowed;
+}
+
+.writing-page__body .writing-grid-pixel-reveal--skeleton .writing-grid-pixel-reveal__caption {
+  color: rgba(233, 184, 88, 0.55);
+}
+
+.writing-page__body .writing-grid-pixel-reveal__skeleton-panel {
+  position: absolute;
+  inset: 0;
+  margin: 0.5rem;
+  border-radius: 1px;
+  border: 1px dashed rgba(233, 184, 88, 0.22);
+  background: linear-gradient(
+    105deg,
+    rgba(18, 22, 30, 0.95) 0%,
+    rgba(28, 34, 46, 0.9) 40%,
+    rgba(18, 22, 30, 0.95) 80%
+  );
+  background-size: 200% 100%;
+  animation: writing-infinite-canvas-skeleton-shimmer 1.1s ease-in-out infinite;
+}
+
+@media (prefers-reduced-motion: reduce) {
+  .writing-page__body .writing-grid-pixel-reveal__cell {
+    transition: none;
+  }
+}
+
+.writing-page__body .writing-organic-wave {
+  margin: 0 0 1.25rem;
+  padding: 0;
+  border-radius: 2px;
+  border: 1px solid var(--writing-edge);
+  background: rgba(4, 5, 7, 0.94);
+  box-shadow: inset 0 1px 0 rgba(255, 255, 255, 0.04);
+  overflow: hidden;
+}
+
+.writing-page__body .writing-organic-wave__caption {
+  margin: 0;
+  padding: 0.65rem 1rem 0.65rem;
+  font-family: $font-writing-display;
+  font-size: 0.72rem;
+  font-weight: 700;
+  letter-spacing: 0.12em;
+  text-transform: uppercase;
+  color: $color-writing-mustard;
+}
+
+.writing-page__body .writing-organic-wave__body {
+  padding: 0 0.85rem 0.85rem;
+  display: flex;
+  flex-direction: column;
+  gap: 0.45rem;
+}
+
+.writing-page__body .writing-organic-wave__stage {
+  display: grid;
+  gap: 0.55rem;
+  min-height: clamp(13rem, 36vh, 21rem);
+  grid-template-columns: 1fr 1fr;
+  grid-template-rows: minmax(0, 1fr);
+  grid-template-areas: 'left right';
+  align-items: stretch;
+}
+
+.writing-page__body .writing-organic-wave__rail {
+  position: relative;
+  overflow: hidden;
+  min-height: 0;
+  min-width: 0;
+  border-radius: 2px;
+  border: 1px solid rgba(233, 184, 88, 0.14);
+  background: rgba(8, 10, 14, 0.98);
+}
+
+.writing-page__body .writing-organic-wave__rail--left {
+  grid-area: left;
+}
+
+.writing-page__body .writing-organic-wave__rail--right {
+  grid-area: right;
+}
+
+.writing-page__body .writing-organic-wave__track {
+  display: flex;
+  flex-direction: column;
+  will-change: transform;
+}
+
+.writing-page__body .writing-organic-wave__strip {
+  flex-shrink: 0;
+}
+
+.writing-page__body .writing-organic-wave__copy {
+  margin: 0;
+  padding: 0.55rem 0.6rem 0.65rem;
+}
+
+.writing-page__body .writing-organic-wave__rail .writing-organic-wave__copy p {
+  margin: 0 0 0.55rem;
+  font-family: $font-writing-serif;
+  font-size: 0.68rem;
+  line-height: 1.45;
+  color: rgba(210, 218, 230, 0.92);
+  text-align: justify;
+  hyphens: auto;
+  will-change: transform;
+}
+
+.writing-page__body .writing-organic-wave__rail .writing-organic-wave__copy p:last-child {
+  margin-bottom: 0;
+}
+
+.writing-page__body .writing-organic-wave__hint {
+  margin: 0;
+  font-family: $font-writing-mono;
+  font-size: 0.72rem;
+  color: rgba(160, 172, 190, 0.75);
+}
+
+.writing-page__body .writing-organic-wave--skeleton .writing-organic-wave__caption {
+  color: rgba(233, 184, 88, 0.55);
+}
+
+.writing-page__body .writing-organic-wave__stage--skeleton {
+  display: grid;
+  gap: 0.55rem;
+  min-height: clamp(13rem, 36vh, 21rem);
+  grid-template-columns: 1fr 1fr;
+  grid-template-rows: minmax(10rem, 14rem);
+  grid-template-areas: 'left right';
+}
+
+.writing-page__body .writing-organic-wave__skeleton-cell {
+  border-radius: 2px;
+  border: 1px dashed rgba(233, 184, 88, 0.2);
+  background: linear-gradient(
+    105deg,
+    rgba(18, 22, 30, 0.95) 0%,
+    rgba(28, 34, 46, 0.9) 40%,
+    rgba(18, 22, 30, 0.95) 80%
+  );
+  background-size: 200% 100%;
+  animation: writing-infinite-canvas-skeleton-shimmer 1.1s ease-in-out infinite;
+}
+
+.writing-page__body .writing-organic-wave__skeleton-cell--left {
+  grid-area: left;
+}
+
+.writing-page__body .writing-organic-wave__skeleton-cell--right {
+  grid-area: right;
+}
+
+@media (prefers-reduced-motion: reduce) {
+  .writing-page__body .writing-organic-wave__rail .writing-organic-wave__copy p {
+    will-change: auto;
+  }
+
+  .writing-page__body .writing-organic-wave__track {
+    will-change: auto;
+  }
+
+  .writing-page__body .writing-organic-wave__skeleton-cell {
+    animation: none;
+    background: rgba(18, 22, 30, 0.95);
+  }
+}
+
+.writing-page__body .writing-superhero-mask {
+  margin: 0 0 1.25rem;
+  padding: 0;
+  border-radius: 2px;
+  border: 1px solid var(--writing-edge);
+  background: rgba(4, 5, 7, 0.94);
+  box-shadow: inset 0 1px 0 rgba(255, 255, 255, 0.04);
+  overflow: hidden;
+}
+
+.writing-page__body .writing-superhero-mask__caption {
+  margin: 0;
+  padding: 0.65rem 1rem 0.65rem;
+  font-family: $font-writing-display;
+  font-size: 0.72rem;
+  font-weight: 700;
+  letter-spacing: 0.12em;
+  text-transform: uppercase;
+  color: $color-writing-mustard;
+}
+
+.writing-page__body .writing-superhero-mask__stage {
+  padding: 0 0.85rem 0.85rem;
+  display: flex;
+  flex-direction: column;
+  gap: 0.45rem;
+  outline: none;
+}
+
+.writing-page__body .writing-superhero-mask__stage:focus-visible {
+  box-shadow: 0 0 0 2px rgba(233, 184, 88, 0.35);
+}
+
+.writing-page__body .writing-superhero-mask__svg {
+  display: block;
+  width: 100%;
+  max-width: 14rem;
+  margin: 0 auto;
+  height: auto;
+  filter: drop-shadow(2px 4px 8px rgba(0, 0, 0, 0.45));
+  border-radius: 2px;
+  touch-action: none;
+}
+
+.writing-page__body .writing-superhero-mask__hint {
+  margin: 0;
+  font-family: $font-writing-mono;
+  font-size: 0.72rem;
+  color: rgba(160, 172, 190, 0.75);
+  text-align: center;
+}
+
+.writing-page__body .writing-superhero-mask--skeleton .writing-superhero-mask__caption {
+  color: rgba(233, 184, 88, 0.55);
+}
+
+.writing-page__body .writing-superhero-mask__stage--skeleton {
+  min-height: 11rem;
+  position: relative;
+}
+
+.writing-page__body .writing-superhero-mask__skeleton-panel {
+  position: absolute;
+  inset: 0.5rem 0.85rem;
+  border-radius: 2px;
+  border: 1px dashed rgba(233, 184, 88, 0.22);
+  background: linear-gradient(
+    105deg,
+    rgba(18, 22, 30, 0.95) 0%,
+    rgba(28, 34, 46, 0.9) 40%,
+    rgba(18, 22, 30, 0.95) 80%
+  );
+  background-size: 200% 100%;
+  animation: writing-infinite-canvas-skeleton-shimmer 1.1s ease-in-out infinite;
+}
+
+@media (prefers-reduced-motion: reduce) {
+  .writing-page__body .writing-superhero-mask__skeleton-panel {
+    animation: none;
+    background: rgba(18, 22, 30, 0.95);
+  }
+}
+
+.writing-page__body .writing-sticky-grid-preview {
+  margin: 0 0 1.25rem;
+  padding: 0;
+  border-radius: 2px;
+  border: 1px solid var(--writing-edge);
+  background: rgba(4, 5, 7, 0.94);
+  box-shadow: inset 0 1px 0 rgba(255, 255, 255, 0.04);
+  overflow: hidden;
+}
+
+.writing-page__body .writing-sticky-grid-preview__caption {
+  margin: 0;
+  padding: 0.55rem 1rem 0.55rem;
+  font-family: $font-writing-display;
+  font-size: 0.62rem;
+  font-weight: 700;
+  letter-spacing: 0.1em;
+  line-height: 1.3;
+  text-transform: uppercase;
+  color: $color-writing-mustard;
+  white-space: nowrap;
+  overflow: hidden;
+  text-overflow: ellipsis;
+}
+
+.writing-page__body .writing-sticky-grid-preview__body {
+  padding: 0 0.65rem 0.55rem;
+}
+
+.writing-page__body .writing-sticky-grid-preview__controls {
+  display: flex;
+  flex-direction: column;
+  gap: 0.5rem;
+  align-items: flex-start;
+}
+
+.writing-page__body .writing-sticky-grid-preview__hint {
+  margin: 0;
+  max-width: 42rem;
+  font-family: $font-writing-mono;
+  font-size: 0.74rem;
+  line-height: 1.5;
+  color: rgba(200, 210, 224, 0.88);
+}
+
+.writing-page__body .writing-sticky-grid-preview__play {
+  appearance: none;
+  border: 1px solid rgba(233, 184, 88, 0.45);
+  border-radius: 2px;
+  padding: 0.4rem 0.75rem;
+  font-family: $font-writing-display;
+  font-size: 0.68rem;
+  font-weight: 700;
+  letter-spacing: 0.08em;
+  text-transform: uppercase;
+  color: $color-writing-forest-deep;
+  background: rgba(233, 184, 88, 0.88);
+  cursor: pointer;
+}
+
+.writing-page__body .writing-sticky-grid-preview__play:hover:not(:disabled) {
+  background: rgba(233, 184, 88, 1);
+}
+
+.writing-page__body .writing-sticky-grid-preview__play:disabled {
+  opacity: 0.45;
+  cursor: not-allowed;
+}
+
+.writing-page__body .writing-sticky-grid-preview__frame {
+  padding: 0 0.65rem 0.75rem;
+}
+
+.writing-page__body .writing-sticky-grid-preview__stage {
+  position: relative;
+  aspect-ratio: 16 / 12;
+  width: 100%;
+  min-height: 20rem;
+  max-height: min(82vh, 34rem);
+  margin: 0 auto;
+  overflow: hidden;
+  border-radius: 2px;
+  background: #fafafa;
+  box-shadow:
+    inset 0 0 0 1px rgba(20, 24, 32, 0.06),
+    0 12px 32px rgba(0, 0, 0, 0.2);
+}
+
+.writing-page__body .writing-sticky-grid-preview__topbar {
+  position: absolute;
+  z-index: 3;
+  left: 0;
+  right: 0;
+  top: 0;
+  display: flex;
+  align-items: flex-start;
+  justify-content: space-between;
+  gap: 0.5rem;
+  padding: 0.45rem 0.55rem 0;
+  font-family: system-ui, -apple-system, sans-serif;
+  font-size: clamp(0.5rem, 1.15vw, 0.65rem);
+  line-height: 1.35;
+  color: rgba(20, 22, 28, 0.88);
+  pointer-events: none;
+}
+
+.writing-page__body .writing-sticky-grid-preview__nav {
+  display: block;
+  max-width: 58%;
+}
+
+.writing-page__body .writing-sticky-grid-preview__promo {
+  flex-shrink: 0;
+  max-width: 40%;
+  text-align: right;
+  color: rgba(100, 108, 120, 0.95);
+}
+
+.writing-page__body .writing-sticky-grid-preview__tiles {
+  position: absolute;
+  inset: 0;
+  z-index: 1;
+  pointer-events: none;
+}
+
+.writing-page__body .writing-sticky-grid-preview__tile {
+  position: absolute;
+  border-radius: 3px;
+  box-shadow: 0 4px 14px rgba(0, 0, 0, 0.08);
+  will-change: transform, opacity;
+}
+
+.writing-page__body .writing-sticky-grid-preview__tile--p0 {
+  background:
+    radial-gradient(ellipse 120% 90% at 30% 30%, rgba(255, 252, 248, 0.98) 0%, transparent 55%),
+    radial-gradient(ellipse 80% 70% at 70% 65%, rgba(255, 214, 196, 0.55) 0%, transparent 50%),
+    linear-gradient(155deg, #f4ebe4 0%, #e8ddd4 100%);
+}
+
+.writing-page__body .writing-sticky-grid-preview__tile--p1 {
+  background:
+    radial-gradient(ellipse 100% 100% at 55% 35%, rgba(255, 255, 250, 0.95) 0%, transparent 50%),
+    radial-gradient(ellipse 70% 60% at 25% 70%, rgba(255, 236, 200, 0.5) 0%, transparent 45%),
+    linear-gradient(165deg, #f0e8dc 0%, #dce8dd 100%);
+}
+
+.writing-page__body .writing-sticky-grid-preview__tile--p2 {
+  background:
+    radial-gradient(ellipse 90% 85% at 40% 40%, rgba(255, 248, 242, 0.98) 0%, transparent 52%),
+    radial-gradient(ellipse 65% 55% at 80% 75%, rgba(220, 236, 216, 0.45) 0%, transparent 48%),
+    linear-gradient(140deg, #ebe6df 0%, #e2ebe0 100%);
+}
+
+.writing-page__body .writing-sticky-grid-preview__hero {
+  position: absolute;
+  inset: 0;
+  z-index: 2;
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  justify-content: center;
+  padding: 1.5rem 12% 2.25rem;
+  text-align: center;
+  pointer-events: none;
+}
+
+.writing-page__body .writing-sticky-grid-preview__title {
+  margin: 0;
+  font-family: Georgia, 'Times New Roman', Times, serif;
+  font-size: clamp(0.85rem, 2.6vw, 1.35rem);
+  font-weight: 500;
+  letter-spacing: -0.02em;
+  line-height: 1.12;
+  color: #14161c;
+}
+
+.writing-page__body .writing-sticky-grid-preview__subtitle {
+  margin: 0.4rem 0 0;
+  width: 100%;
+  max-width: min(36rem, 94%);
+  padding: 0 0.25rem;
+  font-family: system-ui, -apple-system, sans-serif;
+  font-size: clamp(0.34rem, 0.82vw, 0.48rem);
+  font-weight: 600;
+  letter-spacing: 0.1em;
+  line-height: 1.25;
+  text-transform: uppercase;
+  color: rgba(40, 44, 52, 0.82);
+  white-space: nowrap;
+  overflow: hidden;
+  text-overflow: ellipsis;
+}
+
+.writing-page__body .writing-sticky-grid-preview__cta {
+  margin-top: 0.4rem;
+  font-family: system-ui, -apple-system, sans-serif;
+  font-size: clamp(0.38rem, 0.95vw, 0.52rem);
+  font-weight: 600;
+  letter-spacing: 0.06em;
+  text-decoration: underline;
+  text-underline-offset: 0.12em;
+  color: rgba(30, 34, 42, 0.88);
+}
+
+.writing-page__body .writing-sticky-grid-preview__foot {
+  position: absolute;
+  z-index: 3;
+  left: 0;
+  right: 0;
+  bottom: 0;
+  display: flex;
+  align-items: flex-end;
+  justify-content: space-between;
+  gap: 0.5rem;
+  padding: 0 0.45rem 0.3rem;
+  font-family: system-ui, -apple-system, sans-serif;
+  font-size: clamp(0.42rem, 1vw, 0.55rem);
+  line-height: 1.35;
+  color: rgba(60, 66, 76, 0.9);
+  pointer-events: none;
+}
+
+.writing-page__body .writing-sticky-grid-preview__tags {
+  max-width: 55%;
+}
+
+.writing-page__body .writing-sticky-grid-preview__by {
+  flex-shrink: 0;
+  color: rgba(80, 86, 96, 0.92);
+}
+
+.writing-page__body .writing-sticky-grid-preview--skeleton .writing-sticky-grid-preview__caption {
+  color: rgba(233, 184, 88, 0.55);
+}
+
+.writing-page__body .writing-sticky-grid-preview--skeleton .writing-sticky-grid-preview__frame {
+  padding-bottom: 0.75rem;
+}
+
+.writing-page__body .writing-sticky-grid-preview .writing-sticky-grid-preview__skeleton-stage {
+  position: relative;
+  aspect-ratio: 16 / 12;
+  width: 100%;
+  min-height: 20rem;
+  max-height: min(82vh, 34rem);
+  margin: 0 auto;
+  border-radius: 2px;
+  border: 1px dashed rgba(233, 184, 88, 0.22);
+  background: linear-gradient(
+    105deg,
+    rgba(250, 250, 250, 0.12) 0%,
+    rgba(28, 34, 46, 0.35) 40%,
+    rgba(250, 250, 250, 0.12) 80%
+  );
+  background-size: 200% 100%;
+  animation: writing-infinite-canvas-skeleton-shimmer 1.1s ease-in-out infinite;
+}
+
+@media (prefers-reduced-motion: reduce) {
+  .writing-page__body .writing-grid-pixel-reveal__skeleton-panel,
+  .writing-page__body .writing-sticky-grid-preview .writing-sticky-grid-preview__skeleton-stage,
+  .writing-page__body .writing-column-scroll-preview .writing-column-scroll-preview__skeleton-panel,
+  .writing-page__body .writing-motion-path-tiles-preview .writing-motion-path-tiles-preview__skeleton-panel {
+    animation: none;
+    background: rgba(18, 22, 30, 0.95);
+  }
+}
+
+.writing-page__body .writing-column-scroll-preview {
+  margin: 0 0 1.25rem;
+  padding: 0;
+  border-radius: 3px;
+  border: 1px solid var(--writing-edge);
+  background: linear-gradient(165deg, rgba(10, 12, 18, 0.98) 0%, rgba(4, 5, 9, 0.97) 55%, rgba(8, 10, 16, 0.98) 100%);
+  box-shadow:
+    inset 0 1px 0 rgba(255, 255, 255, 0.05),
+    0 10px 28px rgba(0, 0, 0, 0.35);
+  overflow: hidden;
+}
+
+.writing-page__body .writing-column-scroll-preview__caption {
+  margin: 0;
+  padding: 0.65rem 1rem 0.5rem;
+  font-family: $font-writing-display;
+  font-size: 0.72rem;
+  font-weight: 700;
+  letter-spacing: 0.12em;
+  text-transform: uppercase;
+  color: $color-writing-mustard;
+  border-bottom: 1px solid rgba(233, 184, 88, 0.12);
+  white-space: nowrap;
+  overflow: hidden;
+  text-overflow: ellipsis;
+}
+
+.writing-page__body .writing-column-scroll-preview__shell {
+  display: flex;
+  flex-direction: column;
+  gap: 0;
+  padding: 0 0.75rem 0.75rem;
+}
+
+.writing-page__body .writing-column-scroll-preview__chrome {
+  display: flex;
+  flex-wrap: nowrap;
+  align-items: center;
+  justify-content: space-between;
+  gap: 0.65rem;
+  padding: 0.6rem 0 0.65rem;
+  min-width: 0;
+}
+
+.writing-page__body .writing-column-scroll-preview__lede {
+  margin: 0;
+  flex: 1 1 auto;
+  display: flex;
+  flex-wrap: nowrap;
+  align-items: center;
+  gap: 0.45rem 0.65rem;
+  min-width: 0;
+}
+
+.writing-page__body .writing-column-scroll-preview__lede-tag {
+  flex-shrink: 0;
+  font-family: $font-writing-mono;
+  font-size: 0.62rem;
+  font-weight: 700;
+  letter-spacing: 0.14em;
+  text-transform: uppercase;
+  color: rgba(233, 184, 88, 0.9);
+  padding: 0.2rem 0.45rem;
+  border-radius: 2px;
+  border: 1px solid rgba(233, 184, 88, 0.28);
+  background: rgba(0, 0, 0, 0.25);
+}
+
+.writing-page__body .writing-column-scroll-preview__lede-copy {
+  flex: 1 1 auto;
+  min-width: 0;
+  font-family: $font-writing-mono;
+  font-size: 0.72rem;
+  line-height: 1.35;
+  color: rgba(188, 198, 212, 0.88);
+  white-space: nowrap;
+  overflow: hidden;
+  text-overflow: ellipsis;
+}
+
+.writing-page__body .writing-column-scroll-preview__play {
+  flex-shrink: 0;
+  font-family: $font-writing-mono;
+  font-size: 0.72rem;
+  font-weight: 600;
+  letter-spacing: 0.06em;
+  text-transform: uppercase;
+  padding: 0.42rem 0.75rem;
+  border-radius: 2px;
+  border: 1px solid rgba(233, 184, 88, 0.32);
+  color: rgba(200, 210, 224, 0.95);
+  background: rgba(12, 16, 22, 0.92);
+  cursor: pointer;
+  transition:
+    border-color 0.15s ease,
+    color 0.15s ease,
+    background 0.15s ease;
+}
+
+.writing-page__body .writing-column-scroll-preview__play:hover:not(:disabled),
+.writing-page__body .writing-column-scroll-preview__play:focus-visible:not(:disabled) {
+  color: var(--writing-hero);
+  border-color: rgba(233, 184, 88, 0.52);
+  outline: none;
+}
+
+.writing-page__body .writing-column-scroll-preview__play:disabled {
+  opacity: 0.45;
+  cursor: not-allowed;
+}
+
+.writing-page__body .writing-column-scroll-preview__stage {
+  position: relative;
+  border-radius: 2px;
+  border: 1px solid rgba(233, 184, 88, 0.1);
+  background: rgba(0, 0, 0, 0.22);
+  box-shadow: inset 0 0 0 1px rgba(255, 255, 255, 0.02);
+  overflow: hidden;
+}
+
+.writing-page__body .writing-column-scroll-preview__rails {
+  display: grid;
+  grid-template-columns: 1fr 1fr 1fr;
+  gap: 0.35rem;
+  padding: 0.35rem 0.45rem 0.25rem;
+  border-bottom: 1px solid rgba(233, 184, 88, 0.08);
+  background: linear-gradient(180deg, rgba(18, 22, 30, 0.55) 0%, rgba(8, 10, 14, 0.2) 100%);
+}
+
+.writing-page__body .writing-column-scroll-preview__rail {
+  font-family: $font-writing-mono;
+  font-size: 0.58rem;
+  font-weight: 600;
+  letter-spacing: 0.12em;
+  text-transform: uppercase;
+  text-align: center;
+  color: rgba(148, 158, 172, 0.75);
+}
+
+.writing-page__body .writing-column-scroll-preview__rail--center {
+  color: rgba(233, 184, 88, 0.72);
+}
+
+/* max-height set inline from WRITING_COLUMN_SCROLL_VIEWPORT_MAX_REM in WritingColumnScrollPreview.tsx */
+.writing-page__body .writing-column-scroll-preview__viewport {
+  position: relative;
+  overflow-x: hidden;
+  overflow-y: auto;
+  overscroll-behavior: contain;
+  scrollbar-gutter: stable;
+  outline: none;
+}
+
+.writing-page__body .writing-column-scroll-preview__viewport:focus-visible {
+  box-shadow: inset 0 0 0 1px rgba(233, 184, 88, 0.35);
+}
+
+.writing-page__body .writing-column-scroll-preview__viewport--skeleton {
+  min-height: 15rem;
+  overflow: hidden;
+}
+
+.writing-page__body .writing-column-scroll-preview__row {
+  display: flex;
+  gap: 0.45rem;
+  align-items: flex-start;
+  padding: 0.35rem 0 0.5rem;
+  min-height: 260%;
+}
+
+.writing-page__body .writing-column-scroll-preview__col {
+  flex: 1;
+  display: flex;
+  flex-direction: column;
+  gap: 0.35rem;
+  min-width: 0;
+}
+
+.writing-page__body .writing-column-scroll-preview__col--center {
+  box-shadow: inset 0 0 0 1px rgba(233, 184, 88, 0.12);
+  border-radius: 2px;
+  padding: 0.2rem;
+  margin: -0.2rem;
+}
+
+/* Shorter tiles so 2× translateY parallax does not hide the whole stack behind one card. */
+.writing-page__body .writing-column-scroll-preview__col--outer .writing-column-scroll-preview__card {
+  aspect-ratio: 3 / 2;
+}
+
+.writing-page__body .writing-column-scroll-preview__card {
+  position: relative;
+  flex-shrink: 0;
+  width: 100%;
+  aspect-ratio: 4 / 3;
+  border-radius: 2px;
+  overflow: hidden;
+  border: 1px solid rgba(233, 184, 88, 0.16);
+  background: rgba(8, 10, 14, 0.98);
+}
+
+.writing-page__body .writing-column-scroll-preview__col--center .writing-column-scroll-preview__card {
+  border-color: rgba(233, 184, 88, 0.24);
+}
+
+.writing-page__body .writing-column-scroll-preview__img {
+  display: block;
+  width: 100%;
+  height: 100%;
+  object-fit: cover;
+}
+
+.writing-page__body .writing-column-scroll-preview--skeleton .writing-column-scroll-preview__caption {
+  color: rgba(233, 184, 88, 0.55);
+  border-bottom-color: rgba(233, 184, 88, 0.08);
+}
+
+.writing-page__body .writing-column-scroll-preview--skeleton .writing-column-scroll-preview__shell {
+  padding-top: 0;
+}
+
+.writing-page__body .writing-column-scroll-preview__skeleton-chrome {
+  height: 2.35rem;
+  margin: 0.55rem 0 0.6rem;
+  border-radius: 2px;
+  border: 1px dashed rgba(233, 184, 88, 0.16);
+  background: rgba(12, 16, 22, 0.72);
+}
+
+.writing-page__body .writing-column-scroll-preview--skeleton .writing-column-scroll-preview__stage {
+  min-height: 15.5rem;
+  border-style: dashed;
+  border-color: rgba(233, 184, 88, 0.12);
+  background: rgba(0, 0, 0, 0.12);
+}
+
+.writing-page__body .writing-column-scroll-preview .writing-column-scroll-preview__skeleton-panel {
+  position: absolute;
+  inset: 0.5rem;
+  border-radius: 1px;
+  border: 1px dashed rgba(233, 184, 88, 0.22);
+  background: linear-gradient(
+    105deg,
+    rgba(18, 22, 30, 0.95) 0%,
+    rgba(28, 34, 46, 0.9) 40%,
+    rgba(18, 22, 30, 0.95) 80%
+  );
+  background-size: 200% 100%;
+  animation: writing-infinite-canvas-skeleton-shimmer 1.1s ease-in-out infinite;
+}
+
+.writing-page__body .writing-motion-path-tiles-preview {
+  margin: 0 0 1.25rem;
+  padding: 0;
+  border-radius: 2px;
+  border: 1px solid var(--writing-edge);
+  background: rgba(252, 251, 248, 0.98);
+  box-shadow:
+    inset 0 1px 0 rgba(255, 255, 255, 0.85),
+    0 12px 40px rgba(0, 0, 0, 0.18);
+  overflow: hidden;
+}
+
+.writing-page__body .writing-motion-path-tiles-preview__caption {
+  margin: 0;
+  padding: 0.65rem 1rem 0.55rem;
+  font-family: $font-writing-display;
+  font-size: 0.72rem;
+  font-weight: 700;
+  letter-spacing: 0.1em;
+  text-transform: uppercase;
+  color: rgba(32, 36, 44, 0.55);
+  border-bottom: 1px solid rgba(32, 36, 44, 0.08);
+}
+
+.writing-page__body .writing-motion-path-tiles-preview__stage {
+  position: relative;
+  width: 100%;
+  aspect-ratio: 960 / 360;
+}
+
+.writing-page__body .writing-motion-path-tiles-preview__stage--skeleton {
+  min-height: 11rem;
+  aspect-ratio: auto;
+}
+
+.writing-page__body .writing-motion-path-tiles-preview__svg {
+  display: block;
+  width: 100%;
+  height: 100%;
+}
+
+.writing-page__body .writing-motion-path-tiles-preview__path {
+  stroke: rgba(32, 36, 44, 0.075);
+  stroke-width: 2;
+  vector-effect: non-scaling-stroke;
+}
+
+.writing-page__body .writing-motion-path-tiles-preview__tiles {
+  position: absolute;
+  inset: 0;
+  pointer-events: none;
+}
+
+.writing-page__body .writing-motion-path-tiles-preview__tile {
+  position: absolute;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  width: 7%;
+  aspect-ratio: 1;
+  border-radius: 3px;
+  border: 1px solid rgba(20, 24, 32, 0.12);
+  box-shadow:
+    0 2px 0 rgba(255, 255, 255, 0.35) inset,
+    0 6px 14px rgba(0, 0, 0, 0.12);
+}
+
+.writing-page__body .writing-motion-path-tiles-preview__glyph {
+  font-weight: 800;
+  line-height: 1;
+  user-select: none;
+}
+
+.writing-page__body .writing-motion-path-tiles-preview__tile--thumb {
+  padding: 0;
+  overflow: hidden;
+  background: rgba(255, 255, 255, 0.35);
+}
+
+.writing-page__body .writing-motion-path-tiles-preview__thumb {
+  display: block;
+  width: 100%;
+  height: 100%;
+  object-fit: cover;
+  pointer-events: none;
+}
+
+.writing-page__body .writing-motion-path-tiles-preview__tile--a {
+  font-family: Georgia, 'Times New Roman', serif;
+  font-size: clamp(0.95rem, 2.8vw, 1.35rem);
+  color: #f8f4ef;
+  background: linear-gradient(165deg, #c42b2b 0%, #8a1518 100%);
+}
+
+.writing-page__body .writing-motion-path-tiles-preview__tile--beta {
+  font-family: $font-writing-mono;
+  font-size: clamp(0.85rem, 2.4vw, 1.15rem);
+  color: #0e1a22;
+  background: linear-gradient(180deg, #7ec8c8 0%, #3d9a9a 100%);
+}
+
+.writing-page__body .writing-motion-path-tiles-preview__tile--digit {
+  font-family: $font-writing-display;
+  font-size: clamp(1rem, 3vw, 1.4rem);
+  color: #fff8ef;
+  background: linear-gradient(145deg, #e86b2a 0%, #b34412 100%);
+}
+
+.writing-page__body .writing-motion-path-tiles-preview__tile--amp {
+  font-family: $font-writing-display;
+  font-size: clamp(0.95rem, 2.6vw, 1.25rem);
+  color: #f4efe6;
+  background: linear-gradient(120deg, #2a3f6b 0%, #141c2e 100%);
+}
+
+.writing-page__body .writing-motion-path-tiles-preview__tile--m {
+  font-family: $font-writing-display;
+  font-size: clamp(0.95rem, 2.8vw, 1.3rem);
+  letter-spacing: -0.04em;
+  color: #1a1420;
+  background: #f0b8d4;
+}
+
+.writing-page__body .writing-motion-path-tiles-preview__tile--x {
+  font-family: $font-writing-mono;
+  font-size: clamp(0.78rem, 2.2vw, 1rem);
+  font-weight: 700;
+  color: #eaf2ee;
+  background: #3d4f3a;
+}
+
+.writing-page__body .writing-motion-path-tiles-preview__tile--mono {
+  font-family: $font-writing-mono;
+  font-size: clamp(0.72rem, 2vw, 0.95rem);
+  font-weight: 600;
+  color: #0c0c0c;
+  background: repeating-linear-gradient(
+    -12deg,
+    #f2f2f2,
+    #f2f2f2 4px,
+    #dcdcdc 4px,
+    #dcdcdc 8px
+  );
+}
+
+.writing-page__body .writing-motion-path-tiles-preview__tile--pi {
+  font-family: 'Palatino Linotype', Palatino, serif;
+  font-size: clamp(0.95rem, 2.7vw, 1.25rem);
+  color: #fdf8ff;
+  background: linear-gradient(200deg, #5c3d8a 0%, #2c1f42 100%);
+}
+
+.writing-page__body .writing-motion-path-tiles-preview__tile--s {
+  font-family: $font-writing-display;
+  font-size: clamp(1.05rem, 3vw, 1.45rem);
+  font-style: italic;
+  color: #102018;
+  background: #c8e6d4;
+}
+
+.writing-page__body .writing-motion-path-tiles-preview__tile--g {
+  font-family: Georgia, serif;
+  font-size: clamp(1rem, 2.9vw, 1.35rem);
+  font-style: italic;
+  color: #fff5e6;
+  background: linear-gradient(160deg, #d94a1a 0%, #7a2208 100%);
+}
+
+.writing-page__body .writing-motion-path-tiles-preview__tile--inf {
+  font-family: $font-writing-mono;
+  font-size: clamp(0.8rem, 2.3vw, 1.05rem);
+  color: #f0f4ff;
+  background: #1e2a44;
+}
+
+.writing-page__body .writing-motion-path-tiles-preview__tile--z {
+  font-family: $font-writing-display;
+  font-size: clamp(1rem, 3vw, 1.4rem);
+  color: #fdf6c8;
+  background: linear-gradient(135deg, #b8860b 0%, #5c4010 100%);
+}
+
+.writing-page__body .writing-motion-path-tiles-preview__tile--stripe {
+  font-family: $font-writing-display;
+  font-size: clamp(1rem, 3vw, 1.35rem);
+  color: #0a1620;
+  background: repeating-linear-gradient(
+    90deg,
+    #f4d03f,
+    #f4d03f 5px,
+    #1a2832 5px,
+    #1a2832 10px
+  );
+}
+
+.writing-page__body .writing-motion-path-tiles-preview__tile--omega {
+  font-family: $font-writing-mono;
+  font-size: clamp(0.75rem, 2.1vw, 0.98rem);
+  color: #eef6ff;
+  background: linear-gradient(180deg, #4a6fa5 0%, #243750 100%);
+}
+
+.writing-page__body .writing-motion-path-tiles-preview__tile--delta {
+  font-family: $font-writing-display;
+  font-size: clamp(0.95rem, 2.6vw, 1.2rem);
+  color: #221018;
+  background: #f2a6c4;
+}
+
+.writing-page__body .writing-motion-path-tiles-preview__tile--digit2 {
+  font-family: $font-writing-display;
+  font-size: clamp(1.05rem, 3.1vw, 1.45rem);
+  color: #f8fffc;
+  background: #0d6e5f;
+}
+
+.writing-page__body .writing-motion-path-tiles-preview__tile--r {
+  font-family: $font-writing-display;
+  font-size: clamp(0.95rem, 2.8vw, 1.3rem);
+  letter-spacing: 0.02em;
+  color: #f5f0ff;
+  background: linear-gradient(145deg, #6b4c9a 0%, #36244d 100%);
+}
+
+.writing-page__body .writing-motion-path-tiles-preview__tile--nine {
+  font-family: $font-writing-mono;
+  font-size: clamp(0.85rem, 2.5vw, 1.1rem);
+  color: #1c1408;
+  background: #ffd966;
+}
+
+.writing-page__body .writing-motion-path-tiles-preview__tile--lambda {
+  font-family: $font-writing-mono;
+  font-size: clamp(0.78rem, 2.2vw, 1rem);
+  color: #e8fff4;
+  background: #1a3d32;
+}
+
+.writing-page__body .writing-motion-path-tiles-preview__tile--block {
+  font-family: $font-writing-mono;
+  font-size: clamp(0.55rem, 1.6vw, 0.72rem);
+  color: #f0f0f0;
+  background: #111;
+  letter-spacing: 0;
+}
+
+.writing-page__body .writing-motion-path-tiles-preview--skeleton .writing-motion-path-tiles-preview__caption {
+  color: rgba(32, 36, 44, 0.45);
+}
+
+.writing-page__body .writing-motion-path-tiles-preview .writing-motion-path-tiles-preview__skeleton-panel {
+  position: absolute;
+  inset: 0.5rem;
+  border-radius: 3px;
+  border: 1px dashed rgba(32, 36, 44, 0.18);
+  background: linear-gradient(
+    105deg,
+    rgba(245, 244, 240, 0.98) 0%,
+    rgba(230, 228, 222, 0.95) 45%,
+    rgba(245, 244, 240, 0.98) 90%
+  );
+  background-size: 200% 100%;
+  animation: writing-infinite-canvas-skeleton-shimmer 1.1s ease-in-out infinite;
+}
+
+/* GSAP horizontal marquee (writing embed) */
+.writing-page__body .writing-gsap-marquee-preview {
+  margin: 1.75rem 0 2rem;
+}
+
+.writing-page__body .writing-gsap-marquee-preview__caption {
+  margin: 0 0 0.75rem;
+  font-family: $font-writing-mono;
+  font-size: clamp(0.78rem, 1.35vw, 0.88rem);
+  line-height: 1.55;
+  color: rgba(232, 236, 244, 0.72);
+}
+
+.writing-page__body .writing-gsap-marquee-preview__banner {
+  position: relative;
+  border-radius: 10px;
+  overflow: hidden;
+  background: #1c51be;
+  box-shadow: 0 18px 44px rgba(0, 0, 0, 0.35);
+}
+
+.writing-page__body .writing-gsap-marquee-preview__row {
+  overflow: hidden;
+  padding: 0.35rem 0;
+  /* Scales avatars/gaps in `em` with the headline size (caps at 5.14rem). */
+  --marquee-fs: clamp(0.62rem, 3.5vw, 5.14rem);
+  font-size: var(--marquee-fs);
+  line-height: 1;
+}
+
+.writing-page__body .writing-gsap-marquee-preview__row--top {
+  padding-top: 0.5rem;
+}
+
+.writing-page__body .writing-gsap-marquee-preview__row--bot {
+  padding-bottom: 0.5rem;
+}
+
+.writing-page__body .writing-gsap-marquee-preview__track {
+  display: flex;
+  flex-direction: row;
+  flex-wrap: nowrap;
+  width: max-content;
+  will-change: transform;
+}
+
+.writing-page__body .writing-gsap-marquee-preview__group {
+  display: flex;
+  flex-direction: row;
+  flex-wrap: nowrap;
+  align-items: center;
+  flex-shrink: 0;
+  gap: 0.28em;
+  padding-right: 0.85em;
+}
+
+.writing-page__body .writing-gsap-marquee-preview__unit {
+  display: inline-flex;
+  flex-direction: row;
+  flex-wrap: nowrap;
+  align-items: center;
+  gap: 0.28em;
+  padding-right: 0.75em;
+}
+
+.writing-page__body .writing-gsap-marquee-preview__word {
+  font-family: Avenir, 'PP Neue Machina', sans-serif;
+  font-size: 1em;
+  font-weight: 500;
+  letter-spacing: -0.04em;
+  line-height: 1;
+  text-transform: lowercase;
+  color: #fff;
+  white-space: nowrap;
+}
+
+.writing-page__body .writing-gsap-marquee-preview__avatar {
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
+  width: 0.78em;
+  height: 0.78em;
+  border-radius: 50%;
+  flex-shrink: 0;
+  overflow: hidden;
+  box-shadow: 0 0 0 2px rgba(255, 255, 255, 0.22);
+}
+
+.writing-page__body .writing-gsap-marquee-preview__avatar-img {
+  display: block;
+  width: 100%;
+  height: 100%;
+  object-fit: cover;
+}
+
+.writing-page__body .writing-gsap-marquee-preview__rule {
+  display: inline-block;
+  width: 1px;
+  height: 0.72em;
+  margin: 0 0.08em;
+  background: rgba(255, 255, 255, 0.85);
+  flex-shrink: 0;
+}
+
+.writing-page__body .writing-gsap-marquee-preview--skeleton .writing-gsap-marquee-preview__caption {
+  color: rgba(32, 36, 44, 0.45);
+}
+
+.writing-page__body .writing-gsap-marquee-preview__banner--skeleton {
+  min-height: 7.5rem;
+  padding: 0.65rem 0.75rem;
+  display: flex;
+  flex-direction: column;
+  gap: 0.45rem;
+  background: linear-gradient(120deg, #2a5cb8 0%, #1c51be 50%, #2a5cb8 100%);
+  background-size: 200% 100%;
+  animation: writing-infinite-canvas-skeleton-shimmer 1.1s ease-in-out infinite;
+}
+
+.writing-page__body .writing-gsap-marquee-preview__skeleton-row {
+  height: 0.85rem;
+  border-radius: 999px;
+  background: rgba(255, 255, 255, 0.55);
+  opacity: 0.9;
 }
 
 .writing-page__aside {
