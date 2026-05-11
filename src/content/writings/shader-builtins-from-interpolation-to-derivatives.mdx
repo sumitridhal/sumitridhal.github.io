@@ -1,3 +1,5 @@
+import { WritingShaderDemo } from '@/components/writings/WritingShaderDemo'
+
 export const writingMeta = {
   "id": "shader-builtins-from-interpolation-to-derivatives",
   "order": 5,
@@ -17,6 +19,23 @@ export const writingMeta = {
 
 Most fragment work is built from a small toolbox: remap ranges with mix and smoothstep, clamp into valid intervals, normalize directions before dot products, and raise cosines to a power when you need a tight specular lobe—the same vocabulary behind falloff, rim, and sharpness as a lighting vocabulary, without turning this note into another lighting tutorial.
 
+<WritingShaderDemo
+  preset="smoothstepDerivatives"
+  ariaLabel="Side by side: fixed smoothstep edge versus derivative-aware smoothing using fwidth"
+  caption="Left: smoothstep band · Right: fwidth anti-aliased edge"
+/>
+
+```glsl
+float edge = smoothstep(0.2, 0.8, x);
+vec3 purple = mix(vec3(0.1, 0.05, 0.2), vec3(0.9, 0.7, 1.0), edge);
+float w = fwidth(x);
+float aa = smoothstep(0.5 - w, 0.5 + w, x);
+```
+
 Texture builtins sample filtered texels; explicit LOD or gradient hints control which mip level you hit. That matters the moment you threshold a smooth field into a screen pattern, because the same UV field can alias or shimmer if mips are chosen inconsistently—ideas that sit next to halftone and sampling pieces without repeating their whole compositional story.
+
+<figure className="writing-inline-figure">
+  <img src="/writings/shader-builtins-from-interpolation-to-derivatives.png" alt={writingMeta.title} loading="lazy" decoding="async" />
+</figure>
 
 Derivative builtins expose how a quantity changes across the 2x2 pixel quad your invocation belongs to; they drive automatic mip selection and cheap edge-aware effects. Names differ across GLSL, HLSL, and WGSL, but the concepts—filter width, implicit gradients, textureGather—port cleanly once you stop spelling the API and start naming the signal processing.

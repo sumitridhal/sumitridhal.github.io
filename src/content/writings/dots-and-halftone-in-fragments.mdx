@@ -1,3 +1,5 @@
+import { WritingShaderDemo } from '@/components/writings/WritingShaderDemo'
+
 export const writingMeta = {
   "id": "dots-and-halftone-in-fragments",
   "order": 10,
@@ -27,11 +29,27 @@ export const writingMeta = {
       "mesh"
     ]
   ],
-  "coverSrc": "https://picsum.photos/seed/dots-and-halftone-in-fragments/960/720"
+  "coverSrc": "/writings/dots-and-halftone-in-fragments.png"
 }
 
 Print halftone is really a sampling problem: you have a continuous tone image and a binary medium, so you trade spatial resolution for perceived grey. In a fragment shader the medium is not paper but pixels, yet the same idea applies when you threshold a smooth field with a rotating dot screen or ordered Bayer matrix.
 
+<WritingShaderDemo
+  preset="halftoneDots"
+  ariaLabel="Rotating halftone-style dot screen over a smooth tone field"
+  caption="Fragment: rotating dot screen"
+/>
+
+```glsl
+float tone = dot(texture(uImage, vUv).rgb, vec3(0.299, 0.587, 0.114));
+float m = texture(uScreen, vUv * screenScale).r;
+float halftone = step(m, tone);
+```
+
 The compositional win is rhythm. A good screen reads as texture up close and as tone from a distance, which is why newsprint and manga screentone feel alive compared with a flat blur. In real time work you usually drive the screen frequency from UV scale or camera distance so the pattern does not shimmer when the view moves.
+
+<figure className="writing-inline-figure">
+  <img src="/writings/dots-and-halftone-in-fragments.png" alt={writingMeta.title} loading="lazy" decoding="async" />
+</figure>
 
 Keep one eye on contrast. Aggressive screens crush mid-tones and can moiré against fine geometry. Treat angle, cell size, and threshold curve as slow knobs you tune in context rather than constants you copy once from a reference.

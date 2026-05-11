@@ -1,3 +1,5 @@
+import { WritingShaderDemo } from '@/components/writings/WritingShaderDemo'
+
 export const writingMeta = {
   "id": "dither-against-banding",
   "order": 14,
@@ -13,6 +15,24 @@ export const writingMeta = {
 
 Banding shows up when smooth ramps get quantized to too few levels. The eye is excellent at spotting steps in skies, shadows, and vignettes. Dithering spreads that quantization error into high-frequency noise the visual system happily integrates away at normal viewing distance.
 
+<WritingShaderDemo
+  preset="ditherBanding"
+  ariaLabel="Interactive vertical gradient comparing banding from quantization to the same ramp with Bayer dithering"
+  caption="Fragment: quantized vs dithered"
+/>
+
+```glsl
+float bayer2x2(vec2 uv) {
+  ivec2 p = ivec2(fract(uv / 2.0) * 2.0);
+  float m[4] = float[](0.0, 0.75, 0.5, 0.25);
+  return m[p.x + 2 * p.y];
+}
+```
+
 Blue-noise screens are popular in games because they lack the directional crawl of ordered Bayer grids, though they cost a texture lookup and care with tiling. Sometimes a tiny ordered pattern is exactly the retro signal you want—choose for the story, not the trend.
+
+<figure className="writing-inline-figure">
+  <img src="/writings/dither-against-banding.png" alt={writingMeta.title} loading="lazy" decoding="async" />
+</figure>
 
 If you can fix banding upstream with a higher precision buffer or a gentler grade, do that first. Dithering is a bandage, not a nutrition plan; it hides stairs but adds grain that may fight film grain or sharpening later in the chain.

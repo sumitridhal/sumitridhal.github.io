@@ -1,3 +1,5 @@
+import { WritingShaderDemo } from '@/components/writings/WritingShaderDemo'
+
 export const writingMeta = {
   "id": "fullscreen-passes-as-design",
   "order": 13,
@@ -13,6 +15,25 @@ export const writingMeta = {
 
 A post chain is a sequence of transforms on an image: blur, threshold, color grade, vignette. Treat that chain like typography for motion—order matters, and the same operator early versus late reads completely different.
 
+<WritingShaderDemo
+  preset="fullscreenPassVignette"
+  ariaLabel="Single full-screen pass with vignette, scan lines, and subtle grain"
+  caption="Full-screen pass: vignette and scan"
+/>
+
+```javascript
+// Pseudocode: order is part of the look
+let color = sampleScene(uv);
+color = bloom(color);      // early: halos on HDR
+color = colorGrade(color); // late: unified palette
+color = vignette(color);
+return color;
+```
+
 Design-oriented passes answer layout questions: separation of foreground and background, guiding attention with localized contrast, or unifying disparate UI layers under one filmic curve. Decoration answers none of those; it only proves you know how to import a bloom sample.
+
+<figure className="writing-inline-figure">
+  <img src="/writings/fullscreen-passes-as-design.png" alt={writingMeta.title} loading="lazy" decoding="async" />
+</figure>
 
 Budget passes the way you budget components. Each fullscreen draw has a fixed overhead; batch parameters into one pass when effects always ship together, and split only when you need different resolution scales or different temporal filters.

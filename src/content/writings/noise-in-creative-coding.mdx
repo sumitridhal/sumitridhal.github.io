@@ -1,3 +1,5 @@
+import { WritingShaderDemo } from '@/components/writings/WritingShaderDemo'
+
 export const writingMeta = {
   "id": "noise-in-creative-coding",
   "order": 18,
@@ -27,11 +29,34 @@ export const writingMeta = {
       "mesh"
     ]
   ],
-  "coverSrc": "https://picsum.photos/seed/noise-in-creative-coding/960/720"
+  "coverSrc": "/writings/noise-in-creative-coding.png"
 }
 
 Noise is an indispensable tool for creative coding. We use it to generate all kinds of organic effects like clouds, landscapes, and contours. Or to move and distort objects with a more lifelike behaviour than easing alone can suggest.
 
+<WritingShaderDemo
+  preset="valueNoiseFbm"
+  ariaLabel="Layered value noise warping a colour field, similar to fractal Brownian motion"
+  caption="Fragment: fbm-style value noise"
+/>
+
+```glsl
+float fbm(vec2 p) {
+  float v = 0.0;
+  float a = 0.5;
+  for (int i = 0; i < 5; i++) {
+    v += a * snoise(p);
+    p *= 2.02;
+    a *= 0.5;
+  }
+  return v;
+}
+```
+
 The trick is choosing a field that reads well at the scale of your canvas: value noise for grit, gradient noise when you need continuity, and layered octaves when you want detail without a single harsh frequency dominating the frame.
+
+<figure className="writing-inline-figure">
+  <img src="/writings/noise-in-creative-coding.png" alt={writingMeta.title} loading="lazy" decoding="async" />
+</figure>
 
 When you map noise to colour or displacement, keep a slow control surface—amplitude, rotation, seed—so the piece stays tunable in performance. The goal is not randomness for its own sake but a controlled distribution that still surprises on every run.
