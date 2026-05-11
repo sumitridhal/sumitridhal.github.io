@@ -1,0 +1,42 @@
+import { WritingInvaderFractalPreviewLazy } from '@/components/writings/WritingInvaderFractalPreviewLazy'
+
+export const writingMeta = {
+  id: 'fractals-and-invader-pixels',
+  order: -4,
+  pinInFooter: true,
+  footerCoverSrc: '/writings/posters/invader.png',
+  title: 'Invader fractals and pixel language',
+  date: '11/05',
+  category: 'Creative code',
+  excerpt:
+    'Jared Tarbell’s “invader fractals” build a symmetric 5×5 sprite from a random 3×5 half grid: mirror columns around the centre and you get legible aliens without hand-painting every pixel.',
+  titleLines: ['Invader fractals', 'and pixel language'],
+  asideParagraphs: [
+    'Fifteen independent bits yield 32,768 silhouettes before you add colour, animation, or tiling rules—still small enough to brute-force or cache.',
+    'High-contrast two-tone output matches how CRT-era sprites were read: shape first, texture second.',
+  ],
+  coverSrc: '/writings/invader-fractal-reference.png',
+}
+
+**Invader fractals** (see Tarbell’s [Invader Fractal](http://levitated.net/daily/levInvaderFractal.html) write-up on Levitated) are a **tiny generative grammar**: pick a random **3×5** block of on/off cells, then **mirror** the outer columns across the middle so the composite reads as a **5×5** invader. The combinatorics stay toy-like, yet the results scan instantly as arcade silhouettes.
+
+<figure className="writing-inline-figure">
+  <img
+    src="/writings/invader-fractal-reference.png"
+    alt="Diagram: 3 by 5 source grid mirrored into a 5 by 5 invader, with a gallery of generated sprites and Space Invaders context"
+    loading="lazy"
+    decoding="async"
+  />
+</figure>
+
+<WritingInvaderFractalPreviewLazy />
+
+## Half grid, full symmetry
+
+Store only `half[x][y]` for `x ∈ {0,1,2}` and `y ∈ {0,…,4}`. For the full column `X ∈ {0,…,4}`, map `x = min(X, 4 − X)` and copy `half[x][y]`. That is the whole trick: **one reflection** replaces hand-tiling the right side of every row.
+
+## Bit budget and legibility
+
+Because the grid is symmetric, you only ever author **15 bits** per character. The full **5×5** is a presentation choice: the same half seed could be drawn at one pixel per cell on a status LED grid or blown up as chunky squares in print. Tarbell’s larger pieces treat those glyphs as **tiles** in a bigger composition—each invader stays cheap to regenerate while the field reads as dense texture.
+
+Two colours (ink and paper) are usually enough: symmetry already carries most of the “alien” read, so palettes stay disciplined unless you deliberately push poster noise.
