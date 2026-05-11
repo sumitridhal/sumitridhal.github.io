@@ -13,6 +13,17 @@ export const writingMeta = {
 
 Pairing on a hard problem is easier when someone can see the same transcript, file picks, and tool output you do. The friction is rarely the model; it is packaging context so another engineer—or your future self—can replay the reasoning without re-asking half the questions.
 
+```markdown
+## Handoff
+- Branch: `fix/auth-timeout`
+- Tried: raising `idleMs` (no effect on repro)
+- Next: inspect refresh token rotation in `auth/refresh.ts`
+```
+
 Start by treating the session as an artifact: a short README in the repo that links to the branch, lists the key decisions, and points to any scripts or env vars that matter. If you use Claude Code in the terminal, capture the high-signal turns (plan, diff summary, test commands) in commit messages or a changelog entry instead of pasting the entire log.
+
+<figure className="writing-inline-figure">
+  <img src="/writings/making-claude-code-shareable.png" alt={writingMeta.title} loading="lazy" decoding="async" />
+</figure>
 
 When you need a literal handoff, export the smallest slice that still tells the story: the final patch, the failing test name, and one paragraph on what you tried that did not work. Shareable sessions are curated, not raw dumps—and that curation is what makes them useful across teams and time zones.
