@@ -1,0 +1,98 @@
+import { WritingColumnScrollPreviewLazy } from '@/components/writings/WritingColumnScrollPreviewLazy'
+
+export const writingMeta = {
+  id: 'column-scroll-locomotive-codrops',
+  order: -5,
+  title: 'Alternate column scroll: Locomotive on the rail, CSS transform on the outliers',
+  date: '11/05',
+  category: 'UI',
+  excerpt:
+    'Codrops’ ColumnScroll couples Locomotive Scroll’s smooth container with a tiny scroll listener: outer columns get translateY(scroll.y) while the middle column rides the library’s own motion—cheap depth without a second scroll physics engine.',
+  titleLines: ['Alternate column scroll', 'Locomotive + outlier columns'],
+  asideParagraphs: [
+    'Locomotive v4’s API differs from newer smooth-scroll stacks; if you paste this pattern into a greenfield app, compare against current Lenis + native `scroll` patterns and your framework’s lifecycle (destroy on unmount, `update` after layout shifts).',
+    'The full Codrops repo pairs each grid cell with a “content item” for the open/zoom choreography; the snippet here is only the parallax spine—keep that separation in mind when diffing against GitHub.',
+  ],
+  coverSrc: 'https://picsum.photos/seed/column-scroll-locomotive/960/640',
+}
+
+Manoela Ilic’s Codrops tutorial [Alternate Column Scroll Animation](https://tympanus.net/codrops/2021/12/21/alternate-column-scroll-animation/) (December 2021) and the [ColumnScroll repo](https://github.com/codrops/ColumnScroll) show a three-column gallery where the **middle strip** and the **outer strips** do not move in lockstep. The production version layers image choreography on top; your snippet isolates the **spine**: one `LocomotiveScroll` instance on the scroll root, plus a few lines that retarget **only the first and third columns** whenever the library emits `scroll`.
+
+<WritingColumnScrollPreviewLazy />
+
+The preview is lazy-loaded with `React.lazy` so this note’s client chunk stays small until you open the article. It uses **native** `scrollTop` in a local `overflow` box: outer columns use **`translateY(2×scrollTop)`** so they still move opposite the center—inside the same scroller, plain `translateY(scrollTop)` mostly **cancels** scroll painting for those nodes, which is why the live Codrops demo relies on Locomotive’s transform stack instead. Photos are from the [ColumnScroll repo](https://github.com/codrops/ColumnScroll); press **Play demo** for a full eased pass, or scroll inside the strip yourself.
+
+## One container, two notions of “where we are”
+
+`LocomotiveScroll` is constructed on the element marked `data-scroll-container`. With `smooth: true` and a low `lerp` (here `0.13`), the library interpolates toward a target scroll position instead of snapping the DOM to native scroll every frame. Options such as `smartphone: { smooth: true }` and `tablet: { smooth: true }` extend that behavior to coarse pointers so the demo does not feel “broken on mobile” while still being a **scroll hijack** you should treat carefully for accessibility.
+
+Inside that container, layout is a row of `.column-wrap` blocks, each holding a `.column` of `figure.column__item` cells. The middle column carries `data-scroll-section`, which Locomotive uses to segment the page for its own scroll-linked features. The outer columns are ordinary structure; they become special only in JavaScript.
+
+## Selecting “odd” columns
+
+```js
+const oddColumns = [...document.querySelectorAll('.column')].filter(
+  (_, index) => index != 1,
+)
+```
+
+`querySelectorAll('.column')` returns **all three** vertical stacks in document order. The filter drops `index === 1`, i.e. the **center** column. What remains is the left and right rails—the elements that will receive a manual `transform`, while the middle column’s motion comes almost entirely from Locomotive’s own translation of content inside the smooth root.
+
+Naming is a small cognitive tax: “odd columns” here really means **outer** columns (indices `0` and `2`), not odd-numbered DOM indices in the mathematical sense.
+
+## The entire parallax contract in one line
+
+```js
+scroll.on('scroll', (obj) => {
+  oddColumns.forEach(
+    (column) => (column.style.transform = `translateY(${obj.scroll.y}px)`),
+  )
+})
+```
+
+On every scroll tick, `obj.scroll.y` is the library’s **virtual** vertical scroll value. Writing it into `translateY` on the outer columns **stacks** a transform on top of whatever Locomotive already applies to ancestors. The center column skips this assignment, so it does not get the same stacked offset. Visually, that mismatch reads as **differential speed** between the middle gallery and the wings—exactly the “alternate column” affordance without hand-rolling a second scroll timeline.
+
+The original project goes further (content items, positions, open states); the commented sketch in your paste is the bridge to that system:
+
+```js
+// gridItems.forEach((gridItem) => {
+//   const newItem = new GridItem(gridItem);
+//   this.gridItemArr.push(newItem);
+//   newItem.contentItem = new ContentItem(
+//     this.DOM.contentItems[newItem.position]
+//   );
+// });
+```
+
+Each `figure` is meant to pair with a parallel node in another layer so clicks can promote one image and demote the rest. If you only care about the column shear, you can ignore that object graph—but you should know it exists when you open the full sources.
+
+## Markup roles (minimal reading)
+
+The root `.columns` element doubles as `data-scroll-container`: Locomotive owns smooth scrolling for everything inside. Outer wrappers use a modifier like `column-wrap--height` in the full CSS to establish **tall** side columns versus the shorter middle track, which increases how much relative motion you see before the section leaves the viewport. Image cells use nested wrappers (`column__item-imgwrap`, `column__item-img`) so aspect ratio, overflow clipping, and optional parallax on the inner image stay independent of the column-level `translateY`.
+
+`data-pos` attributes order items for the **detail** interaction in the complete demo; they are not required for the two-line parallax hook.
+
+## ESM.sh and production hygiene
+
+```js
+import LocomotiveScroll from 'https://esm.sh/locomotive-scroll@4.1.3'
+```
+
+That import is ideal for CodePen-style sandboxes. In an app bundled with Vite or webpack, prefer `locomotive-scroll` from npm so you control version ranges, tree-shaking, and Content Security Policy. Either way, wire **resize** and **DOM mutations** to Locomotive’s `update()` method when column heights change, and **destroy** the instance when the route unmounts so listeners and `requestAnimationFrame` work do not leak.
+
+## Accessibility and motion budget
+
+Smooth scroll libraries fight native scroll anchoring, keyboard step sizes, and `prefers-reduced-motion`. A practical split:
+
+- When `prefers-reduced-motion: reduce` is set, skip `smooth: true` and skip the `translateY` coupling so the grid degrades to a normal stacked layout.
+- Keep focusable controls out of aggressively transformed subtrees if you see focus rings drifting from visible hit targets in Safari.
+
+## What to copy first
+
+- **Outer columns selected explicitly** (here by index) so the center column remains the visual anchor.
+- **A single scroll emitter** (`scroll.on('scroll', ...)`) driving cheap `transform` updates—no second physics loop.
+- **Tall side tracks + shorter middle** in CSS so the parallax has room to read before the section scrolls away.
+
+What to verify before shipping: scroll restoration on back navigation, interaction with sticky headers, and whether your analytics or third-party widgets assume native `window` scroll events (Locomotive often means those need bridging).
+
+The [live Codrops demo](https://tympanus.net/Development/ColumnScroll/) remains the quickest way to compare **full** behavior against your reduced snippet; use this note when you want only the locomotive + outlier-column mechanism spelled out in one place.
