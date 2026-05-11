@@ -4,11 +4,11 @@ import type { To } from 'react-router-dom'
 import { useAppState } from '@/contexts/AppStateContext'
 import { useI18n } from '@/contexts/I18nContext'
 import { useViewTransitionNavigate } from '@/hooks/useViewTransitionNavigate'
-import { aboutSegment, hrefHome, hrefWritings } from '@/i18n/routes'
+import { hrefAbout, hrefExperiments, hrefHome, hrefWritings } from '@/i18n/routes'
 
 export function MobileMenu() {
   const { menuOpen, setMenuOpen } = useAppState()
-  const { locale, t } = useI18n()
+  const { t } = useI18n()
   const navigate = useViewTransitionNavigate()
   const panelRef = useRef<HTMLDivElement>(null)
 
@@ -47,29 +47,24 @@ export function MobileMenu() {
         role="dialog"
         aria-modal="true"
       >
-        <button type="button" className="mobile-menu__link" onClick={() => go(hrefHome(locale))}>
+        <button type="button" className="mobile-menu__link" onClick={() => go(hrefHome)}>
           {t('nav.home')}
         </button>
-        <button
-          type="button"
-          className="mobile-menu__link"
-          onClick={() => go(`/${locale}/${aboutSegment(locale)}`)}
-        >
+        <button type="button" className="mobile-menu__link" onClick={() => go(hrefAbout)}>
           {t('nav.about')}
         </button>
         <button
           type="button"
           className="mobile-menu__link"
-          onClick={() => go({ pathname: hrefHome(locale), hash: 'work' })}
+          onClick={() => go({ pathname: hrefHome, hash: 'work' })}
         >
           {t('nav.work')}
         </button>
-        <button
-          type="button"
-          className="mobile-menu__link"
-          onClick={() => go(hrefWritings(locale))}
-        >
+        <button type="button" className="mobile-menu__link" onClick={() => go(hrefWritings)}>
           {t('nav.writings')}
+        </button>
+        <button type="button" className="mobile-menu__link" onClick={() => go(hrefExperiments)}>
+          {t('nav.experiments')}
         </button>
         <button
           type="button"
