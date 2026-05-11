@@ -6,6 +6,7 @@ export const writingMeta = {
   title: 'Superhero-style morph with SVG masks, displacement, and GSAP (after Codrops)',
   date: '05/11',
   category: 'SVG',
+  coverSrc: '/writings/superhero-svg-mask-preview/hero.png',
   excerpt:
     'Abner Nascimento’s Codrops walkthrough layers exported pieces in one SVG, drives a wipe with paired mask rects, and pins feTurbulence + feDisplacementMap to mask geometry so the seam liquifies instead of sliding rigidly. GSAP can loop the poster or map pointer Y to timeline progress.',
   titleLines: ['SVG masks + displacement', 'for a “mutant” wipe'],
@@ -33,7 +34,7 @@ You can swap throttle for a **single `requestAnimationFrame` gate** around `prog
 
 <WritingSuperheroSvgMaskPreviewLazy />
 
-The preview above is a **toy composition** (gradients instead of linked Inkscape exports) so the note stays self-contained. It keeps the same three ideas: paired mask rects, displacement only on mask content groups, and GSAP scrubbing **vertical pointer position** against a paused timeline. Leaving the frame eases progress back to zero; with `prefers-reduced-motion: reduce`, it pins a mid-blend still.
+The preview above uses **stacked raster portraits** (civilian under hero) like the article’s `<image>` layers, with the same three ideas: paired mask rects, displacement only on mask content groups, and GSAP scrubbing **vertical pointer position** against a paused timeline. Leaving the frame eases progress back to zero; with `prefers-reduced-motion: reduce`, it pins a mid-blend still.
 
 ## Practical limits
 
