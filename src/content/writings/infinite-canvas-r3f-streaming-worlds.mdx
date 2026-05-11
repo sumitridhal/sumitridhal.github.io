@@ -1,0 +1,77 @@
+import { WritingInfiniteCanvasPreviewLazy } from '@/components/writings/WritingInfiniteCanvasPreviewLazy'
+
+export const writingMeta = {
+  "id": "infinite-canvas-r3f-streaming-worlds",
+  "order": -1,
+  "title": "Streaming a fake-infinite gallery in React Three Fiber",
+  "date": "11/05",
+  "category": "Dev",
+  "excerpt": "Edoardo Lunardi’s Codrops walkthrough turns a heavy R3F scene into something that feels boundless: fixed-cost chunks, deterministic plane slots, and motion that reads as physical. Here is how the pieces fit together and what I’d steal first for maps, timelines, or data walls.",
+  "titleLines": [
+    "Fake infinity",
+    "in R3F"
+  ],
+  "asideParagraphs": [
+    "The full tutorial ships lazy-loaded scene code, texture progress hooks, and a tuned controller; treat this page as a map, then read Edoardo’s article for the exact numbers and edge cases.",
+    "If you fork the idea, profile on a throttled phone tab: chunk throttles and DPR caps are where this pattern lives or dies."
+  ]
+}
+
+In January 2026, [Edoardo Lunardi](https://www.edoardolunardi.dev/) published [**Infinite Canvas: Building a Seamless, Pan-Anywhere Image Space**](https://tympanus.net/codrops/2026/01/07/infinite-canvas-building-a-seamless-pan-anywhere-image-space/) on [Codrops](https://tympanus.net/codrops/). It is the clearest end-to-end treatment I have seen of a pattern that keeps resurfacing: a spatial field of images that *feels* endless while only ever paying for a small neighborhood around the camera.
+
+This note is not a reprint. It is a compressed mental model so future me remembers *why* the system works, with pointers to the source, the [lab demo](https://www.edoardolunardi.dev/lab/infinite-canvas), and the [MIT-licensed repo](https://github.com/edoardolunardi/infinite-canvas).
+
+<WritingInfiniteCanvasPreviewLazy />
+
+The figure above is loaded with `React.lazy` so the drei / WebGL chunk is not on the critical path for the rest of the writings bundle. The live block only models the **near** shell (every chunk gets the same slot grid); a second ring is where you swap to cheaper **far** blocks so the horizon still reads continuous without paying full plane cost.
+
+```tsx
+/** Chebyshev “ring” from the camera chunk — same idea as a square shell, easy to key in React. */
+function chunkRing(dx: number, dy: number): 'near' | 'far' | null {
+  const r = Math.max(Math.abs(dx), Math.abs(dy))
+  if (r <= 1) return 'near' // hot 3×3: full planes, textures, video if you dare
+  if (r === 2) return 'far' // halo: merged mesh, mip atlas, no decode / no raycasts
+  return null // outside active window — unmount
+}
+
+type ChunkProps = { cx: number; cy: number; ring: 'near' | 'far' }
+
+function ChunkBlock({ cx, cy, ring }: ChunkProps) {
+  if (ring === 'far') {
+    // One draw call-ish: baked colors, lower DPR on this group's render target, etc.
+    return <ImpostorChunk cx={cx} cy={cy} resolution={64} />
+  }
+  return <GalleryChunk cx={cx} cy={cy} slots={9} />
+}
+
+// keys = `${cx},${cy},${ring}` so near→far upgrades do not reuse the wrong GPU objects
+```
+
+## Why “infinity” is always staged
+
+You cannot allocate an unbounded Three.js scene. The trick is to move the viewpoint through a coordinate space while **recycling** a constant amount of geometry. The world is a sliding window: when the camera’s chunk index changes, you drop far chunks and instantiate new ones along the travel vector. Cost stays flat; traversal feels open.
+
+That only works if every chunk is **reproducible**. If chunk `(cx, cy, cz)` always yields the same plane positions and seeds, tearing a chunk down and rebuilding it later does not pop the layout. Deterministic pseudo-randomness (hash the chunk id, derive streams per plane slot) is the hinge.
+
+## Four layers worth separating
+
+1. **Boot** — Pull the Canvas and scene graph behind `React.lazy` so first paint is not blocked by WebGL init. Suspense with a null fallback is a deliberate choice when the canvas is full-bleed and you want zero layout shift; swap in a loader if you surface texture progress.
+2. **Spatial index** — Floor-divide camera base position by chunk size to get integer chunk coordinates. Maintain a fixed set of offsets (for example a three-by-three-by-three shell) so React keys stay stable and reconciliation stays predictable.
+3. **Slots → media** — Plane slots carry an index into a finite catalog; modulo wraps the catalog so the universe *repeats* without storing more assets. LRU caching on generated layouts avoids recomputation when users orbit back.
+4. **Presentation budget** — Fade by grid distance and depth, then stop paying for invisible meshes: drive opacity, toggle depth writes when fully opaque, and hide below a small threshold. That is how layered quads stay affordable.
+
+## Motion as integration, not event spam
+
+The controller merges pointer drag, wheel, pinch, and keys into **target** velocities, then eases real velocity toward them each frame. Base position integrates once per tick from that velocity, with decay on targets so the space feels inertial instead of twitchy. Keeping chunk updates tied to that integrated position makes boundary crossings easier to reason about than ad hoc camera nudging inside every input handler.
+
+Zoom spikes deserve their own guard: when Z velocity is high, throttle how often you rebuild the active chunk list so you do not churn React state on every crossed boundary during a fast dolly.
+
+## Performance posture that matches the art direction
+
+High plane counts punish defaults. Clamping device pixel ratio, turning antialiasing off for stacked transparency, and opting into `powerPreference: "high-performance"` are blunt instruments that pay off when the goal is steady frame time on 90–120 Hz panels. Pair that with “do not render what is fully faded” and the scene stays closer to a bounded simulation than a growing scene graph.
+
+## Where I would take it next
+
+The Codrops closing section already names the obvious upgrades: raycast-to-focus as gallery UX, `VideoTexture` with decode paused off-threshold, server-backed chunk payloads, depth-tinted atmospheres, and collision-aware placement instead of random overlaps. The reusable lesson is the **streaming shell**—once you can slide a deterministic window through space, the skin can be artworks, tiles, charts, or log lanes.
+
+If you are implementing rather than skimming, start from the [original tutorial](https://tympanus.net/codrops/2026/01/07/infinite-canvas-building-a-seamless-pan-anywhere-image-space/) and cite it when you ship derivatives; the heavy lifting is in the interplay of caching, fades, and input integration, not in any single clever shader trick.
