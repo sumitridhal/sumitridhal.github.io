@@ -1,0 +1,59 @@
+import { WritingGsapHorizontalMarqueePreviewLazy } from '@/components/writings/WritingGsapHorizontalMarqueePreviewLazy'
+
+export const writingMeta = {
+  id: 'gsap-horizontal-marquee-scroll',
+  order: -2.3,
+  title: 'GSAP horizontal marquee: duplicated strips and linear loops',
+  date: '05/11',
+  category: 'UI',
+  excerpt:
+    'Build hero bands like three offset ticker rows: clip overflow, clone the content once, then tween translateX by exactly half the inner width so the loop never hiccups.',
+  titleLines: ['GSAP horizontal marquee', 'duplicated strips, linear loops'],
+  asideParagraphs: [
+    'If copy comes from a CMS, render the same array twice in the DOM (or once plus a template clone) and keep the second block `aria-hidden` so screen readers do not hear the duplicate.',
+    'When scroll position should drive speed, swap the infinite tween for `ScrollTrigger` scrubbing on the same translate range; the half-width seam math stays identical.',
+  ],
+}
+
+Three parallel ticker rows on a flat field—white lowercase type, small circular portraits, sometimes a hairline divider—read as **one motion system**, not three independent sliders. The trick is mechanical: each row is a viewport with `overflow: hidden`, and the moving layer is **exactly two copies** of the same horizontal strip. When the strip has translated by half of its own scroll width, the second copy lines up where the first started, so you can repeat forever with `ease: 'none'` and no visible jump.
+
+<WritingGsapHorizontalMarqueePreviewLazy />
+
+The live embed above uses the **#1C51BE** field, headline stack (**Avenir**, **PP Neue Machina** fallbacks), tight **letter-spacing**, and circular portrait crops bundled under `public/writings/gsap-marquee-portraits/` so the strip stays self-contained.
+
+## Structure
+
+1. **Row shell** — fixed height, full width, `overflow-x: hidden` (and often `overflow-y: hidden` so subpixel drift does not flash edges).
+2. **Track** — `display: inline-flex` (or flex with `width: max-content`) holding **group A** and **group B** with identical children in the same order.
+3. **Tween** — animate the track’s `x` (transform) from `0` to `-half` where `half = track.scrollWidth / 2`. GSAP’s `repeat: -1` rewinds the tween to the start values each cycle, which lands on the same pixel alignment as long as both groups match.
+
+```ts
+const half = track.scrollWidth / 2
+gsap.fromTo(track, { x: 0 }, { x: -half, duration: 24, ease: 'none', repeat: -1 })
+```
+
+## Opposite directions
+
+To make the middle row drift the other way, start from the aligned “second copy” pose and tween back toward `0`:
+
+```ts
+gsap.fromTo(track, { x: -half }, { x: 0, duration: 32, ease: 'none', repeat: -1 })
+```
+
+Visually the glyphs slide the opposite direction while the seam logic is unchanged.
+
+## Timing and parallax
+
+Stagger **duration** per row (and optionally add a tiny `padding-left` offset on the middle track) so the composition feels less grid-like. Keep every row on linear easing; easing in the middle of a seamless loop introduces a micro-pause at the wrap unless you build a custom wrap-aware curve.
+
+## Reduced motion
+
+When `prefers-reduced-motion: reduce` is set, stop the tweens and park each track at a fixed `x` so the layout still reads as the same hero, without continuous drift—matching how other writing embeds on this site treat optional motion.
+
+The preview is lazy-loaded so listing routes do not pay for GSAP until you open this note.
+
+## What to steal first
+
+- **Half-width loop invariant** — measure once per layout pass; if fonts or copy change, `invalidateOnRefresh` on a `ScrollTrigger` wrapper (or a `ResizeObserver` that re-measures) keeps the seam tight.
+- **Linear infinite tweens** — reserve easing for one-shot entrances; marquees stay `ease: 'none'`.
+- **Row independence** — duplicate *per row* if the sequences differ (as in the preview); do not share one global strip unless every row’s content matches.
