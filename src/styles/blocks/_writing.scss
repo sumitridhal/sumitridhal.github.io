@@ -1083,10 +1083,10 @@
 }
 
 .writing-page__body .writing-superhero-mask__stage {
-  padding: 0 0.85rem 0.85rem;
+  padding: 0.85rem;
   display: flex;
   flex-direction: column;
-  gap: 0.45rem;
+  gap: 0;
   outline: none;
 }
 
@@ -1097,7 +1097,7 @@
 .writing-page__body .writing-superhero-mask__svg {
   display: block;
   width: 100%;
-  max-width: 14rem;
+  max-width: 46rem;
   margin: 0 auto;
   height: auto;
   filter: drop-shadow(2px 4px 8px rgba(0, 0, 0, 0.45));
@@ -1105,20 +1105,12 @@
   touch-action: none;
 }
 
-.writing-page__body .writing-superhero-mask__hint {
-  margin: 0;
-  font-family: $font-writing-mono;
-  font-size: 0.72rem;
-  color: rgba(160, 172, 190, 0.75);
-  text-align: center;
-}
-
 .writing-page__body .writing-superhero-mask--skeleton .writing-superhero-mask__caption {
   color: rgba(233, 184, 88, 0.55);
 }
 
 .writing-page__body .writing-superhero-mask__stage--skeleton {
-  min-height: 11rem;
+  min-height: 15rem;
   position: relative;
 }
 
