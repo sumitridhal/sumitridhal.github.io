@@ -17,6 +17,17 @@ export const writingMeta = {
 
 Not every multilingual marketing site needs `i18next`. Here the URL carries the locale as the first segment, `App` reads `pathnameLocale`, and a thin `I18nProvider` supplies `t("namespace.key")` over static JSON imports. TypeScript still checks shape at build time because the bundles are real modules.
 
+```ts
+export function pathnameLocale(pathname: string): 'en' | 'fr' {
+  const seg = pathname.split('/').filter(Boolean)[0]
+  return seg === 'fr' ? 'fr' : 'en'
+}
+```
+
 Localized path slugs—`about` versus `uber`, `work` versus `projekte`—live next to the same route table as small helpers (`hrefAbout`, `hrefWork`). That keeps links honest: you generate URLs from functions instead of hand-pasting strings that drift when copy changes.
+
+<figure className="writing-inline-figure">
+  <img src="/writings/locale-prefix-without-i18n-library.png" alt={writingMeta.title} loading="lazy" decoding="async" />
+</figure>
 
 Long-form “writings” live as MDX files under `src/content/writings` so prose stays in markdown while excerpts, asides, and gallery cards share one typed `writingMeta` export per file. UI chrome stays in JSON per locale. The split keeps the design system in components without treating every paragraph like a CMS blob.
