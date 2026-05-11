@@ -1,3 +1,5 @@
+import { WritingShaderDemo } from '@/components/writings/WritingShaderDemo'
+
 export const writingMeta = {
   "id": "ping-pong-buffers-explained",
   "order": 16,
@@ -13,6 +15,27 @@ export const writingMeta = {
 
 Many effects need the previous frame as input: motion blur trails, fluid advection, reaction-diffusion, or cheap temporal blur. You cannot read and write the same texture safely in one pass, so you maintain two surfaces and swap which is source and destination each frame.
 
+<WritingShaderDemo
+  preset="pingPongFeedback"
+  ariaLabel="Ping-pong feedback: previous frame is sampled while a new frame is written to the other buffer, then swapped"
+  caption="WebGL2: read/write swap each frame (move the pointer)"
+  height={280}
+/>
+
+```glsl
+uniform sampler2D uRead;
+layout(location = 0) out vec4 fragWrite;
+
+void main() {
+  vec2 uv = gl_FragCoord.xy / vec2(textureSize(uRead, 0));
+  fragWrite = advect(uRead, uv);
+}
+```
+
 The API details differ—FBO attachments in WebGL, render textures in engines—but the mental model is identical. Odd frames write A while sampling B; even frames flip. Your bug class shifts from math mistakes to index mistakes, so name variables `read` and `write` instead of `tex0` and `tex1`.
+
+<figure className="writing-inline-figure">
+  <img src="/writings/ping-pong-buffers-explained.png" alt={writingMeta.title} loading="lazy" decoding="async" />
+</figure>
 
 Watch precision and edge modes. Low bit depth feedback loops amplify noise; linear filtering on a simulation grid smears intent. Match filter and format to the phenomenon you are approximating, not whatever the template project shipped with.
