@@ -1,47 +1,23 @@
-export const locales = ["en", "de", "fr", "hi"] as const;
-export type Locale = (typeof locales)[number];
+/** App path helpers (no locale prefix). */
 
-export function isLocale(value: string | undefined): value is Locale {
-  return value === "en" || value === "de" || value === "fr" || value === "hi";
+import type { ExperimentKind } from '@/data/experimentsData'
+
+export const hrefHome = '/'
+
+export const hrefAbout = '/about'
+
+export const hrefWritings = '/writing'
+
+export const hrefExperiments = '/experiments'
+
+export function hrefExperimentsSection(kind: ExperimentKind): string {
+  return `${hrefExperiments}#${kind}`
 }
 
-export const defaultLocale: Locale = "en";
-
-/** First path segment after `/:lang`; falls back when URL has no locale (e.g. `/`). */
-export function pathnameLocale(pathname: string): Locale {
-  const seg = pathname.split("/").filter(Boolean)[0];
-  return isLocale(seg) ? seg : defaultLocale;
+export function hrefWork(projectSlug: string): string {
+  return `/work/${projectSlug}`
 }
 
-export const routeSlug = {
-  about: { en: "about", de: "uber", fr: "about", hi: "about" },
-  work: { en: "work", de: "projekte", fr: "work", hi: "work" },
-} as const;
-
-export function aboutSegment(locale: Locale): string {
-  return routeSlug.about[locale];
-}
-
-export function workSegment(locale: Locale): string {
-  return routeSlug.work[locale];
-}
-
-export function hrefAbout(locale: Locale): string {
-  return `/${locale}/${aboutSegment(locale)}`;
-}
-
-export function hrefWork(locale: Locale, projectSlug: string): string {
-  return `/${locale}/${workSegment(locale)}/${projectSlug}`;
-}
-
-export function hrefHome(locale: Locale): string {
-  return `/${locale}`;
-}
-
-export function hrefWritings(locale: Locale): string {
-  return `/${locale}/writing`;
-}
-
-export function hrefWriting(locale: Locale, slug: string): string {
-  return `/${locale}/writing/${slug}`;
+export function hrefWriting(slug: string): string {
+  return `/writing/${slug}`
 }
