@@ -1,0 +1,71 @@
+export const writingMeta = {
+  "id": "threejs-webglrendertarget-minimal-flow",
+  "order": -1,
+  "title": "A minimal WebGLRenderTarget flow in Three.js",
+  "date": "11/05",
+  "category": "Graphics",
+  "excerpt": "Off-screen rendering starts with a `WebGLRenderTarget`: a color (and optional depth) attachment sized in pixels, independent of the canvas backing store. You bind it, draw your scene or a full-screen pass, then bind `null` to…",
+  "titleLines": [
+    "Minimal WebGLRenderTarget",
+    "flow in Three.js"
+  ],
+  "asideParagraphs": [
+    "Match internal format, type, and filtering to what downstream shaders sample—`NearestFilter` for integer IDs, `LinearFilter` for blurred color. Mipmaps on render targets are rarely what you want for simulation buffers.",
+    "In R3F you still create targets with `new THREE.WebGLRenderTarget`; Fiber does not wrap FBOs. Use `useThree` for `gl` and `size`, resize targets in `useLayoutEffect` when `width`/`height` change, and render in `useFrame` before the default scene render or via a dedicated pass order you control."
+  ]
+}
+
+Off-screen rendering starts with a `WebGLRenderTarget`: a color (and optional depth) attachment sized in pixels, independent of the canvas backing store. You bind it, draw your scene or a full-screen pass, then bind `null` to show the default framebuffer again. Everything else—ping-pong, blur chains, deferred G-buffers—is a composition of that idea.
+
+```ts
+import * as THREE from 'three'
+
+const rt = new THREE.WebGLRenderTarget(1024, 1024, {
+  minFilter: THREE.LinearFilter,
+  magFilter: THREE.LinearFilter,
+  depthBuffer: true,
+})
+
+function resizeTargets(w: number, h: number) {
+  const dpr = window.devicePixelRatio || 1
+  const rw = Math.floor(w * dpr)
+  const rh = Math.floor(h * dpr)
+  rt.setSize(rw, rh)
+}
+```
+
+Call `setSize` when the canvas resizes; stale dimensions produce stretched or cropped sampling when you map UVs from `gl_FragCoord` or full-screen triangles.
+
+### Orthographic blit
+
+A common second pass draws a **clip-space quad** with an orthographic camera so a fragment shader reads the render target as a texture. `PlaneGeometry(2, 2)` at the origin, paired with an ortho camera `(-1,1)` / `(1,-1)`, covers NDC without perspective divide surprises.
+
+```ts
+const blitScene = new THREE.Scene()
+const blitCam = new THREE.OrthographicCamera(-1, 1, 1, -1, 0, 1)
+const quad = new THREE.Mesh(
+  new THREE.PlaneGeometry(2, 2),
+  new THREE.MeshBasicMaterial({ map: rt.texture }),
+)
+blitScene.add(quad)
+
+// Off-screen
+renderer.setRenderTarget(rt)
+renderer.render(mainScene, mainCamera)
+
+// To screen
+renderer.setRenderTarget(null)
+renderer.render(blitScene, blitCam)
+```
+
+Swap materials or shader uniforms instead of `MeshBasicMaterial` when you need tone mapping, kernels, or multi-texture compositing.
+
+### Ordering with React Three Fiber
+
+Fiber calls `gl.render` for you after `useFrame` callbacks. If you need custom target binding, either perform your off-screen pass **inside** `useFrame` before other hooks mutate the scene, or set `gl.autoClear = false` and take full ownership of clear and render order—document the sequence so the next contributor does not insert a hook that clears your attachment mid-frame.
+
+<figure className="writing-inline-figure">
+  <img src="/writings/threejs-webglrendertarget-minimal-flow.png" alt={writingMeta.title} loading="lazy" decoding="async" />
+</figure>
+
+Ping-pong feedback is the next step: two targets, read from one while writing the other, then swap handles—same resize rules, twice the bookkeeping. The article on ping-pong buffers walks that pattern; render targets are the object you are swapping.
