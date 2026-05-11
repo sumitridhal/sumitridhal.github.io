@@ -62,7 +62,7 @@ type FloaterLayoutEntry = {
   left?: string
   right?: string
   floaterId: FloaterId
-  /** Enables per-letter intro GSAP on this slot (any locale). */
+  /** Enables per-letter intro GSAP on this slot. */
   letterIntro?: boolean
 }
 
