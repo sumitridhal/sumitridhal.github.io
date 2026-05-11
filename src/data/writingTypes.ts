@@ -20,6 +20,10 @@ export type WritingMeta = {
   /** Teaser text for footer and cards; usually derived from the opening paragraph. */
   excerpt: string
   coverSrc?: string
+  /** When set, site footer uses this image instead of `coverSrc` (e.g. portrait poster). */
+  footerCoverSrc?: string
+  /** Prefer this post in the site footer “latest” slot over sort order. */
+  pinInFooter?: boolean
   titleLines?: string[]
   asideParagraphs?: string[]
   figureRows?: WritingFigureVariant[][]
