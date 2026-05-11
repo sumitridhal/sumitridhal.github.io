@@ -7,11 +7,14 @@ import { useViewTransitionNavigate } from '@/hooks/useViewTransitionNavigate'
 import { hrefAbout, hrefHome, hrefWriting, hrefWritings } from '@/i18n/routes'
 
 export function SiteFooter() {
-  const { locale, t } = useI18n()
+  const { t } = useI18n()
   const navigate = useViewTransitionNavigate()
-  const latest = writings[0]
+  const latest = useMemo(
+    () => writings.find((w) => w.pinInFooter) ?? writings[0],
+    [],
+  )
+  const footerCoverSrc = latest?.footerCoverSrc ?? latest?.coverSrc
 
-  const home = hrefHome(locale)
   const excerpt = useMemo(
     () => (latest ? excerptFromWriting(latest) : ''),
     [latest],
@@ -34,12 +37,12 @@ export function SiteFooter() {
             </h2>
             <ul className="site-footer__list" role="list">
               <li>
-                <Link className="site-footer__link" to={{ pathname: home, hash: 'work' }}>
+                <Link className="site-footer__link" to={{ pathname: hrefHome, hash: 'work' }}>
                   {t('pages.footer.linkWork')}
                 </Link>
               </li>
               <li>
-                <Link className="site-footer__link" to={hrefWritings(locale)}>
+                <Link className="site-footer__link" to={hrefWritings}>
                   {t('pages.footer.linkWritings')}
                 </Link>
               </li>
@@ -47,7 +50,7 @@ export function SiteFooter() {
                 <button
                   type="button"
                   className="site-footer__link site-footer__link--button"
-                  onClick={() => navigate(hrefAbout(locale))}
+                  onClick={() => navigate(hrefAbout)}
                 >
                   {t('pages.footer.linkAbout')}
                 </button>
@@ -65,18 +68,18 @@ export function SiteFooter() {
                 <button
                   type="button"
                   className="site-footer__nav-link"
-                  onClick={() => navigate(hrefAbout(locale))}
+                  onClick={() => navigate(hrefAbout)}
                 >
                   {t('pages.footer.linkAbout')}
                 </button>
               </li>
               <li>
-                <Link className="site-footer__nav-link" to={{ pathname: home, hash: 'work' }}>
+                <Link className="site-footer__nav-link" to={{ pathname: hrefHome, hash: 'work' }}>
                   {t('pages.footer.linkWork')}
                 </Link>
               </li>
               <li>
-                <Link className="site-footer__nav-link" to={hrefWritings(locale)}>
+                <Link className="site-footer__nav-link" to={hrefWritings}>
                   {t('pages.footer.linkWritings')}
                 </Link>
               </li>
@@ -89,14 +92,14 @@ export function SiteFooter() {
         <div className="site-footer__inner site-footer__grid site-footer__grid--lower">
           {latest ? (
             <Link
-              className={`site-footer__visual${latest.coverSrc ? ' site-footer__visual--cover' : ''}`}
-              to={hrefWriting(locale, latest.id)}
+              className={`site-footer__visual${footerCoverSrc ? ' site-footer__visual--cover' : ''}`}
+              to={hrefWriting(latest.id)}
               aria-label={title}
             >
-              {latest.coverSrc ? (
+              {footerCoverSrc ? (
                 <img
-                  className="site-footer__visual-img"
-                  src={latest.coverSrc}
+                  className={`site-footer__visual-img${latest.footerCoverSrc ? ' site-footer__visual-img--poster' : ''}`}
+                  src={footerCoverSrc}
                   alt=""
                   width={960}
                   height={720}
@@ -121,10 +124,7 @@ export function SiteFooter() {
               <>
                 <p className="site-footer__post-title">{title}</p>
                 {excerpt ? <p className="site-footer__excerpt">{excerpt}</p> : null}
-                <Link
-                  className="site-footer__cta"
-                  to={hrefWriting(locale, latest.id)}
-                >
+                <Link className="site-footer__cta" to={hrefWriting(latest.id)}>
                   {t('pages.footer.readPostCta')}
                 </Link>
               </>

@@ -1,11 +1,10 @@
 import { StrictMode } from 'react'
 import { createRoot } from 'react-dom/client'
-import { BrowserRouter, useLocation } from 'react-router-dom'
+import { BrowserRouter } from 'react-router-dom'
 
 import { AppStateProvider } from '@/contexts/AppStateContext'
 import { I18nProvider } from '@/contexts/I18nContext'
 import { Intro } from '@/components/Intro'
-import { pathnameLocale } from '@/i18n/routes'
 import { LenisProvider } from '@/providers/LenisProvider'
 
 import App from '@/App.tsx'
@@ -13,9 +12,8 @@ import App from '@/App.tsx'
 import '@/styles/globals.scss'
 
 export function AppRoot() {
-  const { pathname } = useLocation()
   return (
-    <I18nProvider locale={pathnameLocale(pathname)}>
+    <I18nProvider>
       <App />
       <Intro />
     </I18nProvider>

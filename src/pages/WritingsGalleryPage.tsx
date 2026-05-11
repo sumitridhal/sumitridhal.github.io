@@ -8,7 +8,7 @@ import { hrefHome, hrefWriting } from '@/i18n/routes'
 import { usePrefersReducedMotion } from '@/hooks/usePrefersReducedMotion'
 
 export function WritingsGalleryPage() {
-  const { locale, t } = useI18n()
+  const { t } = useI18n()
   const reducedMotion = usePrefersReducedMotion()
   const rootRef = useRef<HTMLDivElement>(null)
 
@@ -79,7 +79,7 @@ export function WritingsGalleryPage() {
             {writings.map((item) => (
               <li key={item.id} className="writings-gallery__item writings-gallery__anim">
                 <Link
-                  to={hrefWriting(locale, item.id)}
+                  to={hrefWriting(item.id)}
                   className="writings-gallery__row"
                 >
                   <span className="writings-gallery__row-title">
@@ -93,7 +93,7 @@ export function WritingsGalleryPage() {
         )}
 
         <p className="writings-gallery__footer writings-gallery__anim">
-          <Link className="writings-gallery__footer-link" to={{ pathname: hrefHome(locale), hash: 'writings' }}>
+          <Link className="writings-gallery__footer-link" to={{ pathname: hrefHome, hash: 'writings' }}>
             {t('pages.writing.galleryListLink')}
           </Link>
         </p>
