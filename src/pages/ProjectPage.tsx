@@ -3,24 +3,21 @@ import { Navigate, useParams } from 'react-router-dom'
 
 import { useI18n } from '@/contexts/I18nContext'
 import dimensions from '@/data/image-dimensions.json'
-import { resolveProjectSlug } from '@/data/projectsData'
+import { getProjectBySlug } from '@/data/projectsData'
 import { hrefHome } from '@/i18n/routes'
 import { useViewTransitionNavigate } from '@/hooks/useViewTransitionNavigate'
 
 export function ProjectPage() {
   const { slug } = useParams<{ slug: string }>()
-  const { locale, t } = useI18n()
+  const { t } = useI18n()
   const navigate = useViewTransitionNavigate()
 
-  const project = useMemo(
-    () => (slug ? resolveProjectSlug(locale, slug) : undefined),
-    [locale, slug],
-  )
+  const project = useMemo(() => (slug ? getProjectBySlug(slug) : undefined), [slug])
 
   if (!slug || !project) {
     return (
       <Navigate
-        to={{ pathname: hrefHome(locale), hash: 'work' }}
+        to={{ pathname: hrefHome, hash: 'work' }}
         replace
       />
     )
@@ -35,13 +32,13 @@ export function ProjectPage() {
         type="button"
         className="project-page__back"
         onClick={() =>
-          navigate({ pathname: hrefHome(locale), hash: 'work' })
+          navigate({ pathname: hrefHome, hash: 'work' })
         }
       >
         {t('pages.project.back')}
       </button>
-      <h1 className="project-page__title">{project.title[locale]}</h1>
-      <p className="project-page__tagline">{project.tagline[locale]}</p>
+      <h1 className="project-page__title">{project.title}</h1>
+      <p className="project-page__tagline">{project.tagline}</p>
       <ul className="project-page__meta">
         <li>
           <strong>{t('pages.project.role')}</strong> — Lead front-end
@@ -56,7 +53,7 @@ export function ProjectPage() {
       <figure className="project-page__figure">
         <img
           src={project.coverSrc}
-          alt={project.title[locale]}
+          alt={project.title}
           width={dim.width}
           height={dim.height}
         />
