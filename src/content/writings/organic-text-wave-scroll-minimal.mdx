@@ -1,0 +1,98 @@
+import { WritingOrganicTextWavePreviewLazy } from '@/components/writings/WritingOrganicTextWavePreviewLazy'
+
+export const writingMeta = {
+  id: 'organic-text-wave-scroll-minimal',
+  order: -2,
+  title: 'A minimal scroll wave for body copy (after Codrops’ organic text)',
+  date: '11/05',
+  category: 'UI',
+  excerpt:
+    'Jorge Toloza’s Codrops column splits every line, hijacks wheel input, and loops content for an infinite runway. The readable part is smaller: map vertical position in the viewport to a horizontal offset with sin or cos; the embedded preview uses two rails with opposite vertical loops.',
+  titleLines: ['Minimal scroll wave', 'for body copy'],
+  asideParagraphs: [
+    'If you only need the “breathing” typography inside one article, prefer native document scroll over a custom wheel handler so trackpads, keyboard navigation, and scroll restoration keep working.',
+    'Resize and font loading still change line wraps; paragraph-level motion avoids reflowing word spans, while line-level motion needs a re-split pass on `resize` (as the original tutorial does).',
+  ],
+}
+
+[Jorge Toloza’s Codrops tutorial](https://tympanus.net/codrops/2024/11/06/how-to-create-an-organic-text-distortion-effect-with-infinite-scrolling/) builds a striking column: text is split into measured **lines**, the column **auto-scrolls** with easing, content is **cloned** until the column is tall enough to loop, and each line picks up a horizontal offset from a **sine or cosine** of its normalized vertical position, with extra gain when scroll velocity is high. The article also credits [Luis Henrique Bizarro’s infinite-scroll pattern](https://tympanus.net/codrops/author/lhbizarro/), which wraps blocks when they leave the viewport.
+
+Most landing pages do not need all of that machinery at once. You can keep the **signature**—lines drifting sideways in a wave keyed to scroll—while dropping custom scroll physics, DOM cloning, and (if you accept chunkier motion) per-line layout measurement.
+
+## Keep the mapping, drop the stage
+
+The part worth memorizing is the **curve**:
+
+- For each animated row, estimate how far up or down the viewport that row sits. Call that normalized value `p` in the range from 0 to 1 (for example `clamp(lineCenterY / innerHeight, 0, 1)`).
+- Set horizontal translation to `Math.sin(p * Math.PI + phase) * amplitude` on one column and `Math.cos(...)` on a mirrored column if you want opposite phase.
+
+In the tutorial, `amplitude` grows slightly with `delta`, the gap between eased scroll target and current position, so fast flicks exaggerate the wave. A simpler stand-in is a **fixed amplitude** (8–16px for text sizes around 1rem) or a **short exponential moving average** of wheel delta if you still want speed sensitivity without the full scroll model.
+
+Everything else—`SmartText`, word spans, `lineBreak` measurement, `requestAnimationFrame` driving `scroll.target`, cloning siblings until `scrollHeight` clears `2 * innerHeight`—exists to support **infinite runway** and **per-line** fidelity inside a column that does not behave like a normal document.
+
+## Tier 1: paragraphs and native scroll
+
+If “organic” can mean **per paragraph** instead of per typographic line, you never split text in JavaScript. On `scroll` (passive listener) or a single `requestAnimationFrame` loop, query `article.querySelectorAll('p')`, read `getBoundingClientRect()`, derive `p` from the element’s vertical center, and assign `transform: translate3d(x, 0, 0)` with `will-change: transform` only while the effect is active.
+
+```html
+<article class="wave-copy">
+  <p>First block of copy…</p>
+  <p>Second block…</p>
+</article>
+```
+
+```css
+.wave-copy p {
+  will-change: transform;
+}
+```
+
+```js
+const root = document.querySelector('.wave-copy')
+const blocks = () => Array.from(root.querySelectorAll('p'))
+const reduced = window.matchMedia('(prefers-reduced-motion: reduce)').matches
+
+let raf = 0
+function tick() {
+  raf = 0
+  if (reduced) return
+  const h = window.innerHeight
+  for (const el of blocks()) {
+    const r = el.getBoundingClientRect()
+    const p = Math.min(1, Math.max(0, (r.top + r.height * 0.5) / h))
+    const x = Math.sin(p * Math.PI) * 12
+    el.style.transform = `translate3d(${x}px,0,0)`
+  }
+}
+
+window.addEventListener(
+  'scroll',
+  () => {
+    if (!raf) raf = requestAnimationFrame(tick)
+  },
+  { passive: true },
+)
+tick()
+```
+
+That is the whole idea: **layout stays in the browser**, scroll stays native, motion stays bounded. Pair with `@media (prefers-reduced-motion: reduce)` to clear transforms in CSS so you do not depend on JS running first.
+
+<WritingOrganicTextWavePreviewLazy />
+
+The preview lazy-loads so the writings route stays lighter until you open this note. Two rails echo the Codrops sides: the **left** translates **up** with **sine** horizontal drift, the **right** **down** with **cosine** (filler copy is about measure and margins, not the original film layout). Vertical motion is a seamless `translateY` loop on duplicated strips; reduced motion freezes both axes.
+
+## Tier 2: line fidelity without infinite scroll
+
+When you need the **original line rhythm**, you still have to group words into lines at a known width (the tutorial’s `lineBreak` helper). You can keep that piece and delete the infinite column: drive `p` from each `.line`’s bounding rect while the user scrolls a normal page, or pin a shorter section with `position: sticky` and map `p` from `getBoundingClientRect` the same way.
+
+You avoid: wheel event reinterpretation, touch bookkeeping duplicated from the browser, cloning loops, and the always-on `requestAnimationFrame` that advances `scroll.target` even when the user is idle.
+
+## Tier 3: scroll-driven animations only
+
+Where [`animation-timeline: view()`](https://developer.mozilla.org/en-US/docs/Web/CSS/animation-timeline/view) has enough support for your audience, you can express “move more when the block crosses the viewport” without a scroll listener. The easing will follow keyframes rather than a literal `sin`, but the visual language—horizontal drift tied to vertical progress—reads similarly and delegates timing to the compositor.
+
+## When to reach for the full tutorial
+
+Reach for the Codrops implementation when the brief explicitly asks for **infinite** motion, **matched** sine on the left and cosine on the right with mirrored scroll direction, **drop caps** on randomly chosen paragraphs, and **per-line** choreography inside narrow columns. The repo that ships with the article is the right place to diff details.
+
+For everything else, start with **paragraph-level** offsets and native scroll. You will ship less code, keep accessibility defaults closer to stock, and still borrow the one idea that sells the effect: **vertical position becomes horizontal phase**.
