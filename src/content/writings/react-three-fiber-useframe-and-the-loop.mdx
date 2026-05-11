@@ -1,0 +1,71 @@
+export const writingMeta = {
+  "id": "react-three-fiber-useframe-and-the-loop",
+  "order": -3,
+  "title": "useFrame and the render loop in React Three Fiber",
+  "date": "11/05",
+  "category": "Dev",
+  "excerpt": "React’s `useEffect` runs after paint; Three.js wants per-frame work inside the same clock as `renderer.render`. React Three Fiber bridges that gap with `useFrame`, a subscription that fires before each frame for your canvas…",
+  "titleLines": [
+    "useFrame and the",
+    "render loop in R3F"
+  ],
+  "asideParagraphs": [
+    "If you only need one-off GL setup (enable extensions, set clear color), `useLayoutEffect` on the same component as `<Canvas>` children is fine—but never drive animation or continuous uniform updates there.",
+    "Pair `frameloop=\"demand\"` with explicit `invalidate()` when something external to the canvas changes what should draw (Redux, fetch, scroll). Otherwise you will stare at a frozen last frame wondering why React “works” but WebGL does not."
+  ]
+}
+
+React’s `useEffect` runs after paint; Three.js wants per-frame work inside the same clock as `renderer.render`. React Three Fiber bridges that gap with `useFrame`, a subscription that fires before each frame for your canvas. Treat it like `requestAnimationFrame`, but scoped to Fiber’s internal loop so lifecycle and disposal stay predictable.
+
+```tsx
+import { useFrame } from '@react-three/fiber'
+import { useRef } from 'react'
+import * as THREE from 'three'
+
+function SpinningBox() {
+  const meshRef = useRef<THREE.Mesh>(null)
+
+  useFrame((state, delta) => {
+    const mesh = meshRef.current
+    if (!mesh) return
+    mesh.rotation.y += delta * 0.8
+  })
+
+  return (
+    <mesh ref={meshRef}>
+      <boxGeometry args={[1, 1, 1]} />
+      <meshStandardMaterial color="#6c8cff" />
+    </mesh>
+  )
+}
+```
+
+The callback receives the **same** `RootState` you get from `useThree`: `gl`, `scene`, `camera`, `clock`, pointer, viewport, and more. The second argument is **delta in seconds**—use it for frame-rate–independent motion (`position += speed * delta`), not raw `Date.now()` deltas.
+
+### Demand-driven frames
+
+By default the canvas loops continuously. For static scenes or heavy post-processing, set `frameloop="demand"` on `<Canvas>` and call `invalidate()` whenever something changes (state, props, loaded texture). Fiber schedules a single frame; your `useFrame` hooks still run in order for that frame.
+
+```tsx
+import { Canvas, invalidate } from '@react-three/fiber'
+
+function Scene({ hue }: { hue: number }) {
+  useFrame(() => {
+    // runs when invalidate() queued a frame
+  })
+  // ...
+}
+
+// elsewhere, after user picks a color:
+invalidate()
+```
+
+### Why not `useEffect` for animation?
+
+`useEffect` is decoupled from the renderer’s rAF. You would reimplement Fiber’s subscription list, fight strict mode double-invocation, and still miss the exact moment before `gl.render`. `useFrame` registers with the root store and unregisters on unmount—no manual `cancelAnimationFrame`.
+
+<figure className="writing-inline-figure">
+  <img src="/writings/react-three-fiber-useframe-and-the-loop.png" alt={writingMeta.title} loading="lazy" decoding="async" />
+</figure>
+
+If you are pushing FBO ping-pong or shader feedback, the same rule applies: advance simulation in `useFrame`, keep buffer swaps and `gl.setRenderTarget` in one place, and let Fiber own the render call. The ping-pong buffers note elsewhere on this site is the GPU side; `useFrame` is where that work should hook into React.
