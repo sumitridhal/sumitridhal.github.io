@@ -1,0 +1,62 @@
+import { WritingStickyGridScrollPreviewLazy } from '@/components/writings/WritingStickyGridScrollPreviewLazy'
+
+export const writingMeta = {
+  id: 'sticky-grid-scroll-codrops',
+  order: -1,
+  title: 'Scroll as a timeline: notes on Codrops’ sticky grid scroll',
+  date: '11/05',
+  category: 'UI',
+  excerpt:
+    'Theo Plawinski’s Codrops tutorial treats a sticky section as a fixed stage and maps scroll distance to a single scrubbed GSAP timeline—column reveals, zoom, and UI copy orchestrated as phases, not unrelated effects.',
+  titleLines: ['Scroll as a timeline', 'Codrops sticky grid notes'],
+  asideParagraphs: [
+    'Scrubbed `ScrollTrigger` timelines should still respect `prefers-reduced-motion`: offer a static end state or a short cross-fade instead of multi-phase grid choreography.',
+    'Scaling `html { font-size }` from viewport width keeps layout proportional but ties typography and spacing to `vw`; audit readability and zoom before adopting it outside a controlled demo.',
+  ],
+}
+
+Theo Plawinski’s [Sticky Grid Scroll](https://tympanus.net/codrops/2026/03/02/sticky-grid-scroll-building-a-scroll-driven-animated-grid/) on Codrops (March 2026) walks through a scroll-driven image grid: a **sticky** inner frame stays on screen while a much taller outer block creates scroll range, and GSAP advances a composed animation as you move through that range. The [accompanying repo](https://github.com/theoplawinski/codrops-sticky-grid-scroll) is useful if you want to diff structure against your own stack. This note is not a line-by-line reprint; it distills the **system**—layout, time mapping, and orchestration—so you can borrow the pattern without treating the article as paste-ready code.
+
+## Stage, grid, timeline
+
+Three roles stay cleanly separated:
+
+1. **The outer section** supplies *duration in space*: a large `height` (in the tutorial, hundreds of `vh`) so the browser has enough scroll distance to scrub through several beats.
+2. **The sticky wrapper** is the *stage*: `position: sticky; top: 0` keeps the viewport filled with one scene while the document scroll position keeps moving.
+3. **The timeline** is the *score*: one main `gsap.timeline` with `scrollTrigger: { scrub: true }` ties scroll progress to tween progress. Nested timelines (reveal, zoom, content) are sequenced and **overlapped** with negative position offsets so motion feels continuous instead of stair-stepped.
+
+Once you read “scroll percentage” as “where we are on the main timeline,” the tutorial’s phase breakdown makes sense: early scroll budget pays for the grid entering, the middle opens space with scale and lateral offset, and late scroll resolves typography and controls. Whether your exact percentages match theirs matters less than **budgeting** scroll range per phase the same way you budget milliseconds in a non-scroll film.
+
+<WritingStickyGridScrollPreviewLazy />
+
+The preview is lazy-loaded with `React.lazy` so GSAP stays out of the initial writings route chunk until you open this note. It runs a **button-played** timeline on a light miniature stage; the Codrops tutorial itself uses **scroll-scrubbed** `ScrollTrigger` against a tall outer track.
+
+## HTML and CSS as prep, not decoration
+
+Markup is deliberately boring: a block wrapper, a sticky inner shell, a **content** column (title, description, button) and a **gallery** list of cells. Lists make indexing and column bucketing predictable when you split twelve items into three vertical columns in JavaScript.
+
+CSS establishes geometry before GSAP runs: a centered gallery, a three-column grid with consistent gaps, square tiles via `aspect-ratio`, images with `object-fit: cover`. The tutorial also uses a **fluid rem** trick—basing root font size on viewport width so `rem` tracks design width. That is a product decision: everything scales together, but root `font-size` from `vw` couples typography to viewport in ways that can fight user zoom expectations, so treat it as a demo convention unless you have a product rationale.
+
+## JavaScript: one conductor, modular sections
+
+The implementation pattern is a single class that grabs nodes once, sets **initial state** (for example hiding description and button, vertically centering the title with a measured `yPercent` so it survives resize better than magic pixels), then builds animations.
+
+**Column grouping** (`index % 3`) exists so each vertical strip can animate as a unit: even columns from the top, odd from the bottom, staggered within the column. That reads as “curtain” motion instead of a uniform block fade.
+
+The **main scrubbed timeline** adds sub-timelines: a reveal pass, a zoom pass that scales the whole grid and pushes side columns outward while the middle column spreads vertically, and a **content toggle** that slides the title to its resting position and fades interactive copy in when space exists. Overlaps (`"-=0.6"` style offsets) keep the handoff from feeling like separate slides in a deck.
+
+Separate triggers still have a role: a light **parallax** on the sticky wrapper on entry, and a **title opacity** tween keyed to when the block crosses a viewport threshold, so not every effect has to live on the same scrubbed master clock. The important lesson is *intentional* layering: know which motions share one scrubbed timeline and which deserve their own trigger rules.
+
+## Lenis and ScrollTrigger
+
+Lenis smooths scroll input; ScrollTrigger needs to see scroll updates that match what the user perceives. The tutorial wires Lenis’s scroll callback to `ScrollTrigger.update` and runs Lenis’s `raf` from GSAP’s ticker, with lag smoothing disabled so scrubbed tweens stay tight. That sits in the same family of concerns as [Driving Lenis from GSAP’s ticker instead of fighting two rAF loops](/writing/lenis-gsap-scroll-loop): when you copy either article’s snippet, compare against current Lenis docs—constructor options like `autoRaf: false` versus ticker-driven `raf` are easy to mix across examples.
+
+## What I would steal first
+
+- **Explicit phases** mapped to scroll range, documented as percentages or labels on the timeline, so design and engineering share one vocabulary.
+- **Nested timelines as modules** you can retime or replace without rewiring every tween.
+- **Sticky outer height as the pacing knob**—if the effect feels rushed, add `vh` before you add easing complexity.
+
+What I would simplify first: fluid rem unless the whole site is built for it, and any parallax that does not survive reduced-motion settings.
+
+If you build something in this vein, read the original Codrops piece for timings and easing names; use this note as a checklist for structure and responsibilities.

@@ -1,0 +1,66 @@
+import { WritingShaderDemo } from '@/components/writings/WritingShaderDemo'
+
+export const writingMeta = {
+  id: 'ascii-typography-and-grayscale-shader',
+  order: -4,
+  title: 'ASCII typography, luminance, and a grayscale fragment pass',
+  date: '11/05',
+  category: 'Creative code',
+  excerpt:
+    'Terminal art is a quantization story: you collapse a smooth image into a few printable symbols whose apparent weight follows a fixed ramp. In a fragment shader the ramp is just a lookup from luminance to glyph ink, and the “font” can be…',
+  titleLines: ['ASCII typography,', 'luminance, and grayscale'],
+  asideParagraphs: [
+    'Rec.601 weights (0.299, 0.587, 0.114) and Rec.709 (0.2126, 0.7152, 0.0722) differ slightly; pick one pipeline-wide so passes stack predictably.',
+    'For real text, a bitmap font atlas or MSDF is more flexible than procedural SDFs, but the luminance → index mapping stays the same.',
+  ],
+  figureRows: [
+    ['grain', 'cloud', 'flow', 'branch'],
+    ['grad', 'glow', 'warp', 'mesh'],
+  ],
+}
+
+Terminal art and “ASCII shaders” are the same idea as posterization: you measure how bright each region should be, then replace that region with one of a small set of marks whose **density** stands in for grey. On paper the marks were lead type; in `aalib` / `libcaca` they were characters; in WebGL they are usually either a texture atlas of glyphs or a handful of distance fields evaluated per cell.
+
+The first step is always **luminance**: a single channel that ranks how much energy would hit your eye if the display were monochrome. A common choice in real-time graphics is Rec.709:
+
+```glsl
+float luma709(vec3 rgb) {
+  return dot(rgb, vec3(0.2126, 0.7152, 0.0722));
+}
+```
+
+The demo below renders a small synthetic colour scene (glows that follow the pointer, a vignette, and a bit of moving texture), then collapses each pixel to grey using those weights. Move the pointer to see how chroma disappears while **relative contrast** is preserved well enough for compositing and for the ASCII step that follows.
+
+<WritingShaderDemo
+  preset="grayscaleLuma"
+  ariaLabel="Fullscreen shader: synthetic colour scene converted to Rec.709 luminance"
+  caption="Fragment pass: RGB scene → single luma channel"
+  height={260}
+/>
+
+Once you have `L` in `[0, 1]`, typography becomes a **cell problem**. Partition UV space into a grid of character rectangles (aspect ratio roughly `8:12` like many monospace fonts). For each cell, sample `L` once at the cell centre so the symbol stays stable, map `floor(L * N)` to an index `0 … N-1`, and draw the corresponding mark inside `fract(uv * grid)` local coordinates. Dense symbols read as dark; sparse ones read as light—exactly the grey ramp old teletypes exploited.
+
+```glsl
+vec2 g = vec2(nCols, nCols / aspect * (8.0 / 12.0));
+vec2 id = floor(v_uv * g);
+vec2 cellUv = fract(v_uv * g);
+vec2 cellCenter = (id + 0.5) / g;
+float L = luma709(texture(uScene, cellCenter).rgb);
+int idx = int(clamp(floor(L * 10.0), 0.0, 9.0));
+float ink = drawGlyph(idx, cellUv);
+```
+
+Here `drawGlyph` is whatever typographic substrate you use: atlas lookups, signed-distance letters, or—like the live preview—**procedural ink masks** (dots, strokes, crosses, blocks) that mimic a ramp from space → `.` → `:` → `-` → … → filled tile. The perceptual goal is monotonic coverage: higher index should never look lighter than a lower one at the same viewing distance.
+
+<WritingShaderDemo
+  preset="asciiGrayscale"
+  ariaLabel="Fullscreen shader: luminance quantized to procedural ASCII-style glyph tiles"
+  caption="Same scene: cell-centre luma → glyph index → procedural mark in each tile"
+  height={320}
+/>
+
+**Why shaders at all?** Because the expensive part—per-pixel colour, blur, edge detection—is embarrassingly parallel, and the ASCII layer is just a dependent pass over those results. In production you might render colour to a `WebGLRenderTarget`, read luminance in a second fragment pass, then either draw instanced quads per cell or keep everything in one fullscreen shader for prototypes.
+
+**Footguns worth naming:** shimmering when `L` is sampled per pixel instead of per cell; **Moiré** when grid frequency beats with image frequency (mitigate with slight blur before quantization, or animate phase); and **gamma**—if your scene is in sRGB but you treat it as linear, your ramp will sit too dark or too light. Match your colour pipeline to how you authored assets.
+
+The two canvases above share the same underlying scene function: first you **prove the grey** you want, then you **prove the type** that sits on top. That separation is the whole shader: not magic, just luminance, a grid, and a monotone glyph ramp.

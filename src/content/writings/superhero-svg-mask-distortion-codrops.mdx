@@ -1,0 +1,42 @@
+import { WritingSuperheroSvgMaskPreviewLazy } from '@/components/writings/WritingSuperheroSvgMaskPreviewLazy'
+
+export const writingMeta = {
+  id: 'superhero-svg-mask-distortion-codrops',
+  order: -3,
+  title: 'Superhero-style morph with SVG masks, displacement, and GSAP (after Codrops)',
+  date: '05/11',
+  category: 'SVG',
+  excerpt:
+    'Abner Nascimento’s Codrops walkthrough layers exported pieces in one SVG, drives a wipe with paired mask rects, and pins feTurbulence + feDisplacementMap to mask geometry so the seam liquifies instead of sliding rigidly. GSAP can loop the poster or map pointer Y to timeline progress.',
+  titleLines: ['SVG masks + displacement', 'for a “mutant” wipe'],
+  asideParagraphs: [
+    'Animated SVG filters remain uneven across engines; Chrome tends to lead. Heavy displacement can swamp the CPU, so treat this as a hero moment, not a page-wide pattern.',
+    'If you need the same look at scale, the article’s own caveat still applies: consider GPU routes (canvas/WebGL) when profiling says the filter graph dominates the frame.',
+  ],
+}
+
+[Abner Nascimento’s tutorial on Codrops](https://tympanus.net/codrops/2021/08/09/superhero-animation-effect-with-svg-filters/) builds a **wanted-poster** scene: Mystique in blue sits on top of her disguised self, both full-bleed `<image>` layers, while **two masks** decide which pixels survive. White in a mask means “show this layer”; black means “hide”. One mask starts with its white rectangle **above** the viewBox (`y="-100%"`), the other fills the frame—so only the disguise reads at first. When both white rectangles translate downward **together**, the boundary crosses the portrait and the blue form replaces the blonde one.
+
+The “superhero” part is not the wipe alone but the **filter stack** inside `<defs>`: `feTurbulence` emits a noise field, and `feDisplacementMap` warps its `in` graphic using that field. Nascimento applies the filter to a **group wrapping each mask rectangle**, not to the portraits directly, so the **noise field stays fixed in mask space** while the rectangles move through it. If the filter sat on the rects without that grouping nuance, the distortion would travel with the mask in a less convincing way.
+
+## Asset and markup choices
+
+The article exports **four** optimized SVGs (background, transformed figure, natural figure, foreground poster), enables **viewBox** in Inkscape/SVGO for predictable CSS layout, and inlines them from an `images/` folder with `<image href="…">`. A solid `<rect id="bg-color">` behind the stack gives you an extra lerp target: the tutorial shifts its fill toward a hotter yellow as the reveal advances.
+
+You can keep the same architecture with fewer files if the art allows: any **fully opaque** stack of shapes works the same way—the masks only care about luminance in mask space.
+
+## GSAP: loop vs scrub
+
+The write-up shows two timelines. First, a **yoyo** timeline repeats forever: `translateY` on `.mask` elements (both masks move in parallel) plus an `attr` tween on `#bg-color`’s `fill`, staggered with position parameters. Second, for **mouse follow**, the timeline is `paused: true` with `ease: 'none'`, and `mousemove` (throttled in the article with lodash) sets `tl.progress(relY)` from the pointer’s normalized vertical position inside the poster.
+
+You can swap throttle for a **single `requestAnimationFrame` gate** around `progress` updates so each frame coalesces at most one sample, which matches how many sites already tame noisy pointer streams.
+
+<WritingSuperheroSvgMaskPreviewLazy />
+
+The preview above is a **toy composition** (gradients instead of linked Inkscape exports) so the note stays self-contained. It keeps the same three ideas: paired mask rects, displacement only on mask content groups, and GSAP scrubbing **vertical pointer position** against a paused timeline. Leaving the frame eases progress back to zero; with `prefers-reduced-motion: reduce`, it pins a mid-blend still.
+
+## Practical limits
+
+SVG filter graphs are expressive but **not free**: multiple octaves of turbulence and a wide displacement scale can spike cost, especially on large raster-backed `<image>` tags. Treat the effect as a **short, bounded** interaction, test Safari and Firefox if your audience is broad, and profile on low-power devices before shipping.
+
+When the brief is “this one illustration morphs on hover,” this Codrops recipe—**stacked art, paired masks, filtered mask geometry, GSAP timing**—remains a readable baseline. When the brief is “every card on the grid,” reach for lighter blends or a GPU-backed approach first.
