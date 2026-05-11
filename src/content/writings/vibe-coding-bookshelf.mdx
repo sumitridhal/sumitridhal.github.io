@@ -13,6 +13,19 @@ export const writingMeta = {
 
 A bookshelf UI sounds decorative until you need believable spines, varied thickness, and lighting that does not flatten everything into a texture atlas. The fun part is iterating on feel: density of titles, how much jitter to allow per book, and whether hover states should tilt or only glow.
 
+```scss
+.bookshelf {
+  display: grid;
+  grid-auto-flow: column;
+  grid-auto-columns: minmax(2.5rem, var(--spine, 3rem));
+  gap: 0.35rem;
+}
+```
+
 Claude Code shines when you keep the feedback loop tight: tweak SCSS, reload, paste a screenshot or describe what still feels off. Let the model propose structure—CSS grid tracks, custom properties for spine width—while you hold the art direction (contrast, rhythm, restraint).
+
+<figure className="writing-inline-figure">
+  <img src="/writings/vibe-coding-bookshelf.png" alt={writingMeta.title} loading="lazy" decoding="async" />
+</figure>
 
 Ship a vertical slice first: five books with hard-coded data and one interaction. Once motion and hierarchy read well, swap in real data and worry about horizontal scroll or virtualization. Vibe coding is not skipping engineering; it is letting polish lead as long as the foundations stay boring and testable.
