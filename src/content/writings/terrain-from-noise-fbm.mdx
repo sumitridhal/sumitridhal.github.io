@@ -1,0 +1,66 @@
+import { WritingShaderDemo } from '@/components/writings/WritingShaderDemo'
+import { WritingTerrainR3fPreviewLazy } from '@/components/writings/WritingTerrainR3fPreviewLazy'
+
+export const writingMeta = {
+  id: 'terrain-from-noise-fbm',
+  order: -6,
+  title: 'Terrain from noise and FBM',
+  date: '11/05',
+  category: 'Creative code',
+  excerpt:
+    'A heightfield is just a scalar field: sample layered noise over XZ, displace Y, and derive normals from the gradient. Here is a compact mental model plus the usual traps—seams, shimmering, and warped domains.',
+  titleLines: ['Terrain from', 'noise and FBM'],
+  asideParagraphs: [
+    'Tileable terrains need tileable noise or toroidal domains; raw periodic hashing rarely closes at chunk boundaries without extra work.',
+    'When you stack octaves, amplitudes shrink faster than frequencies grow if you want erosion-like macro shapes without single-frequency ripples.',
+  ],
+  coverSrc: 'https://picsum.photos/seed/terrain-from-noise-fbm/960/640',
+}
+
+Treat the ground plane as a graph of a function `h(x, z)`. In practice `h` is almost always **layered stochastic noise**—the same fractal Brownian motion family described in [Noise in Creative Coding](/writing/noise-in-creative-coding)—because a single octave looks like a corrugated sheet, while summed octaves read as hills and valleys at several scales.
+
+<WritingTerrainR3fPreviewLazy />
+
+## Heightfield recipe
+
+1. Pick world coordinates `p = (x, z)` (or UV if you are still prototyping in 2D).
+2. Evaluate `h = fbm(p)` with a few octaves: each octave doubles the frequency and scales amplitude by a persistence factor (often near `0.5`).
+3. Displace a dense mesh or tessellated plane along **up** by `h * amplitude`.
+
+Normals follow from partial derivatives. On a grid you can finite-difference `h`; on the GPU you can bump `p` by small `ε` in `x` and `z` and reconstruct the tangent frame. Lighting only cares that those derivatives stay **continuous enough** that specular highlights do not crawl.
+
+<WritingShaderDemo
+  preset="valueNoiseFbm"
+  ariaLabel="Layered value noise field similar to fractal Brownian motion used for terrain macro shapes"
+  caption="Fragment: same fbm-style value noise family many heightfields start from"
+/>
+
+```glsl
+// Conceptual fbm: replace snoise with your preferred primitive.
+float terrainHeight(vec2 xz) {
+  float h = 0.0;
+  float a = 0.55;
+  vec2 p = xz;
+  for (int i = 0; i < 6; i++) {
+    h += a * snoise(p);
+    p *= 2.07;
+    a *= 0.48;
+  }
+  return h;
+}
+```
+
+## Domain warping for ridges
+
+Straight FBM produces rolling hills. **Domain warp** pushes coordinates through another noise field before the height sample: `h = fbm(xz + warp * fbm2(xz))`. That shears crest lines into sharper silhouettes reminiscent of erosion, at the cost of harder-to-predict minima and self-intersection if you push `warp` too far. Keep warp magnitudes tied to the same length scale as your first octave so silhouettes stay legible.
+
+## Two dimensions versus three
+
+**2D noise over XZ** is cheap and matches how satellite heightmaps behave: each column is independent of altitude. **3D noise** sampled at `(x, y, z)` lets caves and overhangs exist if you later move to implicit surfaces or voxels, but costs more and tempts you to animate `y` and watch the whole solid swim unless you freeze the third coordinate per biome.
+
+## Stability notes
+
+- **Temporal**: if `h` feeds physics or LOD swaps, prefer deterministic seeds per chunk over `time` unless you intend morphing ground.
+- **Tiling**: for infinite worlds, use tileable gradient noise, explicit periodic domains, or **blended chunks** with shared boundary constraints; naive repetition of the same texture shows a checkerboard of identical hills.
+
+Once `h` is trustworthy, everything else—texture splatting by slope, river carving from downhill flow, or scattering instanced props by height bands—is a policy layer on top of the same scalar field.
