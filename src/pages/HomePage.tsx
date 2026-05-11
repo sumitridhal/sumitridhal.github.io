@@ -11,14 +11,14 @@ import 'locomotive-scroll/dist/locomotive-scroll.css'
 
 import { HeroAtmosphere } from '@/components/HeroAtmosphere'
 import { useI18n } from '@/contexts/I18nContext'
+import {
+  experimentKinds,
+  teaserCoverForKind,
+  type ExperimentKind,
+} from '@/data/experimentsData'
 import { projects } from '@/data/projectsData'
 import { writings } from '@/data/writingsData'
-import {
-  hrefAbout,
-  hrefWork,
-  hrefWriting,
-  type Locale,
-} from '@/i18n/routes'
+import { hrefAbout, hrefExperiments, hrefExperimentsSection, hrefWork, hrefWriting } from '@/i18n/routes'
 import { usePrefersReducedMotion } from '@/hooks/usePrefersReducedMotion'
 import { useLenis } from '@/providers/LenisProvider'
 import { lenisService } from '@/services/lenisService'
@@ -26,8 +26,8 @@ import { preloadImages } from '@/utils/imagePreloadCache'
 
 type BookItem = {
   id: string
-  title: Record<Locale, string>
-  author: Record<Locale, string>
+  title: string
+  author: string
   spineColor: string
   textColor: string
   /** Representative print page count — drives spine thickness. */
@@ -49,13 +49,8 @@ function spineWidthFromPages(pages: number): string {
 const bookshelf: BookItem[] = [
   {
     id: 'construction-of-social-reality',
-    title: {
-      en: 'The Construction of Social Reality',
-      de: 'Die Konstruktion der sozialen Realitaet',
-      fr: 'La construction de la realite sociale',
-      hi: 'The Construction of Social Reality',
-    },
-    author: { en: 'John R. Searle', de: 'John R. Searle', fr: 'John R. Searle', hi: 'John R. Searle' },
+    title: 'The Construction of Social Reality',
+    author: 'John R. Searle',
     spineColor: '#02061f',
     textColor: '#f0f4fb',
     pages: 256,
@@ -63,8 +58,8 @@ const bookshelf: BookItem[] = [
   },
   {
     id: 'design-of-everyday-things',
-    title: { en: 'The Design of Everyday Things', de: 'The Design of Everyday Things', fr: 'The Design of Everyday Things', hi: 'The Design of Everyday Things' },
-    author: { en: 'Don Norman', de: 'Don Norman', fr: 'Don Norman', hi: 'Don Norman' },
+    title: 'The Design of Everyday Things',
+    author: 'Don Norman',
     spineColor: '#f0de2f',
     textColor: '#141414',
     pages: 368,
@@ -72,8 +67,8 @@ const bookshelf: BookItem[] = [
   },
   {
     id: 'boxing-a-cultural-history',
-    title: { en: 'Boxing: A Cultural History', de: 'Boxing: A Cultural History', fr: 'Boxing: A Cultural History', hi: 'Boxing: A Cultural History' },
-    author: { en: 'Kasia Boddy', de: 'Kasia Boddy', fr: 'Kasia Boddy', hi: 'Kasia Boddy' },
+    title: 'Boxing: A Cultural History',
+    author: 'Kasia Boddy',
     spineColor: '#a72c31',
     textColor: '#f5f6f8',
     pages: 480,
@@ -81,8 +76,8 @@ const bookshelf: BookItem[] = [
   },
   {
     id: 'dying-for-ideas',
-    title: { en: 'Dying for Ideas', de: 'Dying for Ideas', fr: 'Dying for Ideas', hi: 'Dying for Ideas' },
-    author: { en: 'Costica Bradatan', de: 'Costica Bradatan', fr: 'Costica Bradatan', hi: 'Costica Bradatan' },
+    title: 'Dying for Ideas',
+    author: 'Costica Bradatan',
     spineColor: '#3d2528',
     textColor: '#f4ebe0',
     pages: 256,
@@ -91,8 +86,8 @@ const bookshelf: BookItem[] = [
   },
   {
     id: 'against-the-machine',
-    title: { en: 'Against the Machine', de: 'Against the Machine', fr: 'Against the Machine', hi: 'Against the Machine' },
-    author: { en: 'Paul Kingsnorth', de: 'Paul Kingsnorth', fr: 'Paul Kingsnorth', hi: 'Paul Kingsnorth' },
+    title: 'Against the Machine',
+    author: 'Paul Kingsnorth',
     spineColor: '#1f5d2d',
     textColor: '#f0f7ef',
     pages: 368,
@@ -101,29 +96,24 @@ const bookshelf: BookItem[] = [
   },
   {
     id: 'cultural-ideologies-romania',
-    title: {
-      en: 'Ideologies in Contemporary Romania',
-      de: 'Ideologies in Contemporary Romania',
-      fr: 'Ideologies in Contemporary Romania',
-      hi: 'Ideologies in Contemporary Romania',
-    },
-    author: { en: 'Claude Karnoouh', de: 'Claude Karnoouh', fr: 'Claude Karnoouh', hi: 'Claude Karnoouh' },
+    title: 'Ideologies in Contemporary Romania',
+    author: 'Claude Karnoouh',
     spineColor: '#dde0e3',
     textColor: '#2b3039',
     pages: 304,
   },
   {
     id: 'rupa-eu-blestemul',
-    title: { en: 'Rupea blestemului', de: 'Rupea blestemului', fr: 'Rupea blestemului', hi: 'Rupea blestemului' },
-    author: { en: 'Catalin Pavel', de: 'Catalin Pavel', fr: 'Catalin Pavel', hi: 'Catalin Pavel' },
+    title: 'Rupea blestemului',
+    author: 'Catalin Pavel',
     spineColor: '#c4174a',
     textColor: '#fbf2f5',
     pages: 288,
   },
   {
     id: 'simple-genius',
-    title: { en: 'Simple Genius', de: 'Simple Genius', fr: 'Simple Genius', hi: 'Simple Genius' },
-    author: { en: 'David Baldacci', de: 'David Baldacci', fr: 'David Baldacci', hi: 'David Baldacci' },
+    title: 'Simple Genius',
+    author: 'David Baldacci',
     spineColor: '#eceeef',
     textColor: '#121722',
     pages: 420,
@@ -131,8 +121,8 @@ const bookshelf: BookItem[] = [
   },
   {
     id: 'drumul-catre-servitute',
-    title: { en: 'Drumul catre servitute', de: 'Drumul catre servitute', fr: 'Drumul catre servitute', hi: 'Drumul catre servitute' },
-    author: { en: 'Friedrich A. Hayek', de: 'Friedrich A. Hayek', fr: 'Friedrich A. Hayek', hi: 'Friedrich A. Hayek' },
+    title: 'Drumul catre servitute',
+    author: 'Friedrich A. Hayek',
     spineColor: '#22234e',
     textColor: '#eef2ff',
     pages: 316,
@@ -140,8 +130,8 @@ const bookshelf: BookItem[] = [
   },
   {
     id: 'atlas-shrugged',
-    title: { en: 'Atlas Shrugged', de: 'Atlas Shrugged', fr: 'Atlas Shrugged', hi: 'Atlas Shrugged' },
-    author: { en: 'Ayn Rand', de: 'Ayn Rand', fr: 'Ayn Rand', hi: 'Ayn Rand' },
+    title: 'Atlas Shrugged',
+    author: 'Ayn Rand',
     spineColor: '#f4f4f5',
     textColor: '#1d2126',
     pages: 1184,
@@ -149,8 +139,8 @@ const bookshelf: BookItem[] = [
   },
   {
     id: 'the-black-swan',
-    title: { en: 'The Black Swan', de: 'The Black Swan', fr: 'The Black Swan', hi: 'The Black Swan' },
-    author: { en: 'Nassim Nicholas Taleb', de: 'Nassim Nicholas Taleb', fr: 'Nassim Nicholas Taleb', hi: 'Nassim Nicholas Taleb' },
+    title: 'The Black Swan',
+    author: 'Nassim Nicholas Taleb',
     spineColor: '#171717',
     textColor: '#f5f5f5',
     pages: 423,
@@ -158,8 +148,8 @@ const bookshelf: BookItem[] = [
   },
   {
     id: 'meditations',
-    title: { en: 'Meditations', de: 'Meditations', fr: 'Meditations', hi: 'Meditations' },
-    author: { en: 'Marcus Aurelius', de: 'Marcus Aurelius', fr: 'Marcus Aurelius', hi: 'Marcus Aurelius' },
+    title: 'Meditations',
+    author: 'Marcus Aurelius',
     spineColor: '#4f3b2b',
     textColor: '#f9f2e8',
     pages: 273,
@@ -168,8 +158,8 @@ const bookshelf: BookItem[] = [
   },
   {
     id: 'manufacturing-consent',
-    title: { en: 'Manufacturing Consent', de: 'Manufacturing Consent', fr: 'Manufacturing Consent', hi: 'Manufacturing Consent' },
-    author: { en: 'Noam Chomsky', de: 'Noam Chomsky', fr: 'Noam Chomsky', hi: 'Noam Chomsky' },
+    title: 'Manufacturing Consent',
+    author: 'Noam Chomsky',
     spineColor: '#7b1e1f',
     textColor: '#fff6f4',
     pages: 412,
@@ -177,8 +167,8 @@ const bookshelf: BookItem[] = [
   },
   {
     id: 'the-society-of-the-spectacle',
-    title: { en: 'The Society of the Spectacle', de: 'The Society of the Spectacle', fr: 'The Society of the Spectacle', hi: 'The Society of the Spectacle' },
-    author: { en: 'Guy Debord', de: 'Guy Debord', fr: 'Guy Debord', hi: 'Guy Debord' },
+    title: 'The Society of the Spectacle',
+    author: 'Guy Debord',
     spineColor: '#2f3a56',
     textColor: '#eff3ff',
     pages: 192,
@@ -186,8 +176,8 @@ const bookshelf: BookItem[] = [
   },
   {
     id: 'the-brothers-karamazov',
-    title: { en: 'The Brothers Karamazov', de: 'The Brothers Karamazov', fr: 'The Brothers Karamazov', hi: 'The Brothers Karamazov' },
-    author: { en: 'Fyodor Dostoevsky', de: 'Fyodor Dostoevsky', fr: 'Fyodor Dostoevsky', hi: 'Fyodor Dostoevsky' },
+    title: 'The Brothers Karamazov',
+    author: 'Fyodor Dostoevsky',
     spineColor: '#1f2a29',
     textColor: '#eaf7f5',
     pages: 856,
@@ -196,8 +186,8 @@ const bookshelf: BookItem[] = [
   },
   {
     id: 'capitalist-realism',
-    title: { en: 'Capitalist Realism', de: 'Capitalist Realism', fr: 'Capitalist Realism', hi: 'Capitalist Realism' },
-    author: { en: 'Mark Fisher', de: 'Mark Fisher', fr: 'Mark Fisher', hi: 'Mark Fisher' },
+    title: 'Capitalist Realism',
+    author: 'Mark Fisher',
     spineColor: '#313131',
     textColor: '#f2f2f2',
     pages: 88,
@@ -206,8 +196,8 @@ const bookshelf: BookItem[] = [
   },
   {
     id: 'letters-to-a-young-poet',
-    title: { en: 'Letters to a Young Poet', de: 'Letters to a Young Poet', fr: 'Letters to a Young Poet', hi: 'Letters to a Young Poet' },
-    author: { en: 'Rainer Maria Rilke', de: 'Rainer Maria Rilke', fr: 'Rainer Maria Rilke', hi: 'Rainer Maria Rilke' },
+    title: 'Letters to a Young Poet',
+    author: 'Rainer Maria Rilke',
     spineColor: '#6e4a68',
     textColor: '#f7ecf6',
     pages: 104,
@@ -216,8 +206,8 @@ const bookshelf: BookItem[] = [
   },
   {
     id: 'critique-of-pure-reason',
-    title: { en: 'Critique of Pure Reason', de: 'Critique of Pure Reason', fr: 'Critique of Pure Reason', hi: 'Critique of Pure Reason' },
-    author: { en: 'Immanuel Kant', de: 'Immanuel Kant', fr: 'Immanuel Kant', hi: 'Immanuel Kant' },
+    title: 'Critique of Pure Reason',
+    author: 'Immanuel Kant',
     spineColor: '#27374d',
     textColor: '#f2f6fb',
     pages: 798,
@@ -225,13 +215,8 @@ const bookshelf: BookItem[] = [
   },
   {
     id: 'the-stranger',
-    title: {
-      en: 'The Stranger',
-      de: "L'Etranger",
-      fr: "L'Etranger",
-      hi: 'The Stranger',
-    },
-    author: { en: 'Albert Camus', de: 'Albert Camus', fr: 'Albert Camus', hi: 'Albert Camus' },
+    title: 'The Stranger',
+    author: 'Albert Camus',
     spineColor: '#b73a2f',
     textColor: '#fff8ea',
     pages: 159,
@@ -240,8 +225,8 @@ const bookshelf: BookItem[] = [
   },
   {
     id: 'anna-karenina',
-    title: { en: 'Anna Karenina', de: 'Анна Каренина', fr: 'Anna Karenina', hi: 'Anna Karenina' },
-    author: { en: 'Leo Tolstoy', de: 'Leo Tolstoy', fr: 'Leo Tolstoy', hi: 'Leo Tolstoy' },
+    title: 'Anna Karenina',
+    author: 'Leo Tolstoy',
     spineColor: '#2d3a2f',
     textColor: '#edf3ea',
     pages: 864,
@@ -250,7 +235,7 @@ const bookshelf: BookItem[] = [
 ]
 
 export function HomePage() {
-  const { locale, t } = useI18n()
+  const { t } = useI18n()
   const heroSectionRef = useRef<HTMLElement>(null)
   const reducedHero = usePrefersReducedMotion()
   const location = useLocation()
@@ -267,7 +252,14 @@ export function HomePage() {
 
   useEffect(() => {
     const hash = location.hash
-    const sectionId = hash === '#work' ? 'work' : hash === '#writings' ? 'writings' : null
+    const sectionId =
+      hash === '#work'
+        ? 'work'
+        : hash === '#writings'
+          ? 'writings'
+          : hash === '#experiments'
+            ? 'experiments'
+            : null
     if (!sectionId) return
     const el = document.getElementById(sectionId)
     if (!el) return
@@ -367,7 +359,6 @@ export function HomePage() {
         aria-labelledby="hero-heading"
       >
         <HeroAtmosphere
-          key={locale}
           sectionRef={heroSectionRef}
           reducedMotion={reducedHero}
         >
@@ -389,20 +380,19 @@ export function HomePage() {
             onMouseLeave={handleWorkMouseLeave}
           >
             {projects.map((project) => {
-              const slug = project.slug[locale]
               const isActive = activeWorkId === project.id
 
               return (
                 <Link
                   key={project.id}
-                  to={hrefWork(locale, slug)}
+                  to={hrefWork(project.slug)}
                   className={`work__row${isActive ? ' work__row--active' : ''}`}
                   role="listitem"
                   onMouseEnter={() => setActiveWorkId(project.id)}
                   onFocus={() => setActiveWorkId(project.id)}
                 >
-                  <h3 className="work__title">{project.title[locale]}</h3>
-                  <p className="work__meta">{project.tagline[locale]}</p>
+                  <h3 className="work__title">{project.title}</h3>
+                  <p className="work__meta">{project.tagline}</p>
                 </Link>
               )
             })}
@@ -429,13 +419,46 @@ export function HomePage() {
         </div>
       </section>
 
+      <section id="experiments" className="home-experiments">
+        <h2 className="home-experiments__heading">{t('pages.experiments.homeHeading')}</h2>
+        <p className="home-experiments__lead">{t('pages.experiments.homeLead')}</p>
+        <div className="home-experiments__tiles" role="list">
+          {experimentKinds.map((kind) => (
+            <Link
+              key={kind}
+              to={hrefExperimentsSection(kind)}
+              className="home-experiments__tile"
+              role="listitem"
+            >
+              <div className="home-experiments__tile-media">
+                <img src={teaserCoverForKind(kind)} alt="" />
+              </div>
+              <span className="home-experiments__tile-label">
+                {t(
+                  (
+                    {
+                      gsap: 'pages.experiments.tileGsap',
+                      three: 'pages.experiments.tileThree',
+                      shader: 'pages.experiments.tileShader',
+                    } satisfies Record<ExperimentKind, string>
+                  )[kind],
+                )}
+              </span>
+            </Link>
+          ))}
+        </div>
+        <Link className="home-experiments__link-all" to={hrefExperiments}>
+          {t('pages.experiments.viewAll')}
+        </Link>
+      </section>
+
       <section id="writings" className="home-listing">
         <h2 className="home-listing__heading">Writings</h2>
         <div className="home-listing__rows" role="list">
           {writings.map((item) => (
             <Link
               key={item.id}
-              to={hrefWriting(locale, item.id)}
+              to={hrefWriting(item.id)}
               className="home-listing__row"
               role="listitem"
             >
@@ -456,7 +479,7 @@ export function HomePage() {
                 key={book.id}
                 className="bookshelf__book"
                 role="listitem"
-                aria-label={`${book.title[locale]}, ${book.author[locale]}, ${book.pages} pages`}
+                aria-label={`${book.title}, ${book.author}, ${book.pages} pages`}
                 style={
                   {
                     '--book-width': spineWidthFromPages(book.pages),
@@ -466,11 +489,11 @@ export function HomePage() {
                 }
               >
                 <span className="bookshelf__badge" aria-hidden="true">
-                  {book.author[locale]}
+                  {book.author}
                 </span>
                 <div className="bookshelf__spine">
-                  <p className="bookshelf__title">{book.title[locale]}</p>
-                  <p className="bookshelf__author">{book.author[locale]}</p>
+                  <p className="bookshelf__title">{book.title}</p>
+                  <p className="bookshelf__author">{book.author}</p>
                 </div>
               </article>
             ))}
@@ -481,7 +504,7 @@ export function HomePage() {
       <section id="about-teaser" className="home-about-teaser">
         <h2 className="home-about-teaser__title">{t('pages.home.aboutHeading')}</h2>
         <p className="home-about-teaser__lead">{t('pages.home.aboutLead')}</p>
-        <Link className="home-about-teaser__link" to={hrefAbout(locale)}>
+        <Link className="home-about-teaser__link" to={hrefAbout}>
           {t('nav.about')}
         </Link>
       </section>
