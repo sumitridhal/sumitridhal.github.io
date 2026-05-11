@@ -190,6 +190,12 @@
   display: block;
 }
 
+.site-footer__visual-img--poster {
+  object-fit: contain;
+  object-position: center bottom;
+  padding: 0.25rem 0.5rem 0.35rem;
+}
+
 .site-footer__visual-mark {
   font-family: $font-display;
   font-weight: 800;
