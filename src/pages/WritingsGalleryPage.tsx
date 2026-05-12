@@ -1,5 +1,6 @@
+import { useGSAP } from '@gsap/react'
 import gsap from 'gsap'
-import { useEffect, useRef } from 'react'
+import { useRef } from 'react'
 import { Link } from 'react-router-dom'
 
 import { useI18n } from '@/contexts/I18nContext'
@@ -7,36 +8,41 @@ import { writings, writingTitle } from '@/data/writingsData'
 import { hrefHome, hrefWriting } from '@/i18n/routes'
 import { usePrefersReducedMotion } from '@/hooks/usePrefersReducedMotion'
 
+gsap.registerPlugin(useGSAP)
+
 export function WritingsGalleryPage() {
   const { t } = useI18n()
   const reducedMotion = usePrefersReducedMotion()
   const rootRef = useRef<HTMLDivElement>(null)
 
-  useEffect(() => {
-    const root = rootRef.current
-    if (!root) return
+  useGSAP(
+    (_, contextSafe) => {
+      const root = rootRef.current
+      if (!root) return
 
-    const targets = root.querySelectorAll<HTMLElement>('.writings-gallery__anim')
-    if (targets.length === 0) return
+      const targets = root.querySelectorAll<HTMLElement>('.writings-gallery__anim')
+      if (targets.length === 0) return
 
-    const prefersReduced =
-      reducedMotion ||
-      window.matchMedia('(prefers-reduced-motion: reduce)').matches
+      const prefersReduced =
+        reducedMotion ||
+        window.matchMedia('(prefers-reduced-motion: reduce)').matches
 
-    if (prefersReduced) {
-      targets.forEach((el) => {
-        el.style.opacity = '1'
-        el.style.transform = 'none'
-      })
-      return
-    }
+      if (prefersReduced) {
+        targets.forEach((el) => {
+          el.style.opacity = '1'
+          el.style.transform = 'none'
+        })
+        return
+      }
 
-    gsap.set(targets, { opacity: 0, y: 20 })
+      if (!contextSafe) return
 
-    const io = new IntersectionObserver(
-      (entries) => {
-        entries.forEach((entry) => {
-          if (!entry.isIntersecting) return
+      gsap.set(targets, { opacity: 0, y: 20 })
+
+      let io: IntersectionObserver
+      const onIntersect = contextSafe((entries: IntersectionObserverEntry[]) => {
+        for (const entry of entries) {
+          if (!entry.isIntersecting) continue
           io.disconnect()
           gsap.to(targets, {
             opacity: 1,
@@ -45,18 +51,28 @@ export function WritingsGalleryPage() {
             stagger: 0.06,
             ease: 'power2.out',
           })
-        })
-      },
-      { root: null, threshold: 0.12, rootMargin: '0px 0px -5% 0px' },
-    )
+          break
+        }
+      })
 
-    io.observe(root)
+      io = new IntersectionObserver(onIntersect, {
+        root: null,
+        threshold: 0.12,
+        rootMargin: '0px 0px -5% 0px',
+      })
 
-    return () => {
-      io.disconnect()
-      gsap.killTweensOf(targets)
-    }
-  }, [reducedMotion])
+      io.observe(root)
+
+      return () => {
+        io.disconnect()
+      }
+    },
+    {
+      scope: rootRef,
+      dependencies: [reducedMotion],
+      revertOnUpdate: true,
+    },
+  )
 
   return (
     <div ref={rootRef} className="writings-gallery">
