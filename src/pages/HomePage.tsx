@@ -18,11 +18,20 @@ import {
 } from '@/data/experimentsData'
 import { projects } from '@/data/projectsData'
 import { writings } from '@/data/writingsData'
-import { hrefAbout, hrefExperiments, hrefExperimentsSection, hrefWork, hrefWriting } from '@/i18n/routes'
+import {
+  hrefAbout,
+  hrefExperiments,
+  hrefExperimentsSection,
+  hrefWork,
+  hrefWriting,
+  hrefWritings,
+} from '@/i18n/routes'
 import { usePrefersReducedMotion } from '@/hooks/usePrefersReducedMotion'
 import { useLenis } from '@/providers/LenisProvider'
 import { lenisService } from '@/services/lenisService'
 import { preloadImages } from '@/utils/imagePreloadCache'
+
+const HOME_WRITINGS_PREVIEW_COUNT = 4
 
 type BookItem = {
   id: string
@@ -455,7 +464,7 @@ export function HomePage() {
       <section id="writings" className="home-listing">
         <h2 className="home-listing__heading">Writings</h2>
         <div className="home-listing__rows" role="list">
-          {writings.map((item) => (
+          {writings.slice(0, HOME_WRITINGS_PREVIEW_COUNT).map((item) => (
             <Link
               key={item.id}
               to={hrefWriting(item.id)}
@@ -468,6 +477,9 @@ export function HomePage() {
             </Link>
           ))}
         </div>
+        <Link className="home-experiments__link-all home-listing__view-all" to={hrefWritings}>
+          {t('pages.writing.viewAllHome')}
+        </Link>
       </section>
 
       <section id="books" className="bookshelf">
