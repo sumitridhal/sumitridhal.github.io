@@ -1,6 +1,8 @@
 {
   "hero-aurora": { "width": 1600, "height": 900 },
-  "project-nebula": { "width": 1200, "height": 800 },
-  "project-lattice": { "width": 1200, "height": 800 },
-  "project-signal": { "width": 1200, "height": 800 }
+  "project-nebula": { "width": 1024, "height": 896 },
+  "project-lattice": { "width": 1024, "height": 819 },
+  "project-signal": { "width": 1024, "height": 890 },
+  "project-wu-design-system": { "width": 1024, "height": 890 },
+  "project-wu-cash-kiosk": { "width": 1024, "height": 940 }
 }
