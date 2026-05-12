@@ -237,10 +237,12 @@
     "back": "All work",
     "role": "Role",
     "year": "Year",
-    "stack": "Stack"
+    "stack": "Stack",
+    "highlightsHeading": "What we built"
   },
   "writing": {
     "back": "All writings",
+    "viewAllHome": "View all writings",
     "galleryCategory": "Writings",
     "galleryHeroTitle": "Writings",
     "galleryHeroLead": "Essays and notes on engineering practice, creative coding, and the tools that shape how we build software. Open any title below to read the full piece.",
