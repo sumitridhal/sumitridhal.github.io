@@ -51,4 +51,52 @@
   border-radius: $radius-lg;
   overflow: hidden;
   border: 1px solid rgba(255, 255, 255, 0.08);
+
+  img {
+    display: block;
+    width: 100%;
+    height: auto;
+    vertical-align: middle;
+  }
+}
+
+.project-page__body {
+  margin-top: 2.5rem;
+  max-width: 44rem;
+}
+
+.project-page__prose {
+  margin: 0 0 1.25rem;
+  font-size: 1rem;
+  line-height: 1.65;
+  color: $color-muted;
+
+  &:last-of-type {
+    margin-bottom: 0;
+  }
+}
+
+.project-page__section-title {
+  font-family: $font-display;
+  font-size: 1.15rem;
+  font-weight: 700;
+  letter-spacing: -0.02em;
+  margin: 2rem 0 1rem;
+  color: $color-text;
+}
+
+.project-page__highlights {
+  margin: 0;
+  padding: 0 0 0 1.1rem;
+  color: $color-muted;
+  font-size: 0.98rem;
+  line-height: 1.6;
+
+  li {
+    margin-bottom: 0.65rem;
+
+    &:last-child {
+      margin-bottom: 0;
+    }
+  }
 }
