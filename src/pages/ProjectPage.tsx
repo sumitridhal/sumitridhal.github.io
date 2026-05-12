@@ -3,6 +3,7 @@ import { Navigate, useParams } from 'react-router-dom'
 
 import { useI18n } from '@/contexts/I18nContext'
 import dimensions from '@/data/image-dimensions.json'
+import { getProjectDetail } from '@/data/projectDetails'
 import { getProjectBySlug } from '@/data/projectsData'
 import { hrefHome } from '@/i18n/routes'
 import { useViewTransitionNavigate } from '@/hooks/useViewTransitionNavigate'
@@ -25,6 +26,11 @@ export function ProjectPage() {
 
   const key = project.imageKey
   const dim = dimensions[key]
+  const detail = getProjectDetail(project.slug)
+
+  const role = detail?.role ?? 'Lead front-end'
+  const year = detail?.year ?? '2025'
+  const stack = detail?.stack ?? 'React, WebGL, Vite'
 
   return (
     <article className="project-page">
@@ -41,13 +47,13 @@ export function ProjectPage() {
       <p className="project-page__tagline">{project.tagline}</p>
       <ul className="project-page__meta">
         <li>
-          <strong>{t('pages.project.role')}</strong> — Lead front-end
+          <strong>{t('pages.project.role')}</strong> — {role}
         </li>
         <li>
-          <strong>{t('pages.project.year')}</strong> — 2025
+          <strong>{t('pages.project.year')}</strong> — {year}
         </li>
         <li>
-          <strong>{t('pages.project.stack')}</strong> — React, WebGL, Vite
+          <strong>{t('pages.project.stack')}</strong> — {stack}
         </li>
       </ul>
       <figure className="project-page__figure">
@@ -58,6 +64,38 @@ export function ProjectPage() {
           height={dim.height}
         />
       </figure>
+      {detail ? (
+        <div className="project-page__body">
+          {detail.intro.map((paragraph, i) => (
+            <p key={i} className="project-page__prose">
+              {paragraph}
+            </p>
+          ))}
+          {detail.highlights.length > 0 ? (
+            <>
+              <h2 className="project-page__section-title">
+                {t('pages.project.highlightsHeading')}
+              </h2>
+              <ul className="project-page__highlights">
+                {detail.highlights.map((item, i) => (
+                  <li key={i}>{item}</li>
+                ))}
+              </ul>
+            </>
+          ) : null}
+          {detail.gallery?.map((item) => (
+            <figure key={item.src} className="project-page__figure">
+              <img
+                src={item.src}
+                alt={item.alt}
+                {...(item.width != null && item.height != null
+                  ? { width: item.width, height: item.height }
+                  : {})}
+              />
+            </figure>
+          ))}
+        </div>
+      ) : null}
     </article>
   )
 }
