@@ -15,7 +15,7 @@ export const projects: Project[] = [
   {
     id: 'nebula',
     imageKey: 'project-nebula',
-    coverSrc: 'https://picsum.photos/seed/agentic-workflow-copilot/1200/800',
+    coverSrc: '/work/agentic-workflow-copilot-dashboard.png',
     title: 'Agentic Workflow Copilot',
     tagline: 'LLM-assisted automation for enterprise engineering teams',
     slug: 'agentic-workflow-copilot',
@@ -23,19 +23,38 @@ export const projects: Project[] = [
   {
     id: 'lattice',
     imageKey: 'project-lattice',
-    coverSrc: 'https://picsum.photos/seed/cloud-cost-intelligence/1200/800',
+    coverSrc: '/work/cloud-cost-intelligence-dashboard.png',
     title: 'Cloud Cost Intelligence',
-    tagline: 'FinOps dashboard with predictive alerts and anomaly detection',
+    tagline:
+      'FinOps optimization hub: savings discovery, impact scoring, and a remediation-ready work queue',
     slug: 'cloud-cost-intelligence',
   },
   {
     id: 'signal',
     imageKey: 'project-signal',
-    coverSrc: 'https://picsum.photos/seed/aiops-incident-assistant/1200/800',
+    coverSrc: '/work/aiops-incident-assistant-dashboard.png',
     title: 'AIOps Incident Assistant',
     tagline:
-      'Incident triage and remediation assistant integrated with observability',
+      'Incident command for AI-ranked playbooks, transparent dry-runs, and governed execution',
     slug: 'aiops-incident-assistant',
+  },
+  {
+    id: 'wu-design-system',
+    imageKey: 'project-wu-design-system',
+    coverSrc: '/work/western-union-design-system-cover.png',
+    title: 'Western Union design system',
+    tagline:
+      'Cross-channel tokens, component libraries, and governance for global money-movement products',
+    slug: 'western-union-design-system',
+  },
+  {
+    id: 'wu-cash-kiosk',
+    imageKey: 'project-wu-cash-kiosk',
+    coverSrc: '/work/western-union-cash-send-kiosk-cover.png',
+    title: 'Western Union retail kiosk',
+    tagline:
+      'Cash-in send flow for in-store kiosks: limits, validation, and clear recovery when hardware or networks fail',
+    slug: 'western-union-cash-send-kiosk',
   },
 ]
 
