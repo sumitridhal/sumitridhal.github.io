@@ -1,0 +1,89 @@
+export const writingMeta = {
+  id: 'storybook-mcp-and-agent-context',
+  order: -7,
+  title: 'Storybook MCP as a contract for coding agents',
+  date: '12/05',
+  category: 'DX',
+  excerpt:
+    'LLM agents ship UI fast; without a narrow, truthful API surface they drift toward generic components and expensive context. Varun Vachhar’s Codrops walkthrough shows how Storybook’s component manifest plus MCP turns stories into that surface—here is the same idea in fewer moving parts.',
+  titleLines: ['Storybook MCP', 'as a contract for agents'],
+  asideParagraphs: [
+    'Treat hosted `/mcp` like any other HTTP integration: stable permalinks for consumers, rotation if tokens leak, and no secrets in stories.',
+    'The manifest is only as honest as your stories—stale argTypes or skipped interaction tests teach the model the wrong law.',
+  ],
+  coverSrc: 'https://picsum.photos/seed/storybook-mcp-and-agent-context/960/640',
+}
+
+Varun Vachhar’s Codrops article [**Supercharge Your Design System with LLMs and Storybook MCP**](https://tympanus.net/codrops/2025/12/09/supercharge-your-design-system-with-llms-and-storybook-mcp/) (9 December 2025) is the detailed tutorial: screenshots, a full FlightBooking prompt, Chromatic hosting, and Claude Code wiring. This note keeps the **shape** of that argument and swaps in a bit of systems framing—read Codrops for the cookbook; read this if you want the “why” in one pass.
+
+## Velocity without a map
+
+Agents are excellent at turning a paragraph into components. They are much worse at guessing **your** composition rules: which primitive wraps focus, how variants nest, which props are deprecated, and which files are experiments someone forgot to delete. Left alone, the model reaches for the statistically average React it saw during training. The code runs; it does not belong in your repo.
+
+That gap is not laziness. It is **missing contract**. Humans learn the system by reading stories, running Storybook, and watching CI fail. Agents only get whatever you put in front of them. Point them at the whole tree and they do what a tired human does on day one—open too much, infer wrong, burn time.
+
+## Context is money and attention
+
+Letting an agent “just explore” the package is expensive twice. Token use climbs because every hop pulls siblings, types, and dead paths into the window. Quality drops because the signal is buried in noise. The Codrops piece quantifies that pain in the tens of thousands of tokens before a single line of UI ships; whether your bill matches exactly does not change the curve.
+
+What you want is not more files in context. You want **curated** facts: prop tables that match runtime, examples that actually render, tests that encode acceptance criteria.
+
+## MCP in one sentence
+
+The [Model Context Protocol](https://modelcontextprotocol.io) is an open way for assistants to call tools and read resources from another process—think language-neutral RPC for “what the agent is allowed to ask.” Storybook’s MCP addon exposes your design system through that channel instead of through ad-hoc file search.
+
+## Storybook as a compressed API
+
+Storybook already holds the artefacts humans trust: controls, docs, stories, interaction and a11y checks. The experimental **component manifest** flattens that into a payload an agent can parse: prop metadata, snippets, JSDoc, links into stories, and the test surface that proves a component’s behaviour.
+
+So the thesis (aligned with Codrops, but stated as architecture): **stories are your public API for UI agents.** MCP is the transport; the manifest is the message. Fidelity goes up because the model sees how components are *meant* to be used. Cost goes down because it is not ingesting half the monorepo to infer the same thing.
+
+## Minimal setup path
+
+Prerequisites and flags move—Storybook calls MCP **experimental**—so treat the following as orientation, then follow upstream docs and the Codrops steps for copy-paste accuracy.
+
+**1. Enable the manifest** in `.storybook/main.ts` (Storybook 10.1+ in the Codrops flow):
+
+```ts
+export default {
+  // stories, addons, framework, etc.
+  features: {
+    experimentalComponentsManifest: true,
+    experimentalCodeExamples: true,
+  },
+}
+```
+
+Run Storybook and confirm the HTML manifest (path like `/manifests/components.html` on your dev port). Warnings are normal while you tighten stories.
+
+**2. Add the MCP addon** so the same dev server exposes tool metadata:
+
+```bash
+npx storybook add @storybook/addon-mcp
+```
+
+You should get an MCP endpoint under the running Storybook base URL (Codrops uses `/mcp` on localhost).
+
+**3. Register the server with your agent** (Claude Code in the original article):
+
+```bash
+claude mcp add storybook-mcp --transport http http://localhost:PORT/mcp --scope project
+```
+
+A narrow system prompt helps—“before building UI, query Storybook MCP for primitives and props”—so the model does not skip the tool pass out of habit.
+
+**4. Optional hosted MCP** via Chromatic (or equivalent publishing) gives consumers of the design system the same endpoint on a stable URL. Permalinks beat “whatever localhost was today.”
+
+Storybook’s own [MCP sneak peek](https://storybook.js.org/blog/storybook-mcp-sneak-peek/) is a useful second source next to Codrops when behaviour or flags change between releases.
+
+## Risks worth naming
+
+**Governance.** If stories drift from production usage, the manifest teaches the wrong API. Keep interaction tests meaningful and docs generated from truth (types, argTypes), not wishful copy.
+
+**Exposure.** A hosted MCP URL is a network surface. Lock down who can reach it, prefer pinned builds for external agents, and assume anything in the manifest is public to whoever holds the URL.
+
+**Scope.** MCP solves *knowledge of components*. It does not replace product judgement, routing, data fetching, or backend auth. Use it where UI composition is the bottleneck.
+
+## Closing
+
+Agents are not going to read your mind; they read whatever you stream into the session. Storybook MCP is a bet that **validated UI knowledge** should be streamed on purpose—small packets, high signal—instead of recovered by brute-force repo search. For the hands-on path, screenshots, and the FlightBooking exercise, start with Vachhar’s Codrops article linked at the top; keep Storybook’s release notes in the same tab so you stay ahead of experimental churn.
