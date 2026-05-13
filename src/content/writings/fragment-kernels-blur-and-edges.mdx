@@ -4,7 +4,7 @@ export const writingMeta = {
   "id": "fragment-kernels-blur-and-edges",
   "order": 8,
   "title": "Fragment kernels for blur, sharpen, and edges",
-  "date": "12/05",
+  "date": "2012-12-05",
   "category": "Graphics",
   "excerpt": "Many image operations are local: each output pixel is a weighted sum of neighbours in a kernel. A Gaussian blur is separable, meaning two 1D passes with a small tap count approximate a fat 2D convolution with far fewer…",
   "titleLines": [
@@ -41,7 +41,7 @@ Box filters are fewer taps but ring in frequency space; Gaussians cost more but 
 />
 
 <figure className="writing-inline-figure">
-  <img src="/writings/fragment-kernels-blur-and-edges.png" alt={writingMeta.title} loading="lazy" decoding="async" />
+  <img src="/media/writings/fragment-kernels-blur-and-edges.png" alt={writingMeta.title} loading="lazy" decoding="async" />
 </figure>
 
 When a pass must read its own freshly written pixels in the same frame—iterative blur radius, some solvers—you pair surfaces and swap; ping-pong buffers and why GPUs like pairs is the longer story on naming read versus write and precision. For a single separable blur you usually only need two passes and no feedback loop.

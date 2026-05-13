@@ -4,7 +4,7 @@ export const writingMeta = {
   "id": "rays-sdf-and-analytic-hits-in-shaders",
   "order": 7,
   "title": "Rays, SDFs, and analytic hits in shaders",
-  "date": "13/05",
+  "date": "2010-07-08",
   "category": "Creative code",
   "excerpt": "A ray is an origin plus a direction, r(t) = o + t d with t ≥ 0. Analytic tests solve for t in closed form: a sphere reduces to a quadratic, an axis-aligned box to slab intersections, a plane to a single division. Those…",
   "titleLines": [
@@ -41,7 +41,7 @@ bool hitSphere(vec3 ro, vec3 rd, vec3 c, float r, out float t) {
 A signed distance field returns the shortest distance to a surface, negative inside and positive outside. You combine fields with min for unions, max for intersections, and smooth blends for fillets; the gradient of the field points toward the nearest surface, so a central difference on six taps gives a normal without storing mesh topology.
 
 <figure className="writing-inline-figure">
-  <img src="/writings/rays-sdf-and-analytic-hits-in-shaders.png" alt={writingMeta.title} loading="lazy" decoding="async" />
+  <img src="/media/writings/rays-sdf-and-analytic-hits-in-shaders.png" alt={writingMeta.title} loading="lazy" decoding="async" />
 </figure>
 
 Raymarching steps along the ray using the SDF value as a conservative stride; the companion piece on raymarching signed distance fields without the hype owns iteration caps, grazing angles, and production shortcuts. Here the takeaway is definitions—what distance means—and how analytic hits and SDFs share the same ray parameter t even when the search strategy differs.

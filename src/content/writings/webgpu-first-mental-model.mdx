@@ -4,7 +4,7 @@ export const writingMeta = {
   "id": "webgpu-first-mental-model",
   "order": 11,
   "title": "A first mental model for WebGPU in the browser",
-  "date": "02/05",
+  "date": "2023-05-03",
   "category": "Graphics",
   "excerpt": "WebGPU asks you to think in explicit queues, bind groups, and pipelines instead of the implicit state machine many of us grew up with in immediate-mode GL. That verbosity is the contract: the driver gets a smaller…",
   "titleLines": [
@@ -38,7 +38,7 @@ fn vsMain(@builtin(vertex_index) vi: u32) -> @builtin(position) vec4f {
 A tiny ergonomic layer on top—typed shader nodes, macro helpers, or a scene graph that emits pipelines—can buy readability without hiding the two things that still matter: how often you switch pipelines and how wide your memory barriers are. Abstractions that obscure those two knobs eventually show up as jank.
 
 <figure className="writing-inline-figure">
-  <img src="/writings/webgpu-first-mental-model.png" alt={writingMeta.title} loading="lazy" decoding="async" />
+  <img src="/media/writings/webgpu-first-mental-model.png" alt={writingMeta.title} loading="lazy" decoding="async" />
 </figure>
 
 Reach for WebGPU when you need compute shaders beside graphics, large structured buffers, or tighter control over multi-pass rendering. Stay on WebGL when your asset is stable, your audience still includes older Safari constraints, or the port cost outweighs a single fullscreen effect.

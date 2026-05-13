@@ -4,7 +4,7 @@ export const writingMeta = {
   "id": "fullscreen-passes-as-design",
   "order": 13,
   "title": "Full-screen passes as a design language, not decoration",
-  "date": "17/04",
+  "date": "2013-10-28",
   "category": "Graphics",
   "excerpt": "A post chain is a sequence of transforms on an image: blur, threshold, color grade, vignette. Treat that chain like typography for motion—order matters, and the same operator early versus late reads completely different.",
   "titleLines": [
@@ -33,7 +33,7 @@ return color;
 Design-oriented passes answer layout questions: separation of foreground and background, guiding attention with localized contrast, or unifying disparate UI layers under one filmic curve. Decoration answers none of those; it only proves you know how to import a bloom sample.
 
 <figure className="writing-inline-figure">
-  <img src="/writings/fullscreen-passes-as-design.png" alt={writingMeta.title} loading="lazy" decoding="async" />
+  <img src="/media/writings/fullscreen-passes-as-design.png" alt={writingMeta.title} loading="lazy" decoding="async" />
 </figure>
 
 Budget passes the way you budget components. Each fullscreen draw has a fixed overhead; batch parameters into one pass when effects always ship together, and split only when you need different resolution scales or different temporal filters.

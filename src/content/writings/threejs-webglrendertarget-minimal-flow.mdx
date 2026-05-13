@@ -2,7 +2,7 @@ export const writingMeta = {
   "id": "threejs-webglrendertarget-minimal-flow",
   "order": -1,
   "title": "A minimal WebGLRenderTarget flow in Three.js",
-  "date": "11/05",
+  "date": "2014-04-22",
   "category": "Graphics",
   "excerpt": "Off-screen rendering starts with a `WebGLRenderTarget`: a color (and optional depth) attachment sized in pixels, independent of the canvas backing store. You bind it, draw your scene or a full-screen pass, then bind `null` to…",
   "titleLines": [
@@ -65,7 +65,7 @@ Swap materials or shader uniforms instead of `MeshBasicMaterial` when you need t
 Fiber calls `gl.render` for you after `useFrame` callbacks. If you need custom target binding, either perform your off-screen pass **inside** `useFrame` before other hooks mutate the scene, or set `gl.autoClear = false` and take full ownership of clear and render order—document the sequence so the next contributor does not insert a hook that clears your attachment mid-frame.
 
 <figure className="writing-inline-figure">
-  <img src="/writings/threejs-webglrendertarget-minimal-flow.png" alt={writingMeta.title} loading="lazy" decoding="async" />
+  <img src="/media/writings/threejs-webglrendertarget-minimal-flow.png" alt={writingMeta.title} loading="lazy" decoding="async" />
 </figure>
 
 Ping-pong feedback is the next step: two targets, read from one while writing the other, then swap handles—same resize rules, twice the bookkeeping. The article on ping-pong buffers walks that pattern; render targets are the object you are swapping.

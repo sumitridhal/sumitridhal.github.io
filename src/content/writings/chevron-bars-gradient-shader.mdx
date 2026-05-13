@@ -4,7 +4,7 @@ export const writingMeta = {
   id: 'chevron-bars-gradient-shader',
   order: -2.35,
   title: 'Chevron bars: a V-shaped gradient mask in one fragment pass',
-  date: '11/05',
+  date: '2018-02-06',
   category: 'Creative code',
   excerpt:
     'A poster-like stack of vertical columns can be drawn without geometry: each column shares the same vertical ramp, but the height where colour begins follows a smooth “V” across the width. Sharp bar edges, soft horizontal feather, film grain, and motion all live in the fragment shader.',
@@ -17,7 +17,7 @@ export const writingMeta = {
     ['glow', 'grad', 'warp', 'mesh'],
     ['grain', 'flow', 'branch', 'cloud'],
   ],
-  coverSrc: '/writings/chevron-bars-gradient-shader.png',
+  coverSrc: '/media/writings/chevron-bars-gradient-shader.png',
 }
 
 The still reference is a **column field**: equal-width bars, hard vertical cuts, and a shared palette that runs black → saturated red → pink → warm off-white toward the bottom. What makes it feel designed instead of a flat gradient is the **per-column threshold**: the centre column holds black the longest; toward the edges the coloured band “starts” higher, so the top of the colour reads like a shallow **chevron** or inverted roofline.
@@ -47,6 +47,6 @@ Motion is cheap: add a low-frequency sine to `th` for the whole **V to breathe**
 
 **Extensions that stay in 2D:** rotate the chevron with a skew on `q` before column quantisation; replace `pow(d, …)` with smooth noise for a wobbly roofline; modulate hue with `atan` of a second field for a thermograph look; or render this pass into a `WebGLRenderTarget` and feed it as a texture into typography or post stack.
 
-<img src="/writings/chevron-bars-gradient-shader.png" alt={writingMeta.title} loading="lazy" decoding="async" />
+<img src="/media/writings/chevron-bars-gradient-shader.png" alt={writingMeta.title} loading="lazy" decoding="async" />
 
 The static frame above is the visual target; the canvas before it is the same idea with **time** and **pointer** wired in. Together they are the usual creative-code split: freeze the art direction once, then spend iterations on the tiny uniforms that sell motion.
