@@ -7,8 +7,8 @@ import { useWritingPreviewReducedMotion } from '@/components/writings/useWriting
 const VB_W = 360
 const VB_H = 220
 
-const CIVILIAN_SRC = '/writings/superhero-svg-mask-preview/civilian.png'
-const HERO_SRC = '/writings/superhero-svg-mask-preview/hero.png'
+const CIVILIAN_SRC = '/media/writings/superhero-svg-mask-preview/civilian.png'
+const HERO_SRC = '/media/writings/superhero-svg-mask-preview/hero.png'
 
 export type WritingSuperheroSvgMaskPreviewProps = {
   caption?: string
