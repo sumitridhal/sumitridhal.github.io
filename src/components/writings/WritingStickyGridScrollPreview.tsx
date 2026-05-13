@@ -183,7 +183,7 @@ export function WritingStickyGridScrollPreview({
         <div ref={stageRef} className="writing-sticky-grid-preview__stage">
           <div ref={topbarRef} className="writing-sticky-grid-preview__topbar">
             <span className="writing-sticky-grid-preview__nav">
-              Home · About · Work · Writings · Experiments
+              Home · About · Work · Writings
             </span>
             <span className="writing-sticky-grid-preview__promo">sumitridhal.github.io →</span>
           </div>
