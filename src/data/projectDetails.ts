@@ -15,58 +15,6 @@ export type ProjectPageDetail = {
   gallery?: ProjectGalleryItem[]
 }
 
-const cloudCostIntelligence: ProjectPageDetail = {
-  role: 'Lead front-end',
-  year: '2026',
-  stack: 'React, TypeScript, dashboard UI, design tokens',
-  intro: [
-    'Cloud Cost Intelligence is a FinOps-style command center for turning raw billing and utilization signals into prioritized savings work. The experience anchors on an optimization hub: leadership sees total opportunity at a glance, while practitioners can move from aggregate numbers to concrete resource-level actions without losing context.',
-    'The surface is organized around three lenses that mirror how platform teams actually reduce spend—rightsizing workloads that are over-provisioned, reclaiming unused or orphaned assets, and tuning commitments (RIs, savings plans) where coverage lags usage. Each recommendation carries difficulty and impact cues so teams can sequence work across squads instead of chasing the loudest line item on an invoice.',
-    'A dense but scannable queue ties the story together: resource identifiers, current versus recommended shapes, estimated monthly savings, and selection for bulk remediation. That pattern supports the real-world loop of discover → review → approve → execute, with enough metadata in the row to justify a change without opening five other tools.',
-  ],
-  highlights: [
-    'Global optimization status with headline potential savings and a bulk-action entry point for large recommendation sets.',
-    'Card-based groupings for rightsizing, unused resources, and reservations, each with counts and “view all” paths into the backlog.',
-    'Per-item difficulty (low / medium / high) and qualitative tags such as safe-to-delete or high-impact to steer risk appetite.',
-    'Account- and date-range-aware chrome so finance and engineering can align on the same slice of the estate before exporting or sharing.',
-    'Tabular work queue with utilization context, recommended targets, estimated savings, and row-level selection for controlled rollouts.',
-  ],
-}
-
-const aiopsIncidentAssistant: ProjectPageDetail = {
-  role: 'Lead front-end',
-  year: '2026',
-  stack: 'React, TypeScript, dashboard UI, design tokens',
-  intro: [
-    'AIOps Incident Assistant is an incident-command surface for production issues: it keeps responders in one place from first detection through a safe execution path. The layout mirrors how SRE teams actually work—context and impact up top, ranked remediation options in the middle, and evidence (script output, permissions checks, simulated blast radius) where operators can audit before they click approve.',
-    'The experience walks a deliberate pipeline—Detected → AI analysis → Dry-run → Execute—so confidence is earned step by step rather than buried in a chat transcript. Recommendations are scored and explained (for example rolling restarts versus horizontal scale) with affordances to preview generated bash and Kubernetes-shaped artifacts, aligning model output with the same primitives engineers already run in production.',
-    'Governance is first-class: dual-authorization, an explicit attestation that dry-run results were reviewed, and a single controlled CTA to run the playbook. Historical remediation for the same service grounds the UI in what worked or failed before, and narrative insights connect recurring symptoms back to likely code hotspots—bridging observability, automation, and long-term fixes.',
-  ],
-  highlights: [
-    'Live incident header with environment, timing, and a compact impact readout (error rate delta, affected sessions, service health).',
-    'AI-ranked fixes with confidence, plain-language rationale, and actions to preview remediation scripts or inspect YAML before any change.',
-    'Embedded terminal-style dry-run output (for example kubectl permission checks and rolling pod rotation) including surfaced warnings such as estimated latency during rotation.',
-    'Approve-and-execute rail with dual-auth requirements and a mandatory safety checkbox tied to dry-run review.',
-    'Historical playbook outcomes and smart RCA hints that tie repeat patterns to concrete files or controllers for follow-up engineering work.',
-  ],
-}
-
-const agenticWorkflowCopilot: ProjectPageDetail = {
-  role: 'Lead front-end',
-  year: '2025',
-  stack: 'React, TypeScript, Vercel AI SDK, design tokens',
-  intro: [
-    'Agentic Workflow Copilot is an enterprise monitoring surface for long-running AI agents: operators see status, current task, and resource load at a glance, then drill into structured reasoning and raw execution logs side by side.',
-    'The UI pairs a depth-limited reasoning chain (query → thought → tool execution with confidence hints) with a streaming console so teams can correlate model intent with gateway latency, retrieval, and embedding work—similar to the flows you need when orchestrating sub-agents against SEC filings or other RAG corpora.',
-  ],
-  highlights: [
-    'Orchestration-aware layout: agent id, pause/parameters controls, and step progress for multi-step plans.',
-    'Chain-of-thought style timeline with timestamps, intent synthesis, and execution nodes (e.g. parallel scrapers / sub-agents).',
-    'Live console with severity-tagged lines, highlighted agent thoughts, and a command line for human-in-the-loop steering.',
-    'Observability cues wired into the chrome: uptime, CPU load, LLM cluster handshake, and payload sizes on fetch.',
-  ],
-}
-
 const westernUnionDesignSystem: ProjectPageDetail = {
   role: 'Product design / design systems',
   year: '2018',
@@ -101,12 +49,17 @@ const westernUnionCashSendKiosk: ProjectPageDetail = {
     'Offline-tolerant queueing cues when authorization lags, with clear safe-to-leave messaging versus hard-fail states that require voiding the session.',
     'Accessibility and posture: primary actions in thumb reach zones, timeout extensions for cash counting, and audio-off defaults with optional assistive prompts.',
   ],
+  gallery: [
+    {
+      src: '/media/projects/western-union-cash-send-kiosk-confirmation.png',
+      alt: 'Transfer Money confirmation: recipient and delivery summary, totals, exchange rate, and finish actions before printing a receipt.',
+      width: 1024,
+      height: 856,
+    },
+  ],
 }
 
 export const projectDetailsBySlug: Record<string, ProjectPageDetail> = {
-  'agentic-workflow-copilot': agenticWorkflowCopilot,
-  'aiops-incident-assistant': aiopsIncidentAssistant,
-  'cloud-cost-intelligence': cloudCostIntelligence,
   'western-union-design-system': westernUnionDesignSystem,
   'western-union-cash-send-kiosk': westernUnionCashSendKiosk,
 }
