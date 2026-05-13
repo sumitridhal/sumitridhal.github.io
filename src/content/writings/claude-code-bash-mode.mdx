@@ -2,7 +2,7 @@ export const writingMeta = {
   "id": "claude-code-bash-mode",
   "order": 20,
   "title": "Claude Code bash mode",
-  "date": "20/01",
+  "date": "2025-02-24",
   "category": "TIL",
   "excerpt": "Bash mode is the moment you stop treating the agent as a chat surface and let it drive the shell the same way you would: chained commands, pipes, and exit codes that either unblock the next step or surface a real…",
   "titleLines": [
@@ -21,7 +21,7 @@ npm test -- --run && npm run build
 The habit that saves the most time is naming intent before mechanics. Ask for a dry run or `echo` plan when the command touches production data, then widen permissions once the shape of the change is obvious. The model is fast; your filesystem permissions are not.
 
 <figure className="writing-inline-figure">
-  <img src="/writings/claude-code-bash-mode.png" alt={writingMeta.title} loading="lazy" decoding="async" />
+  <img src="/media/writings/claude-code-bash-mode.png" alt={writingMeta.title} loading="lazy" decoding="async" />
 </figure>
 
 When something goes sideways, capture stderr verbatim. It is the fastest signal for both the model and humans about whether you are fighting PATH issues, missing binaries, or a subtle quoting bug—three different fixes, one shared symptom.
