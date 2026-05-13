@@ -29,6 +29,7 @@ import {
 import { usePrefersReducedMotion } from '@/hooks/usePrefersReducedMotion'
 import { useLenis } from '@/providers/LenisProvider'
 import { lenisService } from '@/services/lenisService'
+import { formatWritingDate } from '@/utils/formatWritingDate'
 import { preloadImages } from '@/utils/imagePreloadCache'
 
 const HOME_WRITINGS_PREVIEW_COUNT = 4
@@ -472,7 +473,7 @@ export function HomePage() {
               role="listitem"
             >
               <p className="home-listing__title">{item.title}</p>
-              <p className="home-listing__date">{item.date}</p>
+              <p className="home-listing__date">{formatWritingDate(item.date)}</p>
               <span className="home-listing__tag">{item.category}</span>
             </Link>
           ))}

@@ -10,6 +10,7 @@ import {
 } from '@/data/writingsData'
 import { hrefWritings } from '@/i18n/routes'
 import { useViewTransitionNavigate } from '@/hooks/useViewTransitionNavigate'
+import { formatWritingDate } from '@/utils/formatWritingDate'
 
 const figureLabels: Record<WritingFigureVariant, string> = {
   grain: 'High-frequency value noise',
@@ -58,7 +59,7 @@ export function WritingPage() {
           {t('pages.writing.back')}
         </button>
         <p className="writing-page__meta">
-          <span className="writing-page__date">{writing.date}</span>
+          <span className="writing-page__date">{formatWritingDate(writing.date)}</span>
           <span className="writing-page__tag">{writing.category}</span>
         </p>
       </div>

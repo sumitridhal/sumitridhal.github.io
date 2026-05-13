@@ -6,6 +6,7 @@ import { Link } from 'react-router-dom'
 import { useI18n } from '@/contexts/I18nContext'
 import { writings, writingTitle } from '@/data/writingsData'
 import { hrefHome, hrefWriting } from '@/i18n/routes'
+import { formatWritingDate } from '@/utils/formatWritingDate'
 import { usePrefersReducedMotion } from '@/hooks/usePrefersReducedMotion'
 
 gsap.registerPlugin(useGSAP)
@@ -101,7 +102,7 @@ export function WritingsGalleryPage() {
                   <span className="writings-gallery__row-title">
                     {writingTitle(item)}
                   </span>
-                  <span className="writings-gallery__row-meta">{item.date}</span>
+                  <span className="writings-gallery__row-meta">{formatWritingDate(item.date)}</span>
                 </Link>
               </li>
             ))}

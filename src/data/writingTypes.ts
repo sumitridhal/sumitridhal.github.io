@@ -13,6 +13,7 @@ export type WritingFigureVariant =
 export type WritingMeta = {
   id: string
   title: string
+  /** ISO calendar date `YYYY-MM-DD` (primary reference publish date, or site/git proxy). */
   date: string
   category: string
   /** Lower index = newer (matches historical ordering). */
