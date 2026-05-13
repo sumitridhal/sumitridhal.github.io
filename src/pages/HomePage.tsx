@@ -12,6 +12,7 @@ import 'locomotive-scroll/dist/locomotive-scroll.css'
 import { HeroAtmosphere } from '@/components/HeroAtmosphere'
 import { useI18n } from '@/contexts/I18nContext'
 import { projects } from '@/data/projectsData'
+import { talks } from '@/data/talksData'
 import { writings } from '@/data/writingsData'
 import { hrefAbout, hrefWork, hrefWriting, hrefWritings } from '@/i18n/routes'
 import { usePrefersReducedMotion } from '@/hooks/usePrefersReducedMotion'
@@ -251,7 +252,13 @@ export function HomePage() {
   useEffect(() => {
     const hash = location.hash
     const sectionId =
-      hash === '#work' ? 'work' : hash === '#writings' ? 'writings' : null
+      hash === '#work'
+        ? 'work'
+        : hash === '#writings'
+          ? 'writings'
+          : hash === '#talks'
+            ? 'talks'
+            : null
     if (!sectionId) return
     const el = document.getElementById(sectionId)
     if (!el) return
@@ -430,6 +437,26 @@ export function HomePage() {
         <Link className="home-listing__view-all" to={hrefWritings}>
           {t('pages.writing.viewAllHome')}
         </Link>
+      </section>
+
+      <section id="talks" className="home-listing">
+        <h2 className="home-listing__heading">Talks</h2>
+        <div className="home-listing__rows" role="list">
+          {talks.map((item) => (
+            <a
+              key={item.id}
+              href={item.href}
+              className="home-listing__row"
+              role="listitem"
+              target="_blank"
+              rel="noopener noreferrer"
+            >
+              <p className="home-listing__title">{item.title}</p>
+              <p className="home-listing__date">{formatWritingDate(item.date)}</p>
+              <span className="home-listing__tag">{item.tag}</span>
+            </a>
+          ))}
+        </div>
       </section>
 
       <section id="books" className="bookshelf">
