@@ -11,21 +11,9 @@ import 'locomotive-scroll/dist/locomotive-scroll.css'
 
 import { HeroAtmosphere } from '@/components/HeroAtmosphere'
 import { useI18n } from '@/contexts/I18nContext'
-import {
-  experimentKinds,
-  teaserCoverForKind,
-  type ExperimentKind,
-} from '@/data/experimentsData'
 import { projects } from '@/data/projectsData'
 import { writings } from '@/data/writingsData'
-import {
-  hrefAbout,
-  hrefExperiments,
-  hrefExperimentsSection,
-  hrefWork,
-  hrefWriting,
-  hrefWritings,
-} from '@/i18n/routes'
+import { hrefAbout, hrefWork, hrefWriting, hrefWritings } from '@/i18n/routes'
 import { usePrefersReducedMotion } from '@/hooks/usePrefersReducedMotion'
 import { useLenis } from '@/providers/LenisProvider'
 import { lenisService } from '@/services/lenisService'
@@ -263,13 +251,7 @@ export function HomePage() {
   useEffect(() => {
     const hash = location.hash
     const sectionId =
-      hash === '#work'
-        ? 'work'
-        : hash === '#writings'
-          ? 'writings'
-          : hash === '#experiments'
-            ? 'experiments'
-            : null
+      hash === '#work' ? 'work' : hash === '#writings' ? 'writings' : null
     if (!sectionId) return
     const el = document.getElementById(sectionId)
     if (!el) return
@@ -429,39 +411,6 @@ export function HomePage() {
         </div>
       </section>
 
-      <section id="experiments" className="home-experiments">
-        <h2 className="home-experiments__heading">{t('pages.experiments.homeHeading')}</h2>
-        <p className="home-experiments__lead">{t('pages.experiments.homeLead')}</p>
-        <div className="home-experiments__tiles" role="list">
-          {experimentKinds.map((kind) => (
-            <Link
-              key={kind}
-              to={hrefExperimentsSection(kind)}
-              className="home-experiments__tile"
-              role="listitem"
-            >
-              <div className="home-experiments__tile-media">
-                <img src={teaserCoverForKind(kind)} alt="" />
-              </div>
-              <span className="home-experiments__tile-label">
-                {t(
-                  (
-                    {
-                      gsap: 'pages.experiments.tileGsap',
-                      three: 'pages.experiments.tileThree',
-                      shader: 'pages.experiments.tileShader',
-                    } satisfies Record<ExperimentKind, string>
-                  )[kind],
-                )}
-              </span>
-            </Link>
-          ))}
-        </div>
-        <Link className="home-experiments__link-all" to={hrefExperiments}>
-          {t('pages.experiments.viewAll')}
-        </Link>
-      </section>
-
       <section id="writings" className="home-listing">
         <h2 className="home-listing__heading">Writings</h2>
         <div className="home-listing__rows" role="list">
@@ -478,7 +427,7 @@ export function HomePage() {
             </Link>
           ))}
         </div>
-        <Link className="home-experiments__link-all home-listing__view-all" to={hrefWritings}>
+        <Link className="home-listing__view-all" to={hrefWritings}>
           {t('pages.writing.viewAllHome')}
         </Link>
       </section>
