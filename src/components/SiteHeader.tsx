@@ -1,7 +1,7 @@
 import { useViewTransitionNavigate } from '@/hooks/useViewTransitionNavigate'
 import { useI18n } from '@/contexts/I18nContext'
 import { useAppState } from '@/contexts/AppStateContext'
-import { hrefAbout, hrefExperiments, hrefHome, hrefWritings } from '@/i18n/routes'
+import { hrefAbout, hrefHome, hrefWritings } from '@/i18n/routes'
 import { useLocation } from 'react-router-dom'
 
 export function SiteHeader() {
@@ -33,13 +33,6 @@ export function SiteHeader() {
         </button>
         <button type="button" className="site-header__link" onClick={() => navigate(hrefWritings)}>
           {t('nav.writings')}
-        </button>
-        <button
-          type="button"
-          className="site-header__link"
-          onClick={() => navigate(hrefExperiments)}
-        >
-          {t('nav.experiments')}
         </button>
       </nav>
       <button
