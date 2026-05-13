@@ -2,7 +2,7 @@ export const writingMeta = {
   "id": "react-three-fiber-scene-graph-and-refs",
   "order": -2,
   "title": "Scene graph, refs, and primitives in React Three Fiber",
-  "date": "11/05",
+  "date": "2020-02-14",
   "category": "Dev",
   "excerpt": "JSX in R3F does not recreate the DOM—it mirrors Three’s `Object3D` tree. Lowercase tags map to constructors (`<mesh>` → `THREE.Mesh`), and children become attach targets (`<boxGeometry />` attaches to `mesh.geometry`). When you need…",
   "titleLines": [
@@ -67,7 +67,7 @@ The same pattern applies to `GLTFLoader` output: keep `gltf.scene` in state or a
 Position, rotation, and scale can be set declaratively (`<mesh position={[0, 1, 0]} />`) or imperatively in `useFrame`. Mixing both for the same axis in one frame causes confusion: pick one source of truth. High-frequency motion (physics, springs) usually belongs in refs and `useFrame`; rare layout changes belong in props.
 
 <figure className="writing-inline-figure">
-  <img src="/writings/react-three-fiber-scene-graph-and-refs.png" alt={writingMeta.title} loading="lazy" decoding="async" />
+  <img src="/media/writings/react-three-fiber-scene-graph-and-refs.png" alt={writingMeta.title} loading="lazy" decoding="async" />
 </figure>
 
 The mental model: **React owns reconciliation**; **Three owns the scene graph**. R3F keeps them in sync until you opt into `primitive` or imperative mutation—then document who disposes what.

@@ -2,7 +2,7 @@ export const writingMeta = {
   "id": "github-pages-spa-fallback",
   "order": 0,
   "title": "Shipping a Vite SPA to GitHub Pages without losing deep links",
-  "date": "20/05",
+  "date": "2016-09-12",
   "category": "TIL",
   "excerpt": "GitHub Pages serves static files from your branch or workflow artifact. When someone opens `/en/writing/some-slug` directly—or hits refresh—the server looks for a real file at that path. A client-rendered React app only…",
   "titleLines": [
@@ -25,7 +25,7 @@ cp dist/index.html dist/404.html
 The small trick that keeps React Router working is copying the built `index.html` to `404.html` after `vite build`. GitHub Pages uses `404.html` as a fallback for unknown routes, so the browser still loads your bundle, the router reads the URL, and the correct page mounts. It is not glamorous, but it is the difference between shareable URLs and mystery failures in DMs.
 
 <figure className="writing-inline-figure">
-  <img src="/writings/github-pages-spa-fallback.png" alt={writingMeta.title} loading="lazy" decoding="async" />
+  <img src="/media/writings/github-pages-spa-fallback.png" alt={writingMeta.title} loading="lazy" decoding="async" />
 </figure>
 
 Wire that copy into the same `npm run build` you already run in CI so nobody deploys without it. Pair it with Actions as the Pages source and you get reproducible builds, a clear audit trail, and no manual drag-and-drop step to forget.

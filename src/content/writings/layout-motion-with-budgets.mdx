@@ -2,7 +2,7 @@ export const writingMeta = {
   "id": "layout-motion-with-budgets",
   "order": 17,
   "title": "Layout-driven motion and knowing when to stop",
-  "date": "18/03",
+  "date": "2017-08-14",
   "category": "UI",
   "excerpt": "Layout-driven animation means the transition follows real geometry changes—width, position, flex distribution—not a hand-authored keyframe that drifts out of sync when copy changes. Libraries that measure DOM boxes and…",
   "titleLines": [
@@ -21,7 +21,7 @@ const duration = reduceMotion ? 0 : 0.35
 The failure mode is everything moving at once. Give hierarchy: one primary transition per gesture, secondary motion at lower amplitude, and respect reduced-motion settings with cross-fades or instant swaps instead of parallax.
 
 <figure className="writing-inline-figure">
-  <img src="/writings/layout-motion-with-budgets.png" alt={writingMeta.title} loading="lazy" decoding="async" />
+  <img src="/media/writings/layout-motion-with-budgets.png" alt={writingMeta.title} loading="lazy" decoding="async" />
 </figure>
 
 Ship a motion budget the same way you ship performance budgets: count simultaneous animated properties, cap duration, and test on low-end hardware. Delight is subtractive; the best interface motion is often the motion you delete after recording yourself using the flow twice.
