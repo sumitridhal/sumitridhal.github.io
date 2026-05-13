@@ -1,3 +1,4 @@
+@use 'sass:color';
 @use '../variables' as *;
 
 .home-theme {
@@ -308,7 +309,21 @@
 }
 
 .home-listing__view-all {
+  display: inline-flex;
   margin-top: 1.25rem;
+  font-family: $font-sans;
+  font-size: 0.92rem;
+  font-weight: 600;
+  color: rgba(91, 192, 190, 0.95);
+  text-decoration: underline;
+  text-underline-offset: 0.2em;
+  text-decoration-color: rgba(91, 192, 190, 0.35);
+
+  &:hover,
+  &:focus-visible {
+    color: color.adjust($color-accent-soft, $lightness: 10%);
+    text-decoration-color: rgba(91, 192, 190, 0.7);
+  }
 }
 
 .bookshelf {
