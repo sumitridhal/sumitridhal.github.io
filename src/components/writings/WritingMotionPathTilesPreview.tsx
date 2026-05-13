@@ -33,43 +33,43 @@ type TileSpec = {
 const TILES: TileSpec[] = [
   {
     alt: 'Stylized 3D letter B on a deep blue field',
-    src: '/writings/motion-path-typography-tiles/01.png',
+    src: '/media/writings/motion-path-typography-tiles/01.png',
   },
   {
     alt: 'Geometric isometric number 5 on green',
-    src: '/writings/motion-path-typography-tiles/02.png',
+    src: '/media/writings/motion-path-typography-tiles/02.png',
   },
   {
     alt: 'Stylized 3D letter F on orange',
-    src: '/writings/motion-path-typography-tiles/03.png',
+    src: '/media/writings/motion-path-typography-tiles/03.png',
   },
   {
     alt: 'Script letter D with striped extrusion on orange-red',
-    src: '/writings/motion-path-typography-tiles/04.png',
+    src: '/media/writings/motion-path-typography-tiles/04.png',
   },
   {
     alt: 'Stylized 3D letter A on navy',
-    src: '/writings/motion-path-typography-tiles/05.png',
+    src: '/media/writings/motion-path-typography-tiles/05.png',
   },
   {
     alt: 'Striped slab-serif letter M on orange',
-    src: '/writings/motion-path-typography-tiles/06.png',
+    src: '/media/writings/motion-path-typography-tiles/06.png',
   },
   {
     alt: 'Letter R on pink and lightning-bolt red and blue',
-    src: '/writings/motion-path-typography-tiles/07.png',
+    src: '/media/writings/motion-path-typography-tiles/07.png',
   },
   {
     alt: 'Mehrspur poster with mouth graphic and border type',
-    src: '/writings/motion-path-typography-tiles/08.png',
+    src: '/media/writings/motion-path-typography-tiles/08.png',
   },
   {
     alt: 'Flat illustration of a hand holding a small creature',
-    src: '/writings/motion-path-typography-tiles/09.png',
+    src: '/media/writings/motion-path-typography-tiles/09.png',
   },
   {
     alt: 'Tattoo-style panther head on a pale blue field',
-    src: '/writings/motion-path-typography-tiles/10.png',
+    src: '/media/writings/motion-path-typography-tiles/10.png',
   },
 ]
 
