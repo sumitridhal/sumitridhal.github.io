@@ -4,7 +4,7 @@ export const writingMeta = {
   "id": "ping-pong-buffers-explained",
   "order": 16,
   "title": "Ping-pong buffers and why GPUs like pairs",
-  "date": "25/03",
+  "date": "2011-08-30",
   "category": "Graphics",
   "excerpt": "Many effects need the previous frame as input: motion blur trails, fluid advection, reaction-diffusion, or cheap temporal blur. You cannot read and write the same texture safely in one pass, so you maintain two surfaces…",
   "titleLines": [
@@ -35,7 +35,7 @@ void main() {
 The API details differ—FBO attachments in WebGL, render textures in engines—but the mental model is identical. Odd frames write A while sampling B; even frames flip. Your bug class shifts from math mistakes to index mistakes, so name variables `read` and `write` instead of `tex0` and `tex1`.
 
 <figure className="writing-inline-figure">
-  <img src="/writings/ping-pong-buffers-explained.png" alt={writingMeta.title} loading="lazy" decoding="async" />
+  <img src="/media/writings/ping-pong-buffers-explained.png" alt={writingMeta.title} loading="lazy" decoding="async" />
 </figure>
 
 Watch precision and edge modes. Low bit depth feedback loops amplify noise; linear filtering on a simulation grid smears intent. Match filter and format to the phenomenon you are approximating, not whatever the template project shipped with.

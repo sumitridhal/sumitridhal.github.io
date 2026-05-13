@@ -4,7 +4,7 @@ export const writingMeta = {
   "id": "noise-in-creative-coding",
   "order": 18,
   "title": "Noise in Creative Coding",
-  "date": "10/05",
+  "date": "2015-05-20",
   "category": "Creative code",
   "excerpt": "Noise is an indispensable tool for creative coding. We use it to generate all kinds of organic effects like clouds, landscapes, and contours. Or to move and distort objects with a more lifelike behaviour than easing…",
   "titleLines": [
@@ -29,7 +29,7 @@ export const writingMeta = {
       "mesh"
     ]
   ],
-  "coverSrc": "/writings/noise-in-creative-coding.png"
+  "coverSrc": "/media/writings/noise-in-creative-coding.png"
 }
 
 Noise is an indispensable tool for creative coding. We use it to generate all kinds of organic effects like clouds, landscapes, and contours. Or to move and distort objects with a more lifelike behaviour than easing alone can suggest.
@@ -56,7 +56,7 @@ float fbm(vec2 p) {
 The trick is choosing a field that reads well at the scale of your canvas: value noise for grit, gradient noise when you need continuity, and layered octaves when you want detail without a single harsh frequency dominating the frame.
 
 <figure className="writing-inline-figure">
-  <img src="/writings/noise-in-creative-coding.png" alt={writingMeta.title} loading="lazy" decoding="async" />
+  <img src="/media/writings/noise-in-creative-coding.png" alt={writingMeta.title} loading="lazy" decoding="async" />
 </figure>
 
 When you map noise to colour or displacement, keep a slow control surface—amplitude, rotation, seed—so the piece stays tunable in performance. The goal is not randomness for its own sake but a controlled distribution that still surprises on every run.
