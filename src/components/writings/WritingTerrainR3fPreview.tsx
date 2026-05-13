@@ -192,7 +192,7 @@ export type WritingTerrainR3fPreviewProps = {
 }
 
 export function WritingTerrainR3fPreview({
-  caption = 'Drag to orbit: heightfield from layered value noise with optional domain warp (react-three-fiber + OrbitControls).',
+  caption = 'Drag to orbit: heightfield from layered value noise with optional domain warp',
   height = 300,
   className = '',
 }: WritingTerrainR3fPreviewProps) {
