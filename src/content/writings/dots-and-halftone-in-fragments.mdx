@@ -4,7 +4,7 @@ export const writingMeta = {
   "id": "dots-and-halftone-in-fragments",
   "order": 10,
   "title": "Dots, halftone, and the print room in a fragment shader",
-  "date": "09/05",
+  "date": "2016-06-14",
   "category": "Creative code",
   "excerpt": "Print halftone is really a sampling problem: you have a continuous tone image and a binary medium, so you trade spatial resolution for perceived grey. In a fragment shader the medium is not paper but pixels, yet the…",
   "titleLines": [
@@ -29,7 +29,7 @@ export const writingMeta = {
       "mesh"
     ]
   ],
-  "coverSrc": "/writings/dots-and-halftone-in-fragments.png"
+  "coverSrc": "/media/writings/dots-and-halftone-in-fragments.png"
 }
 
 Print halftone is really a sampling problem: you have a continuous tone image and a binary medium, so you trade spatial resolution for perceived grey. In a fragment shader the medium is not paper but pixels, yet the same idea applies when you threshold a smooth field with a rotating dot screen or ordered Bayer matrix.
@@ -49,7 +49,7 @@ float halftone = step(m, tone);
 The compositional win is rhythm. A good screen reads as texture up close and as tone from a distance, which is why newsprint and manga screentone feel alive compared with a flat blur. In real time work you usually drive the screen frequency from UV scale or camera distance so the pattern does not shimmer when the view moves.
 
 <figure className="writing-inline-figure">
-  <img src="/writings/dots-and-halftone-in-fragments.png" alt={writingMeta.title} loading="lazy" decoding="async" />
+  <img src="/media/writings/dots-and-halftone-in-fragments.png" alt={writingMeta.title} loading="lazy" decoding="async" />
 </figure>
 
 Keep one eye on contrast. Aggressive screens crush mid-tones and can moiré against fine geometry. Treat angle, cell size, and threshold curve as slow knobs you tune in context rather than constants you copy once from a reference.
