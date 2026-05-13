@@ -4,9 +4,9 @@ export const writingMeta = {
   id: 'fractals-and-invader-pixels',
   order: -4,
   pinInFooter: true,
-  footerCoverSrc: '/writings/posters/invader-02.png',
+  footerCoverSrc: '/media/writings/posters/invader-02.png',
   title: 'Invader fractals and pixel language',
-  date: '11/05',
+  date: '2003-07-01',
   category: 'Creative code',
   excerpt:
     'Jared Tarbell’s “invader fractals” build a symmetric 5×5 sprite from a random 3×5 half grid: mirror columns around the centre and you get legible aliens without hand-painting every pixel.',
@@ -15,14 +15,14 @@ export const writingMeta = {
     'Fifteen independent bits yield 32,768 silhouettes before you add colour, animation, or tiling rules—still small enough to brute-force or cache.',
     'High-contrast two-tone output matches how CRT-era sprites were read: shape first, texture second.',
   ],
-  coverSrc: '/writings/invader-fractal-reference.png',
+  coverSrc: '/media/writings/invader-fractal-reference.png',
 }
 
 **Invader fractals** (see Tarbell’s [Invader Fractal](http://levitated.net/daily/levInvaderFractal.html) write-up on Levitated) are a **tiny generative grammar**: pick a random **3×5** block of on/off cells, then **mirror** the outer columns across the middle so the composite reads as a **5×5** invader. The combinatorics stay toy-like, yet the results scan instantly as arcade silhouettes.
 
 <figure className="writing-inline-figure">
   <img
-    src="/writings/invader-fractal-reference.png"
+    src="/media/writings/invader-fractal-reference.png"
     alt="Diagram: 3 by 5 source grid mirrored into a 5 by 5 invader, with a gallery of generated sprites and Space Invaders context"
     loading="lazy"
     decoding="async"
