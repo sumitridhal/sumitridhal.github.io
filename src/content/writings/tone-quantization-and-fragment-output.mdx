@@ -4,7 +4,7 @@ export const writingMeta = {
   "id": "tone-quantization-and-fragment-output",
   "order": 9,
   "title": "Tone, quantization, and the last mile to the screen",
-  "date": "11/05",
+  "date": "2015-11-11",
   "category": "Graphics",
   "excerpt": "Linear light is where physically plausible adds and lighting accumulations behave; display encoding—sRGB or PQ—is where human contrast perception is honoured. Doing heavy grading in the wrong space creates muddy shadows…",
   "titleLines": [
@@ -34,7 +34,7 @@ fragColor = vec4(pow(graded, vec3(1.0 / 2.2)), 1.0);
 Bit depth sets how many distinct steps exist between black and white. Gentle slopes survive quantization; aggressive lifts on a vignette or sky reveal stair steps that no amount of artistic intent can hide. Fix the curve or widen the buffer before you reach for texture-space rescue.
 
 <figure className="writing-inline-figure">
-  <img src="/writings/tone-quantization-and-fragment-output.png" alt={writingMeta.title} loading="lazy" decoding="async" />
+  <img src="/media/writings/tone-quantization-and-fragment-output.png" alt={writingMeta.title} loading="lazy" decoding="async" />
 </figure>
 
 Dither spreads quantization error into high-frequency noise the eye integrates away—that whole vocabulary lives in when dithering rescues an 8-bit gradient. Halftone rhythm and dot screens are the story in dots, halftone, and the print room in a fragment shader. Here the focus is where in the chain you quantize, with what buffer precision, and whether the stairs came from the grade or from the display path.
