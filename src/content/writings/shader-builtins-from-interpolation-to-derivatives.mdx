@@ -4,7 +4,7 @@ export const writingMeta = {
   "id": "shader-builtins-from-interpolation-to-derivatives",
   "order": 5,
   "title": "Shader built-ins from interpolation to derivatives",
-  "date": "15/05",
+  "date": "2015-07-09",
   "category": "Graphics",
   "excerpt": "Most fragment work is built from a small toolbox: remap ranges with mix and smoothstep, clamp into valid intervals, normalize directions before dot products, and raise cosines to a power when you need a tight specular…",
   "titleLines": [
@@ -35,7 +35,7 @@ float aa = smoothstep(0.5 - w, 0.5 + w, x);
 Texture builtins sample filtered texels; explicit LOD or gradient hints control which mip level you hit. That matters the moment you threshold a smooth field into a screen pattern, because the same UV field can alias or shimmer if mips are chosen inconsistently—ideas that sit next to halftone and sampling pieces without repeating their whole compositional story.
 
 <figure className="writing-inline-figure">
-  <img src="/writings/shader-builtins-from-interpolation-to-derivatives.png" alt={writingMeta.title} loading="lazy" decoding="async" />
+  <img src="/media/writings/shader-builtins-from-interpolation-to-derivatives.png" alt={writingMeta.title} loading="lazy" decoding="async" />
 </figure>
 
 Derivative builtins expose how a quantity changes across the 2x2 pixel quad your invocation belongs to; they drive automatic mip selection and cheap edge-aware effects. Names differ across GLSL, HLSL, and WGSL, but the concepts—filter width, implicit gradients, textureGather—port cleanly once you stop spelling the API and start naming the signal processing.

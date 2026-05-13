@@ -4,12 +4,12 @@ export const writingMeta = {
   id: 'motion-path-typography-loop',
   order: -2,
   title: 'Tiles on a loop: arc-length motion path and stacking',
-  date: '11/05',
+  date: '2019-10-02',
   category: 'UI',
   excerpt:
     'Treat one SVG path as the spine of the composition: sample it by arc length so squares stay evenly spaced, align each tile to the tangent, then break tie order where the path crosses itself.',
   titleLines: ['Tiles on a loop', 'arc-length path and stacking'],
-  coverSrc: '/writings/motion-path-typography-loop.png',
+  coverSrc: '/media/writings/motion-path-typography-loop.png',
   asideParagraphs: [
     'CSS Motion Path (`offset-path` / `offset-distance` / `offset-rotate: auto`) can replace hand sampling where browser support matches your audience; keep a `getPointAtLength` fallback if you need identical geometry in older engines.',
     'Painter order in the DOM caps how “correct” self-crossing stacks can look; for publication-grade depth, consider one canvas or WebGL pass with explicit sort keys per sample.',
@@ -69,7 +69,7 @@ When `prefers-reduced-motion: reduce` is active, the preview keeps the same arc-
 
 <figure className="writing-inline-figure">
   <img
-    src="/writings/motion-path-typography-loop.png"
+    src="/media/writings/motion-path-typography-loop.png"
     alt="Reference layout: typographic squares following a smooth path through a vertical loop"
     loading="lazy"
     decoding="async"
