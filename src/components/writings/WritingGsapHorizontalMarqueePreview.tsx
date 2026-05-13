@@ -10,17 +10,17 @@ export type WritingGsapHorizontalMarqueePreviewProps = {
 
 /** Local copies of reference portrait ellipses (see writing note). */
 const MARQUEE_PORTRAIT_SRCS = [
-  '/writings/gsap-marquee-portraits/01.png',
-  '/writings/gsap-marquee-portraits/02.png',
-  '/writings/gsap-marquee-portraits/03.png',
-  '/writings/gsap-marquee-portraits/04.png',
-  '/writings/gsap-marquee-portraits/05.png',
-  '/writings/gsap-marquee-portraits/06.png',
-  '/writings/gsap-marquee-portraits/07.png',
-  '/writings/gsap-marquee-portraits/08.png',
-  '/writings/gsap-marquee-portraits/09.png',
-  '/writings/gsap-marquee-portraits/10.png',
-  '/writings/gsap-marquee-portraits/11.png',
+  '/media/writings/gsap-marquee-portraits/01.png',
+  '/media/writings/gsap-marquee-portraits/02.png',
+  '/media/writings/gsap-marquee-portraits/03.png',
+  '/media/writings/gsap-marquee-portraits/04.png',
+  '/media/writings/gsap-marquee-portraits/05.png',
+  '/media/writings/gsap-marquee-portraits/06.png',
+  '/media/writings/gsap-marquee-portraits/07.png',
+  '/media/writings/gsap-marquee-portraits/08.png',
+  '/media/writings/gsap-marquee-portraits/09.png',
+  '/media/writings/gsap-marquee-portraits/10.png',
+  '/media/writings/gsap-marquee-portraits/11.png',
 ] as const
 
 function Avatar({ index }: { index: number }) {
