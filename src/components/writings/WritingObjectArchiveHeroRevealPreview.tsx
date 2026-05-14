@@ -1,13 +1,11 @@
 import { useCallback, useEffect, useState } from 'react'
 
+import {
+  OA_HERO_IMG_LEFT as IMG_LEFT,
+  OA_HERO_IMG_RIGHT as IMG_RIGHT,
+  OA_HERO_LOGO_SVG as LOGO_SVG,
+} from '@/components/writings/writingObjectArchiveHeroCdn'
 import { useWritingPreviewReducedMotion } from '@/components/writings/useWritingPreviewReducedMotion'
-
-const IMG_LEFT =
-  'https://objectandarchive.com/cdn/shop/files/Etudedeforet.jpg?v=1775498766&width=800'
-const IMG_RIGHT =
-  'https://objectandarchive.com/cdn/shop/files/monet_detail.png?v=1777132945&width=800'
-const LOGO_SVG =
-  'https://objectandarchive.com/cdn/shop/files/oa-white.svg?v=1774631393&width=2000'
 
 type Phase = 'initial' | 'lifting' | 'open'
 
