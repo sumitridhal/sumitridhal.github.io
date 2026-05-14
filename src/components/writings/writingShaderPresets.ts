@@ -9,6 +9,7 @@ import gridTransform2d from '@/shaders/writing-demos/grid-transform-2d.frag?raw'
 import halftoneDots from '@/shaders/writing-demos/halftone-dots.frag?raw'
 import lightFalloff from '@/shaders/writing-demos/light-falloff.frag?raw'
 import raymarchSphere from '@/shaders/writing-demos/raymarch-sphere.frag?raw'
+import sdfPrimitives2d from '@/shaders/writing-demos/sdf-primitives-2d.frag?raw'
 import smoothstepDerivatives from '@/shaders/writing-demos/smoothstep-derivatives.frag?raw'
 import sobelEdges from '@/shaders/writing-demos/sobel-edges.frag?raw'
 import toneQuantize from '@/shaders/writing-demos/tone-quantize.frag?raw'
@@ -27,6 +28,7 @@ export const WRITING_SHADER_PRESETS = {
   fullscreenPassVignette,
   valueNoiseFbm,
   raymarchSphere,
+  sdfPrimitives2d,
   analyticRaySphere,
   smoothstepDerivatives,
   toneQuantize,
