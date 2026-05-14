@@ -1,0 +1,56 @@
+import { WritingShaderDemo } from '@/components/writings/WritingShaderDemo'
+
+export const writingMeta = {
+  id: 'palette-mosaic-tiles-shader',
+  order: 0,
+  title: 'Palette mosaic from a fragment shader',
+  date: '2026-05-14',
+  category: 'Creative code',
+  excerpt:
+    'Turn the screen into a grid of square tiles, pick a colour per cell from a small palette using a deterministic hash, then break up flat fills with high-frequency grain—all in one fullscreen fragment pass.',
+  titleLines: ['Palette mosaic', 'from a fragment shader'],
+  asideParagraphs: [
+    'A hash over integer cell coordinates is not cryptographic randomness; it is a repeatable PRNG keyed by the cell so the same seed always reproduces the same mosaic.',
+    'If you divide `v_uv` alone, rectangles stay square only on square viewports. Scale by resolution so one axis matches pixel height, then count cells the same way in x and y.',
+  ],
+}
+
+A **fullscreen triangle** (or quad) gives every pixel a pair of coordinates. Treat those coordinates as lying on a checkerboard: each **cell** gets one index into a short list of colours. The pattern looks random because the index comes from a **hash** of the cell id, but it is fully **deterministic**: the same inputs yield the same tile, which is what you want for art direction, thumbnails, and reproducible demos.
+
+<WritingShaderDemo
+  preset="paletteMosaicGrid"
+  animated={false}
+  ariaLabel="Palette mosaic: square grid with film grain; controls for PRNG method, seed, grain, and grid size"
+  caption="Fragment: palette cells (switchable cell PRNG) plus grain overlay"
+/>
+
+## Square cells from pixel space
+
+Interpolated `v_uv` runs from 0 to 1 across the quad. Multiply by `u_resolution` to work in **pixels**, then divide by the shorter side (here, height) so one unit of vertical span matches the same physical length horizontally. After that, `floor` partitions space into **square** tiles; the horizontal count grows with aspect ratio automatically.
+
+```glsl
+vec2 frag = v_uv * u_resolution.xy;
+float g = clamp(u_grid_size, 4.0, 32.0);
+vec2 cell = floor(frag * g / u_resolution.y);
+```
+
+`cell` is the tile address you feed into the hash.
+
+## Hash, seed, palette
+
+The hash does not need to be fancy; it only needs to **scatter** nearby integers to unrelated values between zero and one. Mix in a **seed** uniform so the whole assignment shifts without changing the grid resolution. The demo’s **Cell PRNG** menu swaps the implementation (sin–dot, fract permute, interleaved-gradient style, product of 2D hashes, nested sin); all are **pseudo-random**: deterministic on the GPU, sensitive to the chosen formula, never a substitute for crypto RNG.
+
+```glsl
+float r = cellRng(cell, u_seed, mode); // mode from uniform u_cell_rng_mode
+int idx = clamp(int(floor(r * 9.0)), 0, 8);
+```
+
+Map that scalar to an integer palette index (clamped), then return a fixed `vec3` per index. Keeping the palette in code makes the piece feel like a **limited ink set** rather than a smooth gradient.
+
+## Grain on top
+
+Tile colours are constant inside each cell; a separate **high-frequency** noise term, evaluated from **fragment** coordinates (not the cell centre), adds a thin veil of variation. Scale it with a small coefficient so edges stay sharp but the surface reads less like flat UI and more like print or film.
+
+---
+
+**Related:** procedural colour fields in [Noise in creative coding](/writing/noise-in-creative-coding), and how distance fields compose in [Signed distance primitives and blends in shaders](/writing/sdf-primitives-and-blends-shaders).
