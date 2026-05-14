@@ -9,7 +9,7 @@ export const writingMeta = {
   date: '2026-05-14',
   category: 'UI',
   excerpt:
-    'Tween spec in three parts: curtain CSS reveal, sixteen-layer GSAP scale ladder, and a native horizontal scroll strip (“Current obsessions”) with a static header band.',
+    'Tween spec in three parts: curtain CSS reveal, sixteen-layer GSAP scale ladder, and Part 3 composite—static Part 1 hero split plus twelve-tile horizontal scroll strip.',
   coverSrc: '/media/writings/object-and-archive-hero-reference.png',
   titleLines: ['Object & Archive', 'Tween concept sheet'],
   asideParagraphs: [
@@ -84,19 +84,19 @@ Each **Next →** increments `advanceCount` and runs one **parallel** GSAP timel
 
 ---
 
-## Part 3 — “Current obsessions”: static band + horizontal scroll
+## Part 3 — Composite: static Part 1 hero + “Current obsessions” scroll strip
 
-**Targets:** (1) **Intro band** — heading, supporting copy, and CTA (no motion in this embed). (2) **Scroll viewport** — a single overflow container whose **`scrollLeft`** changes as the user pans the row of artworks.
+**Targets:** (1) **Hero stack** — the same split media and wordmark overlay as Part 1 (`writing-oa-hero__*` markup), with **no curtain** and no replay control: a frozen “open curtain” layout. (2) **Obsessions band** — heading, copy, CTA. (3) **Scroll viewport** — `scrollLeft` on the horizontal row of twelve curator picks.
 
-**From → to:** For the scroll strip, the meaningful “tween” is **scroll offset** along X: the browser interpolates `scrollLeft` while the user drags, flicks on a trackpad, or uses a horizontal wheel gesture (where supported). There is no scripted end keyframe—the **to** state is wherever the user stops.
+**From → to:** Block 1 has no time-varying transforms in this embed. Block 2’s strip still tweens only via native **scroll offset** along X until the user stops.
 
-**Driver:** User gesture on the scroll viewport (pointer drag, trackpad, keyboard focus + arrows when the region is focused).
+**Driver:** Block 1 is static on paint. Block 2: user gesture on the scroll viewport (pointer, trackpad, keyboard when focused).
 
-**Runtime:** Native **`overflow-x: auto`** on `.writing-oa-scroll__viewport`—no GSAP timeline in Part 3. The live theme may add snap points or Lenis; this preview keeps motion **continuous** (no `scroll-snap-type`).
+**Runtime:** Block 1 reuses Part 1 CSS (split, logo, scrim). Block 2: **`overflow-x: auto`** on `.writing-oa-scroll__viewport`—no GSAP in Part 3.
 
-**Replay / reverse:** Scroll back manually; no replay control.
+**Replay / reverse:** None for the hero clone; scroll strip reverses by scrolling back manually.
 
-**Reduced motion:** Native scroll is not suppressed here (it is essential navigation). If a future variant adds inertial decoration, gate it behind `prefers-reduced-motion`.
+**Reduced motion:** Hero clone stays static. Strip scroll unchanged (essential navigation); any future inertial decoration should respect `prefers-reduced-motion`.
 
 <WritingObjectArchiveScrollPreviewLazy />
 
