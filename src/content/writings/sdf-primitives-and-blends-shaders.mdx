@@ -1,0 +1,77 @@
+import { WritingShaderDemo } from '@/components/writings/WritingShaderDemo'
+
+export const writingMeta = {
+  id: 'sdf-primitives-and-blends-shaders',
+  order: 11,
+  title: 'Signed distance primitives and blends in shaders',
+  date: '2020-06-18',
+  category: 'Creative code',
+  excerpt:
+    'An SDF returns the shortest signed distance to a surface: negative inside, positive outside. Primitives are tiny closed forms; scenes come from min, max, smooth unions, and warping the sample point before you evaluate.',
+  titleLines: ['Signed distance', 'primitives and blends'],
+  asideParagraphs: [
+    'Smooth blends widen the “voronoi seam” between primitives; tune k relative to feature size or the fillet swallows the shapes.',
+    '2D SDFs are the same contract as 3D—only the domain changes—so isolines in the plane rehearse the algebra you later raymarch.',
+  ],
+}
+
+At a point `p`, a **signed distance function** reports how far you are from the nearest surface, with one sign convention: **outside positive, inside negative**. That single scalar is enough to shade a silhouette, anti-alias an edge, or—when you promote `p` to three dimensions and march along a ray—walk through empty space in large steps. The marching story lives in [Raymarching signed distance fields without the hype](/writing/raymarch-distance-fields-nutshell); here the focus is the **library of shapes and operators** you feed into `map(p)`.
+
+<WritingShaderDemo
+  preset="sdfPrimitives2d"
+  ariaLabel="2D distance field: smooth union of a circle and a rounded rectangle, teal fill and coral rim, drifting with time and pointer"
+  caption="2D fragment: round box, circle, smooth minimum, isolines"
+/>
+
+## Primitives (small and stable)
+
+**Sphere** in 3D is the reference implementation: distance to center minus radius.
+
+```glsl
+float sdSphere(vec3 p, float r) {
+  return length(p) - r;
+}
+```
+
+**Axis-aligned box** extends the same idea with per-axis half-extents `b`:
+
+```glsl
+float sdBox(vec3 p, vec3 b) {
+  vec3 q = abs(p) - b;
+  return length(max(q, 0.0)) + min(max(q.x, max(q.y, q.z)), 0.0);
+}
+```
+
+**Round box** offsets the sharp corners by `r` (clamp `r` so it does not exceed half the smallest edge):
+
+```glsl
+float sdRoundBox(vec3 p, vec3 b, float r) {
+  vec3 q = abs(p) - b;
+  return length(max(q, 0.0)) + min(max(q.x, max(q.y, q.z)), 0.0) - r;
+}
+```
+
+**Plane** through the origin with unit normal `n` is a linear form: `dot(p, n)` once you fix which side is “inside.” Capsules, cylinders, and tori add a few lines each; they are still **algebraic distances**, not meshes—handy when you want analytic normals from finite differences on `map` alone.
+
+## Booleans and fillets
+
+Hard union is `min(a, b)`; hard intersection is `max(a, b)`; subtraction is `max(a, -b)`. Those reproduce CSG but leave **C¹ kinks** along the seam where the closest primitive switches.
+
+A **smooth minimum** fillets that seam. One common polynomial blend (from Inigo Quilez’s notes) is:
+
+```glsl
+float smin(float a, float b, float k) {
+  float h = clamp(0.5 + 0.5 * (b - a) / k, 0.0, 1.0);
+  return mix(b, a, h) - k * h * (1.0 - h);
+}
+```
+
+`k` is the radius of the blend in distance units: too large relative to your geometry and the primitives melt into each other; too small and you are effectively back to `min`.
+
+## Domain repetition and cheap warps
+
+Before you call `sd*` functions, **rewrite the input**: `p = abs(p)` mirrors octants; a rotation matrix aligns a box; `p.xz = mod(p.xz, period) - 0.5 * period` tiles the plane or column without duplicating distance code. The cost is that the field is only a true signed distance to the **infinite** repeated set; local distances stay useful for rendering, but conservative stepping may need caps if you port the same `map` to raymarching.
+
+---
+
+**Related:** how rays and closed-form hits relate to the same scalar field in [Rays, SDFs, and analytic hits in shaders](/writing/rays-sdf-and-analytic-hits-in-shaders), and stepping along rays in [Raymarching signed distance fields without the hype](/writing/raymarch-distance-fields-nutshell).
