@@ -44,6 +44,21 @@ type UniformRef = {
   mw: number
 }
 
+type MosaicUniformCpuRef = {
+  seed: number
+  noiseIntensity: number
+  gridSize: number
+  cellRngMode: number
+}
+
+const MOSAIC_CELL_RNG_OPTIONS = [
+  { value: 0, label: 'Sin · dot (classic)' },
+  { value: 1, label: 'Fract permute' },
+  { value: 2, label: 'Interleaved gradient' },
+  { value: 3, label: 'Hash product' },
+  { value: 4, label: 'Double sin' },
+] as const
+
 function usePrefersReducedMotion(): boolean {
   const [reduced, setReduced] = useState(false)
   useEffect(() => {
@@ -83,21 +98,33 @@ class WebglErrorBoundary extends Component<WebglErrorBoundaryProps, WebglErrorBo
 function FullscreenShaderMesh({
   fragment,
   uniformRef,
+  mosaicUniformRef,
   shouldAnimate,
 }: {
   fragment: string
   uniformRef: MutableRefObject<UniformRef>
+  mosaicUniformRef: MutableRefObject<MosaicUniformCpuRef> | null
   shouldAnimate: boolean
 }) {
   const dbScratch = useMemo(() => new THREE.Vector2(), [])
-  const uniforms = useMemo(
-    () => ({
+  const mosaicGpuUniforms = useMemo(() => {
+    if (!mosaicUniformRef) return null
+    return {
+      u_seed: new THREE.Uniform(0),
+      u_noise_intensity: new THREE.Uniform(0.08),
+      u_grid_size: new THREE.Uniform(12),
+      u_cell_rng_mode: new THREE.Uniform(0),
+    }
+  }, [mosaicUniformRef])
+
+  const uniforms = useMemo(() => {
+    const base = {
       u_time: new THREE.Uniform(0),
       u_resolution: new THREE.Uniform(new THREE.Vector2(1, 1)),
       u_mouse: new THREE.Uniform(new THREE.Vector4(0.5, 0.5, 0, 0.5)),
-    }),
-    [],
-  )
+    }
+    return mosaicGpuUniforms ? { ...base, ...mosaicGpuUniforms } : base
+  }, [mosaicGpuUniforms])
 
   const material = useMemo(
     () =>
@@ -125,6 +152,13 @@ function FullscreenShaderMesh({
     uniforms.u_time.value = shouldAnimate ? clock.elapsedTime : 0
     const u = uniformRef.current
     uniforms.u_mouse.value.set(u.mx, u.my, u.mz, u.mw)
+    if (mosaicGpuUniforms && mosaicUniformRef) {
+      const m = mosaicUniformRef.current
+      mosaicGpuUniforms.u_seed.value = m.seed
+      mosaicGpuUniforms.u_noise_intensity.value = m.noiseIntensity
+      mosaicGpuUniforms.u_grid_size.value = m.gridSize
+      mosaicGpuUniforms.u_cell_rng_mode.value = m.cellRngMode
+    }
   })
 
   return (
@@ -292,18 +326,27 @@ function Scene({
   preset,
   fragment,
   uniformRef,
+  mosaicUniformRef,
   shouldAnimate,
 }: {
   preset: WritingShaderPreset
   fragment: string | null
   uniformRef: MutableRefObject<UniformRef>
+  mosaicUniformRef: MutableRefObject<MosaicUniformCpuRef> | null
   shouldAnimate: boolean
 }) {
   if (preset === 'pingPongFeedback') {
     return <PingPongRig uniformRef={uniformRef} />
   }
   if (!fragment) return null
-  return <FullscreenShaderMesh fragment={fragment} uniformRef={uniformRef} shouldAnimate={shouldAnimate} />
+  return (
+    <FullscreenShaderMesh
+      fragment={fragment}
+      uniformRef={uniformRef}
+      mosaicUniformRef={mosaicUniformRef}
+      shouldAnimate={shouldAnimate}
+    />
+  )
 }
 
 export function WritingShaderDemo({
@@ -318,12 +361,22 @@ export function WritingShaderDemo({
   const [webglFailed, setWebglFailed] = useState(false)
   const reducedMotion = usePrefersReducedMotion()
   const uniformRef = useRef<UniformRef>({ mx: 0.5, my: 0.5, mz: 0, mw: 0.5 })
+  const mosaicUniformRef = useRef<MosaicUniformCpuRef>({
+    seed: 0,
+    noiseIntensity: 0.08,
+    gridSize: 12,
+    cellRngMode: 0,
+  })
 
   const [ditherMode, setDitherMode] = useState<'banding' | 'dither'>('banding')
   const [falloffMode, setFalloffMode] = useState<'invSq' | 'smooth'>('invSq')
   const [toneLevels, setToneLevels] = useState(0.25)
   const [gridAngle, setGridAngle] = useState(0.15)
   const [gridScale, setGridScale] = useState(0.45)
+  const [mosaicSeed, setMosaicSeed] = useState(0)
+  const [mosaicNoise, setMosaicNoise] = useState(0.08)
+  const [mosaicGrid, setMosaicGrid] = useState(12)
+  const [mosaicCellRngMode, setMosaicCellRngMode] = useState(0)
 
   useEffect(() => {
     uniformRef.current.mz = ditherMode === 'dither' ? 1 : 0
@@ -342,6 +395,15 @@ export function WritingShaderDemo({
     uniformRef.current.mw = gridScale
   }, [gridAngle, gridScale])
 
+  useEffect(() => {
+    if (preset !== 'paletteMosaicGrid') return
+    const r = mosaicUniformRef.current
+    r.seed = mosaicSeed
+    r.noiseIntensity = mosaicNoise
+    r.gridSize = mosaicGrid
+    r.cellRngMode = mosaicCellRngMode
+  }, [preset, mosaicSeed, mosaicNoise, mosaicGrid, mosaicCellRngMode])
+
   const syncUniformDefaults = useCallback(() => {
     const u = uniformRef.current
     u.mx = 0.5
@@ -355,11 +417,30 @@ export function WritingShaderDemo({
     } else if (preset === 'gridTransform2d') {
       u.mz = gridAngle
       u.mw = gridScale
+    } else if (preset === 'paletteMosaicGrid') {
+      const r = mosaicUniformRef.current
+      r.seed = mosaicSeed
+      r.noiseIntensity = mosaicNoise
+      r.gridSize = mosaicGrid
+      r.cellRngMode = mosaicCellRngMode
+      u.mz = 0
+      u.mw = 0.5
     } else {
       u.mz = 0
       u.mw = 0.5
     }
-  }, [preset, ditherMode, falloffMode, toneLevels, gridAngle, gridScale])
+  }, [
+    preset,
+    ditherMode,
+    falloffMode,
+    toneLevels,
+    gridAngle,
+    gridScale,
+    mosaicSeed,
+    mosaicNoise,
+    mosaicGrid,
+    mosaicCellRngMode,
+  ])
 
   useEffect(() => {
     syncUniformDefaults()
@@ -445,6 +526,60 @@ export function WritingShaderDemo({
           />
         </label>
       </div>
+    ) : preset === 'paletteMosaicGrid' ? (
+      <div className="writing-shader-demo__control-stack">
+        <label className="writing-shader-demo__control-row">
+          <span>Cell PRNG</span>
+          <select
+            aria-label="Pseudo-random method for tile colours"
+            value={mosaicCellRngMode}
+            onChange={(e) => setMosaicCellRngMode(Number(e.target.value))}
+          >
+            {MOSAIC_CELL_RNG_OPTIONS.map((opt) => (
+              <option key={opt.value} value={opt.value}>
+                {opt.label}
+              </option>
+            ))}
+          </select>
+        </label>
+        <label className="writing-shader-demo__control-row">
+          <span>Seed</span>
+          <input
+            type="range"
+            min={0}
+            max={1000}
+            step={1}
+            value={Math.round(mosaicSeed)}
+            onChange={(e) => setMosaicSeed(Number(e.target.value))}
+          />
+        </label>
+        <label className="writing-shader-demo__control-row">
+          <span>Grain</span>
+          <input
+            type="range"
+            min={0}
+            max={100}
+            value={Math.round(mosaicNoise * 400)}
+            onChange={(e) => setMosaicNoise(Number(e.target.value) / 400)}
+          />
+        </label>
+        <label className="writing-shader-demo__control-row">
+          <span>Grid</span>
+          <input
+            type="range"
+            min={4}
+            max={32}
+            step={1}
+            value={mosaicGrid}
+            onChange={(e) => setMosaicGrid(Number(e.target.value))}
+          />
+        </label>
+        <div className="writing-shader-demo__controls" role="group" aria-label="Randomize mosaic">
+          <button type="button" onClick={() => setMosaicSeed(Math.floor(Math.random() * 1001))}>
+            Shuffle
+          </button>
+        </div>
+      </div>
     ) : null
 
   const fallback = (
@@ -483,7 +618,13 @@ export function WritingShaderDemo({
               >
                 <WritingDemoOrthoCamera />
                 <color attach="background" args={['#050608']} />
-                <Scene preset={preset} fragment={fragment} uniformRef={uniformRef} shouldAnimate={shouldAnimate} />
+                <Scene
+                  preset={preset}
+                  fragment={fragment}
+                  uniformRef={uniformRef}
+                  mosaicUniformRef={preset === 'paletteMosaicGrid' ? mosaicUniformRef : null}
+                  shouldAnimate={shouldAnimate}
+                />
               </Canvas>
             </Suspense>
           </WebglErrorBoundary>
