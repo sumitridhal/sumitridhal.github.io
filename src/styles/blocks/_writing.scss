@@ -1074,12 +1074,16 @@
 .writing-page__body .writing-perlin-bars__caption {
   margin: 0;
   padding: 0.65rem 1rem 0.65rem;
+  max-width: 100%;
   font-family: $font-writing-display;
   font-size: 0.8rem;
   font-weight: 700;
   letter-spacing: 0.12em;
   text-transform: uppercase;
   color: rgba(30, 60, 120, 0.85);
+  white-space: nowrap;
+  overflow: hidden;
+  text-overflow: ellipsis;
 }
 
 .writing-page__body .writing-perlin-bars__body {
@@ -1107,7 +1111,7 @@
 }
 
 .writing-page__body .writing-perlin-bars__stage--skeleton {
-  min-height: clamp(8rem, 22vw, 12rem);
+  min-height: clamp(16rem, 42vw, 24rem);
   background: linear-gradient(
     105deg,
     rgba(228, 230, 234, 0.98) 0%,
@@ -3220,7 +3224,7 @@
   flex-direction: column;
   align-items: center;
   width: 100%;
-  max-width: min(28rem, 100%);
+  max-width: min(50rem, 100%);
 }
 
 .writing-page__body .writing-oa-res__kicker {
@@ -3261,7 +3265,7 @@
   margin: 0;
   padding: 0;
   width: 100%;
-  max-width: min(24rem, 100%);
+  max-width: min(50rem, 100%);
 }
 
 .writing-page__body .writing-oa-res__item.is-active {
