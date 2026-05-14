@@ -16,7 +16,7 @@ export type WritingMeta = {
   /** ISO calendar date `YYYY-MM-DD` (primary reference publish date, or site/git proxy). */
   date: string
   category: string
-  /** Lower index = newer (matches historical ordering). */
+  /** Tie-break when two posts share the same `date`; lower lists first. */
   order: number
   /** Teaser text for footer and cards; usually derived from the opening paragraph. */
   excerpt: string
