@@ -3237,7 +3237,8 @@
 .writing-page__body .writing-oa-res__overlap {
   position: relative;
   align-self: center;
-  width: min(24rem, 100%);
+  justify-content: center;
+  width: min(50rem, 100%);
   max-width: 100%;
   margin-left: auto;
   margin-right: auto;
@@ -3274,7 +3275,7 @@
   padding: 0.36rem 0;
   text-align: center;
   font-family: Georgia, 'Times New Roman', serif;
-  font-size: clamp(1.32rem, 3.15vw, 1.95rem);
+  font-size: clamp(2.32rem, 5.5vw, 6.95rem);
   font-weight: 400;
   font-style: normal;
   line-height: 1.22;
@@ -3288,7 +3289,6 @@
 
 .writing-page__body .writing-oa-res__item.is-active .writing-oa-res__label-btn {
   color: #0f0e0c;
-  font-weight: 600;
   font-style: italic;
 }
 
@@ -3373,17 +3373,6 @@
   max-width: 100%;
 }
 
-.writing-page__body .writing-oa-res__kicker-dock {
-  margin: 0 0 0.45rem;
-  font-family: $font-writing-mono;
-  font-size: clamp(0.55rem, 0.95vw, 0.65rem);
-  font-weight: 600;
-  letter-spacing: 0.16em;
-  text-transform: uppercase;
-  text-align: center;
-  color: rgba(20, 18, 16, 0.55);
-}
-
 .writing-page__body .writing-oa-res__frame {
   margin: 0;
   width: min(16.5rem, 100%);
@@ -3403,19 +3392,6 @@
   object-fit: cover;
   object-position: center;
   vertical-align: middle;
-}
-
-.writing-page__body .writing-oa-res__overlay-title {
-  margin: 0.35rem 0 0;
-  min-height: 1.2em;
-  width: 100%;
-  text-align: center;
-  font-family: Georgia, 'Times New Roman', serif;
-  font-size: clamp(1.15rem, 2.5vw, 1.75rem);
-  font-weight: 500;
-  font-style: italic;
-  line-height: 1.15;
-  color: #0f0e0c;
 }
 
 .writing-page__body .writing-oa-res__dock-caption {
