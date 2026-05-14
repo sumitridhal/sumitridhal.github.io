@@ -1,40 +1,105 @@
 import { WritingObjectArchiveHeroRevealPreviewLazy } from '@/components/writings/WritingObjectArchiveHeroRevealPreviewLazy'
 import { WritingObjectArchiveLeftPanelPreviewLazy } from '@/components/writings/WritingObjectArchiveLeftPanelPreviewLazy'
+import { WritingObjectArchiveScrollPreviewLazy } from '@/components/writings/WritingObjectArchiveScrollPreviewLazy'
 
 export const writingMeta = {
   id: 'object-and-archive-hero-opening',
   order: 1,
-  title: 'Object & Archive: hero opening and left carousel',
+  title: 'Object & Archive: tween concept sheet (hero, stack, scroll)',
   date: '2026-05-14',
   category: 'UI',
   excerpt:
-    'Curtain hero plus a sixteen-layer left stack: GSAP tweens a scale ladder (2.7754 / 1 / 0.01) through all CDN plates, then every layer rests at the top zoom.',
+    'Tween spec in three parts: curtain CSS reveal, sixteen-layer GSAP scale ladder, and a native horizontal scroll strip (“Current obsessions”) with a static header band.',
   coverSrc: '/media/writings/object-and-archive-hero-reference.png',
-  titleLines: ['Object & Archive,', 'hero + left carousel'],
+  titleLines: ['Object & Archive', 'Tween concept sheet'],
   asideParagraphs: [
     'The live site loads the same assets from Shopify CDN; hotlinking here matches their URLs for width variants.',
     'Curtain color in the first preview is a stand-in gradient (`--writing-oa-hero-curtain`); swap the token to match brand QA without touching markup.',
+    'This MDX file is a **tween concept sheet**: each part lists targets, from/to states, who drives the motion, and which runtime implements it so additional sections stay consistent.',
   ],
 }
 
-This note walks **two** transitions from [Object & Archive](https://objectandarchive.com/).
+This note documents storefront motion from [Object & Archive](https://objectandarchive.com/) as a **tween concept sheet**—one part per interaction slice. **Parts 1–3** are implemented below; further beats can append as **Part 4+** using the same headings and vocabulary.
 
-## First beat: curtain + split
+## Tween concept sheet (shared vocabulary)
 
-A **tinted full-bleed layer** lifts off the diptych—**Étude de forêt** on the left, **Monet detail** on the right—while the **wordmark stays on top** of both the panel and the photography, with a light gradient scrim so the SVG stays legible.
+Use the same labels in every part so the doc stays scannable as it grows:
+
+| Label | Meaning |
+| --- | --- |
+| **Target** | DOM node(s) or property that actually moves. |
+| **From → to** | Resting values vs. end-of-tween values (or keyframe equivalents). |
+| **Driver** | What starts the tween: first paint, click, scroll, route, etc. |
+| **Runtime** | What executes interpolation in this embed: CSS `@keyframes`, GSAP, or **native scrolling** (`scrollLeft` / `scrollTop`). The production theme may differ; the sheet still describes intent. |
+| **Replay / reverse** | How the preview resets or walks backward without a full reload. |
+| **Reduced motion** | `prefers-reduced-motion: reduce` path: snap to end state or skip non-essential motion. |
+
+---
+
+## Part 1 — Hero curtain and split reveal
+
+**Targets:** (1) full-bleed **curtain** layer sharing the stage box with the split media; (2) **split** halves (Étude de forêt left, Monet detail right) underneath; (3) **wordmark** overlay above both.
+
+**From → to:** Curtain starts **closed** (covering the diptych) and tweens to **open** (`translateY` off the top of the stage). Split media stays mounted the whole time; wordmark does not leave the overlay stack—only opacity/contrast is implied by the scrim, not a separate position tween.
+
+**Driver:** Initial sequence on load; **Replay intro** re-applies the same animation class on the curtain after a microtask so the browser can restart the keyframes.
+
+**Runtime:** CSS `@keyframes` on the curtain (see `WritingObjectArchiveHeroRevealPreview` + `.writing-oa-hero*` in `_writing.scss`). Not GSAP in this embed.
+
+**Replay / reverse:** Replay button retriggers the curtain cycle. There is no partial “scrub backward” in the preview—only a full replay.
+
+**Reduced motion:** Preview adds a `--reduced` modifier class: curtain snaps open, **Replay** is disabled so we do not imply a timed experience.
 
 <WritingObjectArchiveHeroRevealPreviewLazy />
 
-### Layer model (curtain)
+### Part 1 — layer stack (z-order)
 
-1. **Split media** — two halves, `object-fit: cover`, full-bleed in the stage (`inset: 0`).
-2. **Curtain** — same box as the stage, muted sage gradient (`--writing-oa-hero-curtain`); `transform: translateY(-100%)` when open.
-3. **Wordmark overlay** — highest z-index, bottom-centered `oa-white.svg`, soft dark gradient scrim behind it for contrast on both the curtain and the paintings.
+1. **Split media** — two halves, `object-fit: cover`, `inset: 0` on the stage.
+2. **Curtain** — same box, sage gradient token `--writing-oa-hero-curtain`; animated edge is vertical translation.
+3. **Wordmark** — highest z-index, bottom-centered `oa-white.svg`, gradient scrim for legibility on both curtain and photography.
 
-Replay runs the same sequence without reloading the page. Reduced-motion visitors skip the tween and see the revealed layout immediately.
+---
 
-## Second beat: left-column stack
+## Part 2 — Left column: stacked plates and scale ladder
 
-The left half is a **single stack** of sixteen Shopify images (each slide’s background then inset, in order). **Next →** advances a **scale ladder** in one GSAP pass: layers already passed sit at **2.7754**, the current focal layer at **1**, and deeper layers at **0.01**—then the pattern shifts forward. **← Back** runs the same tween in reverse. The badge tracks depth (1–16); the final step holds every layer at **2.7754**. The right half stays a static Monet detail.
+**Targets:** Sixteen absolutely stacked `<img>` nodes (one per plate: each slide’s **background** then **mid**, in order), each centered with `translate(-50%, -50%)` and animated **uniform scale** only. Right half of the stage is static Monet detail (no tween in this part).
+
+**From → to:** State is indexed by `advanceCount` (0 … N−1). For layer index `j` at a given step:
+
+- **Passed** layers (`j ≤ advanceCount`) tween toward **`BIG_SCALE`** — the “already revealed” zoom relative to the left panel (tuned in code so the plate reads full-bleed in the clip).
+- **Focal** layer (`j === advanceCount + 1`, while it exists) sits at **`MID_SCALE`** — the current inset / readable plane.
+- **Ahead** layers use **`HIDDEN_SCALE`** — effectively off-stage until the ladder reaches them.
+
+Each **Next →** increments `advanceCount` and runs one **parallel** GSAP timeline: every layer’s `scale` tweens together (`power2.inOut`, fixed duration in code, **0** when reduced motion). **← Back** decrements `advanceCount` with the same timeline pattern. The badge is a readout of depth (1 … N).
+
+**Driver:** Click on **Next →** / **← Back**; buttons are disabled while the timeline is active.
+
+**Runtime:** GSAP `timeline` with all layer tweens at label time `0` (no stagger in the current embed).
+
+**Replay / reverse:** **← Back** is the reverse driver step-by-step; there is no separate “reset stack” control.
+
+**Reduced motion:** Duration collapsed to zero so scales snap to the new ladder.
 
 <WritingObjectArchiveLeftPanelPreviewLazy />
+
+---
+
+## Part 3 — “Current obsessions”: static band + horizontal scroll
+
+**Targets:** (1) **Intro band** — heading, supporting copy, and CTA (no motion in this embed). (2) **Scroll viewport** — a single overflow container whose **`scrollLeft`** changes as the user pans the row of artworks.
+
+**From → to:** For the scroll strip, the meaningful “tween” is **scroll offset** along X: the browser interpolates `scrollLeft` while the user drags, flicks on a trackpad, or uses a horizontal wheel gesture (where supported). There is no scripted end keyframe—the **to** state is wherever the user stops.
+
+**Driver:** User gesture on the scroll viewport (pointer drag, trackpad, keyboard focus + arrows when the region is focused).
+
+**Runtime:** Native **`overflow-x: auto`** on `.writing-oa-scroll__viewport`—no GSAP timeline in Part 3. The live theme may add snap points or Lenis; this preview keeps motion **continuous** (no `scroll-snap-type`).
+
+**Replay / reverse:** Scroll back manually; no replay control.
+
+**Reduced motion:** Native scroll is not suppressed here (it is essential navigation). If a future variant adds inertial decoration, gate it behind `prefers-reduced-motion`.
+
+<WritingObjectArchiveScrollPreviewLazy />
+
+### Adding Part 4+
+
+Keep each new beat under its own `## Part N — …` heading and reuse the **Targets / From → to / Driver / Runtime / Replay / Reduced motion** bullets. Link any new lazy embed from this file the same way as the previews above.
