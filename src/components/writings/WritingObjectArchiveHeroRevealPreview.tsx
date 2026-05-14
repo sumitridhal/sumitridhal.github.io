@@ -41,11 +41,11 @@ export function WritingObjectArchiveHeroRevealPreview() {
   return (
     <figure
       className={`writing-oa-hero${reduced ? ' writing-oa-hero--reduced' : ''}`}
-      aria-label="Hero opening: colored panel lifts to reveal split artwork; wordmark stays overlaid on the hero"
+      aria-label="Tween concept Part 1: curtain translateY off split hero; wordmark fixed in overlay stack"
     >
       <figcaption className="writing-oa-hero__caption">
-        First beat: a full-bleed tinted panel covers the diptych, then it slides up. The wordmark sits above both the panel
-        and the paintings (CDN assets from the live shop).
+        **Tween sheet — Part 1:** CSS keyframes move the curtain from closed → open over the split CDN diptych; the wordmark
+        stays in the overlay stack (no separate position tween in this embed).
       </figcaption>
 
       <div className="writing-oa-hero__stage">
