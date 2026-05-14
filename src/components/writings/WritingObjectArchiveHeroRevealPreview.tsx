@@ -1,0 +1,80 @@
+import { useCallback, useEffect, useState } from 'react'
+
+import { useWritingPreviewReducedMotion } from '@/components/writings/useWritingPreviewReducedMotion'
+
+const IMG_LEFT =
+  'https://objectandarchive.com/cdn/shop/files/Etudedeforet.jpg?v=1775498766&width=800'
+const IMG_RIGHT =
+  'https://objectandarchive.com/cdn/shop/files/monet_detail.png?v=1777132945&width=800'
+const LOGO_SVG =
+  'https://objectandarchive.com/cdn/shop/files/oa-white.svg?v=1774631393&width=2000'
+
+type Phase = 'initial' | 'lifting' | 'open'
+
+export function WritingObjectArchiveHeroRevealPreview() {
+  const reduced = useWritingPreviewReducedMotion()
+  const [phase, setPhase] = useState<Phase>(reduced ? 'open' : 'initial')
+
+  useEffect(() => {
+    if (reduced) return
+    const id = window.requestAnimationFrame(() => setPhase('lifting'))
+    return () => window.cancelAnimationFrame(id)
+  }, [reduced])
+
+  const onCurtainEnd = useCallback(() => {
+    setPhase((p) => (p === 'lifting' ? 'open' : p))
+  }, [])
+
+  const replay = useCallback(() => {
+    if (reduced) return
+    setPhase('initial')
+    window.requestAnimationFrame(() => {
+      window.requestAnimationFrame(() => setPhase('lifting'))
+    })
+  }, [reduced])
+
+  const curtainClass =
+    'writing-oa-hero__curtain' +
+    (phase === 'lifting' ? ' is-lifting' : '') +
+    (phase === 'open' ? ' is-open' : '')
+
+  return (
+    <figure
+      className={`writing-oa-hero${reduced ? ' writing-oa-hero--reduced' : ''}`}
+      aria-label="Hero opening: colored panel lifts to reveal split artwork; wordmark stays overlaid on the hero"
+    >
+      <figcaption className="writing-oa-hero__caption">
+        First beat: a full-bleed tinted panel covers the diptych, then it slides up. The wordmark sits above both the panel
+        and the paintings (CDN assets from the live shop).
+      </figcaption>
+
+      <div className="writing-oa-hero__stage">
+        <div className="writing-oa-hero__split" aria-hidden="true">
+          <div className="writing-oa-hero__half writing-oa-hero__half--left">
+            <img src={IMG_LEFT} alt="" loading="lazy" decoding="async" />
+          </div>
+          <div className="writing-oa-hero__half writing-oa-hero__half--right">
+            <img src={IMG_RIGHT} alt="" loading="lazy" decoding="async" />
+          </div>
+        </div>
+
+        <div
+          className={curtainClass}
+          onAnimationEnd={onCurtainEnd}
+          aria-hidden="true"
+        />
+
+        <div className="writing-oa-hero__logo">
+          <span className="writing-oa-hero__logo-scrim" aria-hidden="true" />
+          <img src={LOGO_SVG} alt="Object & Archive" loading="lazy" decoding="async" />
+        </div>
+      </div>
+
+      <div className="writing-oa-hero__controls">
+        <button type="button" className="writing-oa-hero__replay" onClick={replay} disabled={reduced}>
+          Replay intro
+        </button>
+      </div>
+    </figure>
+  )
+}
