@@ -1,8 +1,17 @@
+import gsap from 'gsap'
+import { ScrollTrigger } from 'gsap/ScrollTrigger'
+import LocomotiveScroll from 'locomotive-scroll'
+import 'locomotive-scroll/locomotive-scroll.css'
+import { useLayoutEffect, useRef } from 'react'
+
 import {
   OA_HERO_IMG_LEFT,
   OA_HERO_IMG_RIGHT,
   OA_HERO_LOGO_SVG,
 } from '@/components/writings/writingObjectArchiveHeroCdn'
+import { useWritingPreviewReducedMotion } from '@/components/writings/useWritingPreviewReducedMotion'
+
+gsap.registerPlugin(ScrollTrigger)
 
 /** Curator’s picks carousel — titles, artists, and CDN URLs from live storefront markup. */
 const SCROLL_ITEMS = [
@@ -69,78 +78,186 @@ const SCROLL_ITEMS = [
 ] as const
 
 export function WritingObjectArchiveScrollPreview() {
+  const reduced = useWritingPreviewReducedMotion()
+  const shellRef = useRef<HTMLDivElement>(null)
+  const trackRef = useRef<HTMLDivElement>(null)
+
+  useLayoutEffect(() => {
+    const shell = shellRef.current
+    const track = trackRef.current
+    if (!shell || !track) return
+
+    if (reduced) {
+      const ctx = gsap.context(() => {
+        ScrollTrigger.create({
+          trigger: track,
+          scroller: shell,
+          start: 'top top',
+          end: () => `+=${Math.max(32, shell.clientHeight)}`,
+          scrub: 0,
+          invalidateOnRefresh: true,
+          onUpdate(self) {
+            shell.style.setProperty('--oa-cover-p', String(self.progress))
+          },
+        })
+      }, shell)
+
+      const ro = new ResizeObserver(() => {
+        ScrollTrigger.refresh()
+      })
+      ro.observe(shell)
+
+      requestAnimationFrame(() => {
+        ScrollTrigger.refresh()
+      })
+
+      return () => {
+        ro.disconnect()
+        ctx.revert()
+      }
+    }
+
+    shell.classList.add('writing-oa-scroll__shell--smooth')
+
+    const setCoverFromScroll = (scroll: number) => {
+      const h = Math.max(32, shell.clientHeight)
+      const p = Math.min(1, Math.max(0, scroll / h))
+      shell.style.setProperty('--oa-cover-p', String(p))
+    }
+
+    const loco = new LocomotiveScroll({
+      lenisOptions: {
+        wrapper: shell,
+        content: track,
+        eventsTarget: shell,
+        orientation: 'vertical',
+        smoothWheel: true,
+        lerp: 0.09,
+        wheelMultiplier: 0.9,
+        touchMultiplier: 1,
+        allowNestedScroll: true,
+        autoResize: true,
+      },
+      scrollCallback: ({ scroll }) => {
+        setCoverFromScroll(scroll)
+      },
+      initCustomTicker: (render) => {
+        gsap.ticker.add(render)
+      },
+      destroyCustomTicker: (render) => {
+        gsap.ticker.remove(render)
+      },
+    })
+
+    const ro = new ResizeObserver(() => {
+      loco.resize()
+    })
+    ro.observe(shell)
+
+    requestAnimationFrame(() => {
+      loco.resize()
+      const lenis = loco.lenisInstance
+      if (lenis) setCoverFromScroll(lenis.scroll)
+    })
+
+    return () => {
+      ro.disconnect()
+      shell.classList.remove('writing-oa-scroll__shell--smooth')
+      loco.destroy()
+      shell.style.removeProperty('--oa-cover-p')
+    }
+  }, [reduced])
+
   return (
     <figure
       className="writing-oa-scroll"
-      aria-label="Tween concept Part 3: static Part 1 hero split, then obsessions band and horizontal scroll strip"
+      aria-label="Tween concept Part 3: Locomotive Scroll smooths the shell; scroll position drives cover progress via CSS variable"
     >
       <figcaption className="writing-oa-scroll__caption">
-        **Tween sheet — Part 3:** **(1)** Static **Part 1 hero**—same split media and wordmark stack as the curtain embed,
-        with the curtain omitted (final layout only). **(2)** **Current obsessions** band + native horizontal{' '}
-        <code>scrollLeft</code> strip of curator picks.
+        **Tween sheet — Part 3:** **Locomotive Scroll v5** (Lenis-backed) smooths vertical wheel on the shell;{' '}
+        **`scrollCallback`** maps **`scroll` → `--oa-cover-p`** over the first viewport height (same 0→1 window the old
+        **`ScrollTrigger`** scrub used). **GSAP `ticker`** runs Locomotive’s frame loop so scrub stays aligned with other
+        tweens. **`allowNestedScroll`** keeps the horizontal strip usable. **`data-lenis-prevent`** still isolates the
+        embed from the page Lenis. **Reduced motion:** native **`overflow-y: auto`** + **`ScrollTrigger`** only (
+        **`scrub: 0`**).
       </figcaption>
 
-      <div className="writing-oa-scroll__shell">
-        <div className="writing-oa-scroll__hero-static" aria-hidden="true">
-          <div className="writing-oa-hero__stage">
-            <div className="writing-oa-hero__split">
-              <div className="writing-oa-hero__half writing-oa-hero__half--left">
-                <img src={OA_HERO_IMG_LEFT} alt="" loading="lazy" decoding="async" />
-              </div>
-              <div className="writing-oa-hero__half writing-oa-hero__half--right">
-                <img src={OA_HERO_IMG_RIGHT} alt="" loading="lazy" decoding="async" />
-              </div>
-            </div>
-            <div className="writing-oa-hero__logo">
-              <span className="writing-oa-hero__logo-scrim" aria-hidden="true" />
-              <img src={OA_HERO_LOGO_SVG} alt="Object & Archive" loading="lazy" decoding="async" />
-            </div>
-          </div>
-        </div>
-
-        <div className="writing-oa-scroll__obsessions">
-          <header className="writing-oa-scroll__intro" aria-labelledby="writing-oa-scroll-heading">
-            <div className="writing-oa-scroll__intro-text">
-              <h2 id="writing-oa-scroll-heading" className="writing-oa-scroll__heading">
-                Current obsessions
-              </h2>
-              <p className="writing-oa-scroll__lede">
-                These are the works we keep coming back to right now. If you don&apos;t know where to start, start here.
-              </p>
-            </div>
-            <a
-              className="writing-oa-scroll__cta"
-              href="https://objectandarchive.com/collections/all"
-              rel="noreferrer noopener"
-            >
-              See the collection
-            </a>
-          </header>
-
-          <div
-            className="writing-oa-scroll__viewport"
-            tabIndex={0}
-            role="region"
-            aria-label="Horizontally scrollable obsession picks from Object and Archive"
-          >
-            <ul className="writing-oa-scroll__strip">
-              {SCROLL_ITEMS.map((item) => (
-                <li key={item.src} className="writing-oa-scroll__tile">
-                  <div className="writing-oa-scroll__frame">
-                    <img src={item.src} alt={item.title} loading="lazy" decoding="async" />
+      <div className="writing-oa-scroll__embed">
+        <div ref={shellRef} className="writing-oa-scroll__shell" data-lenis-prevent>
+          <div ref={trackRef} className="writing-oa-scroll__track">
+            <div className="writing-oa-scroll__hero-slot">
+              <div className="writing-oa-scroll__hero-static">
+                <div className="writing-oa-scroll__hero-stage" aria-hidden="true">
+                  <div className="writing-oa-hero__stage">
+                    <div className="writing-oa-hero__split">
+                      <div className="writing-oa-hero__half writing-oa-hero__half--left">
+                        <img src={OA_HERO_IMG_LEFT} alt="" loading="lazy" decoding="async" />
+                      </div>
+                      <div className="writing-oa-hero__half writing-oa-hero__half--right">
+                        <img src={OA_HERO_IMG_RIGHT} alt="" loading="lazy" decoding="async" />
+                      </div>
+                    </div>
+                    <div className="writing-oa-hero__logo">
+                      <span className="writing-oa-hero__logo-scrim" aria-hidden="true" />
+                      <img src={OA_HERO_LOGO_SVG} alt="" loading="lazy" decoding="async" />
+                    </div>
                   </div>
-                  <p className="writing-oa-scroll__tile-title">{item.title}</p>
-                  {item.credit ? <p className="writing-oa-scroll__tile-credit">{item.credit}</p> : null}
-                </li>
-              ))}
-            </ul>
+                </div>
+              </div>
+            </div>
+
+            <div className="writing-oa-scroll__obsessions-raise">
+              <div className="writing-oa-scroll__obsessions-inner">
+                <div className="writing-oa-scroll__obsessions" id="writing-oa-scroll-collections">
+                  <header className="writing-oa-scroll__intro" aria-labelledby="writing-oa-scroll-heading">
+                    <div className="writing-oa-scroll__intro-text">
+                      <h2 id="writing-oa-scroll-heading" className="writing-oa-scroll__heading">
+                        Current obsessions
+                      </h2>
+                      <p className="writing-oa-scroll__lede">
+                        These are the works we keep coming back to right now. If you don&apos;t know where to start, start
+                        here.
+                      </p>
+                    </div>
+                    <a
+                      className="writing-oa-scroll__cta"
+                      href="https://objectandarchive.com/collections/all"
+                      rel="noreferrer noopener"
+                    >
+                      See the collection
+                    </a>
+                  </header>
+
+                  <div
+                    className="writing-oa-scroll__viewport"
+                    tabIndex={0}
+                    role="region"
+                    aria-label="Horizontally scrollable obsession picks from Object and Archive"
+                  >
+                    <ul className="writing-oa-scroll__strip">
+                      {SCROLL_ITEMS.map((item) => (
+                        <li key={item.src} className="writing-oa-scroll__tile">
+                          <div className="writing-oa-scroll__frame">
+                            <img src={item.src} alt={item.title} loading="lazy" decoding="async" />
+                          </div>
+                          <p className="writing-oa-scroll__tile-title">{item.title}</p>
+                          {item.credit ? <p className="writing-oa-scroll__tile-credit">{item.credit}</p> : null}
+                        </li>
+                      ))}
+                    </ul>
+                  </div>
+                </div>
+              </div>
+            </div>
           </div>
         </div>
       </div>
 
       <p className="writing-oa-scroll__hint">
-        Block 1 is motionless (same markup classes as Part 1 hero). Block 2 only tweens via native{' '}
-        <code>scrollLeft</code>. Snap stays off.
+        Default path: <code>LocomotiveScroll</code> with <code>lenisOptions.wrapper</code> = shell and{' '}
+        <code>content</code> = track; <code>scrollCallback</code> writes <code>--oa-cover-p</code>. Reduced motion:{' '}
+        <code>ScrollTrigger</code> + native scroller. ResizeObserver → <code>loco.resize()</code> or{' '}
+        <code>ScrollTrigger.refresh()</code>.
       </p>
     </figure>
   )
