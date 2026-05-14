@@ -1,0 +1,45 @@
+import { WritingPerlinNoiseBarsPreviewLazy } from '@/components/writings/WritingPerlinNoiseBarsPreviewLazy'
+
+export const writingMeta = {
+  id: 'perlin-noise-vertical-bars',
+  order: 0,
+  title: 'Perlin noise as a field of vertical bars',
+  date: '2026-05-14',
+  category: 'Creative code',
+  excerpt:
+    'Treat each grid cell as a sample of a smooth scalar field: 2D Perlin gives correlated widths so thick bars cluster instead of flickering independently. A compact CPU canvas recipe with a link back to the broader noise notes.',
+  titleLines: ['Perlin noise as a', 'field of vertical bars'],
+  asideParagraphs: [
+    'Bar width is one degree of freedom; hue, opacity, or corner radius are the same map from (x, y) with different remaps.',
+    'On the GPU you often reach for Simplex or value noise with FBM; the sampling idea is unchanged—only the primitive and the space you evaluate in.',
+  ],
+  coverSrc: '/media/writings/perlin-noise-vertical-bars.png',
+}
+
+A **scalar field** on a grid is enough to suggest organic structure: pick coordinates `(x, y)`, evaluate noise once per cell, then map the result to something visible. Here that something is **only the width** of a vertical bar; colour stays flat so the eye reads correlation across neighbours.
+
+The broader picture—value versus gradient noise, fractal Brownian motion, and shader-first warping—is still best read in [Noise in Creative Coding](/writing/noise-in-creative-coding). This note is a narrow, canvas-friendly instance: **classic 2D Perlin** on the CPU, quantized to a fixed column–row lattice.
+
+<WritingPerlinNoiseBarsPreviewLazy />
+
+## Recipe
+
+1. Choose integers `cols` and `rows`, and a logical spacing so each cell has a stable centre.
+2. For cell `(col, row)`, sample `n = perlin2(col * sx, row * sy)` (or the normalized variant in `[0, 1]`).
+3. Map `n` linearly from a **minimum** bar width to a **maximum** width in pixels, then **centre** the rectangle in the cell so thin bars do not drift to one edge.
+
+```ts
+import { perlin2Normalized } from '@/lib/perlin2d'
+
+const n = perlin2Normalized(col * sx + time, row * sy)
+const barW = minPx + n * (maxPx - minPx)
+const x = cellCentreX - barW * 0.5
+```
+
+Because Perlin is **continuous**, nearby cells get similar values: you see blobs of thick bars instead of white noise. Push `sx` / `sy` down for larger blobs; raise them for tighter ripples.
+
+## Why not random per column?
+
+Independent draws per cell break spatial correlation: the striping looks jittery and high-frequency. Noise trades a little structure for a lot of **readable** variation—exactly the distribution control mentioned in the companion article when it talks about tunable amplitude and seed rather than raw randomness.
+
+When you move the same idea to a fragment shader, you keep the map and swap the primitive (`snoise`, layered FBM, or tileable textures) to match bandwidth and tiling constraints.
