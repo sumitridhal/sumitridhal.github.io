@@ -47,12 +47,9 @@ const RIGHT_DECOR =
 const DURATION = 0.58
 const EASE = 'power2.inOut'
 
-/** Back stack: already revealed layers sit at this zoom. */
-const BIG_SCALE = 2.7754
-/** Current “focal” plate. */
-const MID_SCALE = 1
-/** Not yet reached; >0 avoids transform quirks. */
-const HIDDEN_SCALE = 0.01
+const BIG_SCALE = 1.02
+const MID_SCALE = 0.5
+const HIDDEN_SCALE = 0
 
 function targetScale(layerIndex: number, advanceCount: number, layerCount: number): number {
   const focalIndex = advanceCount + 1
@@ -143,13 +140,13 @@ export function WritingObjectArchiveLeftPanelPreview() {
   return (
     <figure
       className="writing-oa-left-panel"
-      aria-label="Left column: stacked plates with continuous scale handoff; Next advances, Back reverses"
+      aria-label="Tween concept Part 2: sixteen stacked plates; GSAP parallel scale ladder; Next and Back step advanceCount"
     >
       <figcaption className="writing-oa-left-panel__caption">
-        The left half is a **single stack** of sixteen CDN plates (bg then mid for each of eight slides). Each layer uses{' '}
-        <code>translate(-50%, -50%)</code> with a **scale ladder**: behind the focal plane everything already shown sits at{' '}
-        <strong>{BIG_SCALE}</strong>, the **current** plate at <strong>{MID_SCALE}</strong>, and deeper plates at{' '}
-        <strong>{HIDDEN_SCALE}</strong>. **Next →** bumps that ladder forward in one GSAP pass; **← Back** rewinds it.
+        **Tween sheet — Part 2:** sixteen stacked plates (bg then mid × eight slides). Each <code>img</code> is centered (
+        <code>translate(-50%, -50%)</code>) and only <strong>scale</strong> tweens—passed layers → <strong>{BIG_SCALE}</strong>,
+        focal → <strong>{MID_SCALE}</strong>, ahead → <strong>{HIDDEN_SCALE}</strong>. One GSAP timeline per step; **Next →**
+        / **← Back** move <code>advanceCount</code>.
       </figcaption>
 
       <div className="writing-oa-left-panel__stage">
@@ -196,7 +193,8 @@ export function WritingObjectArchiveLeftPanelPreview() {
       </div>
 
       <p className="writing-oa-left-panel__hint">
-        Scales tween together each step. At the end every layer rests at {BIG_SCALE}. Reduced motion uses zero duration.
+        Part 2 ladder: all layers tween in parallel; terminal step holds everyone at {BIG_SCALE}. Reduced motion snaps (
+        duration 0).
       </p>
     </figure>
   )
