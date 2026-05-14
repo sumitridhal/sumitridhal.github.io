@@ -8,6 +8,7 @@ import grayscaleLuma from '@/shaders/writing-demos/grayscale-luma.frag?raw'
 import gridTransform2d from '@/shaders/writing-demos/grid-transform-2d.frag?raw'
 import halftoneDots from '@/shaders/writing-demos/halftone-dots.frag?raw'
 import lightFalloff from '@/shaders/writing-demos/light-falloff.frag?raw'
+import paletteMosaicGrid from '@/shaders/writing-demos/palette-mosaic-grid.frag?raw'
 import raymarchSphere from '@/shaders/writing-demos/raymarch-sphere.frag?raw'
 import sdfPrimitives2d from '@/shaders/writing-demos/sdf-primitives-2d.frag?raw'
 import smoothstepDerivatives from '@/shaders/writing-demos/smoothstep-derivatives.frag?raw'
@@ -23,6 +24,7 @@ export const WRITING_SHADER_PRESETS = {
   grayscaleLuma,
   halftoneDots,
   lightFalloff,
+  paletteMosaicGrid,
   sobelEdges,
   fragmentPipelineUv,
   fullscreenPassVignette,
