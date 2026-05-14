@@ -22,7 +22,11 @@ function loadEntries(): WritingEntry[] {
       meta: mod.writingMeta,
       Body: mod.default,
     }))
-    .sort((a, b) => a.meta.order - b.meta.order)
+    .sort((a, b) => {
+      const byDate = b.meta.date.localeCompare(a.meta.date)
+      if (byDate !== 0) return byDate
+      return a.meta.order - b.meta.order
+    })
 }
 
 const entries = loadEntries()
