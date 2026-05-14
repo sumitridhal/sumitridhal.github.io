@@ -3,8 +3,18 @@ import { useCallback, useEffect, useRef } from 'react'
 import { useWritingPreviewReducedMotion } from '@/components/writings/useWritingPreviewReducedMotion'
 import { perlin2Normalized } from '@/lib/perlin2d'
 
-const BG = '#e4e6ea'
-const BAR = '#0000FF'
+const FALLBACK_BG = '#eef0ec'
+const FALLBACK_BAR = '#ff4d6d'
+
+const TIME_BASE = 0.45
+const PLAYBACK_SPEED = 2
+
+const DEFAULTS = {
+  noiseScaleX: 0.1,
+  noiseScaleY: 0.12,
+  minWidthFrac: 0.12,
+  maxWidthFrac: 0.98,
+} as const
 
 export type WritingPerlinNoiseBarsPreviewProps = {
   caption?: string
@@ -13,7 +23,7 @@ export type WritingPerlinNoiseBarsPreviewProps = {
   cols?: number
   /** Grid rows (reference art ~11). */
   rows?: number
-  /** Noise frequency along columns (higher = denser / smaller blobs; lower = sparser / larger blobs). */
+  /** Noise frequency along columns (higher = denser / smaller blobs). */
   noiseScaleX?: number
   /** Noise frequency along rows. */
   noiseScaleY?: number
@@ -32,16 +42,19 @@ export function WritingPerlinNoiseBarsPreview({
   className = '',
   cols = 70,
   rows = 11,
-  noiseScaleX = 0.048,
-  noiseScaleY = 0.062,
-  minWidthFrac = 0.015,
-  maxWidthFrac = 0.88,
+  noiseScaleX = DEFAULTS.noiseScaleX,
+  noiseScaleY = DEFAULTS.noiseScaleY,
+  minWidthFrac = DEFAULTS.minWidthFrac,
+  maxWidthFrac = DEFAULTS.maxWidthFrac,
 }: WritingPerlinNoiseBarsPreviewProps) {
   const reduced = useWritingPreviewReducedMotion()
   const wrapRef = useRef<HTMLDivElement>(null)
   const canvasRef = useRef<HTMLCanvasElement>(null)
   const rafRef = useRef(0)
   const tRef = useRef(0)
+  const canvasBgRef = useRef(FALLBACK_BG)
+  const canvasBarRef = useRef(FALLBACK_BAR)
+  const lastColorReadCssWRef = useRef(-1)
 
   const draw = useCallback(
     (timePhase: number) => {
@@ -50,6 +63,14 @@ export function WritingPerlinNoiseBarsPreview({
       if (!canvas || !wrap) return
 
       const cssW = wrap.clientWidth
+      if (cssW !== lastColorReadCssWRef.current) {
+        lastColorReadCssWRef.current = cssW
+        const cs = getComputedStyle(wrap)
+        const bg = cs.getPropertyValue('--writing-perlin-canvas-bg').trim()
+        const bar = cs.getPropertyValue('--writing-perlin-canvas-bar').trim()
+        if (bg) canvasBgRef.current = bg
+        if (bar) canvasBarRef.current = bar
+      }
       const cssH = Math.max(280, Math.min(560, cssW * (rows / cols) * 1.85))
       const dpr = Math.min(2, window.devicePixelRatio || 1)
       const bw = Math.max(1, Math.floor(cssW * dpr))
@@ -64,7 +85,7 @@ export function WritingPerlinNoiseBarsPreview({
       const ctx = canvas.getContext('2d')
       if (!ctx) return
 
-      ctx.fillStyle = BG
+      ctx.fillStyle = canvasBgRef.current
       ctx.fillRect(0, 0, bw, bh)
 
       const cellW = bw / cols
@@ -72,7 +93,7 @@ export function WritingPerlinNoiseBarsPreview({
       const minPx = Math.max(0.5, cellW * minWidthFrac)
       const maxPx = Math.max(minPx + 0.5, cellW * maxWidthFrac)
 
-      ctx.fillStyle = BAR
+      ctx.fillStyle = canvasBarRef.current
       for (let row = 0; row < rows; row++) {
         const y0 = row * cellH
         const y1 = (row + 1) * cellH
@@ -116,7 +137,7 @@ export function WritingPerlinNoiseBarsPreview({
     const loop = (now: number) => {
       const dt = (now - last) / 1000
       last = now
-      tRef.current += dt * 0.45
+      tRef.current += dt * TIME_BASE * PLAYBACK_SPEED
       draw(tRef.current)
       rafRef.current = requestAnimationFrame(loop)
     }
