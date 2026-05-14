@@ -21,7 +21,7 @@ function PreviewSkeleton({ caption }: { caption?: string }) {
 
 export function WritingPerlinNoiseBarsPreviewLazy(props: WritingPerlinNoiseBarsPreviewProps) {
   return (
-    <Suspense fallback={<PreviewSkeleton caption="Loading interactive preview…" />}>
+    <Suspense fallback={<PreviewSkeleton caption="Loading preview…" />}>
       <WritingPerlinNoiseBarsPreview {...props} />
     </Suspense>
   )
