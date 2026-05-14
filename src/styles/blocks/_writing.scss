@@ -2435,7 +2435,7 @@
   animation: writing-infinite-canvas-skeleton-shimmer 1.1s ease-in-out infinite;
 }
 
-/* Object & Archive — left column inset → full bleed, next card */
+/* Object & Archive — left column: stacked plates, GSAP scale ladder */
 .writing-page__body .writing-oa-left-panel {
   margin: 1.75rem 0 2rem;
 }
@@ -2472,130 +2472,39 @@
   min-width: 0;
   height: 100%;
   overflow: hidden;
-  padding: 0;
-  margin: 0;
-  border: 0;
-  background: transparent;
-  cursor: pointer;
-  text-align: left;
-  color: inherit;
-  font: inherit;
 }
 
-.writing-page__body .writing-oa-left-panel__left:focus-visible {
-  outline: 2px solid rgba(244, 246, 252, 0.65);
-  outline-offset: -2px;
-  z-index: 2;
+.writing-page__body .writing-oa-left-panel__stack {
+  position: absolute;
+  inset: 0;
+  pointer-events: none;
 }
 
-.writing-page__body .writing-oa-left-panel__bg {
+.writing-page__body .writing-oa-left-panel__stack-layer {
   position: absolute;
   inset: 0;
   overflow: hidden;
   pointer-events: none;
 }
 
-.writing-page__body .writing-oa-left-panel__bg img {
-  width: 100%;
-  height: 100%;
-  object-fit: cover;
-  object-position: center;
-  display: block;
-  transform: scale(1);
-  transform-origin: center center;
-  transition: transform 0.58s cubic-bezier(0.33, 0, 0.2, 1);
-  will-change: transform;
-}
-
-.writing-page__body .writing-oa-left-panel__bg--etude {
-  z-index: 1;
-  opacity: 1;
-  transition: opacity 0.55s ease;
-}
-
-.writing-page__body .writing-oa-left-panel__bg--pale {
-  z-index: 2;
-  opacity: 0;
-  transition: opacity 0.55s ease 0.05s;
-}
-
-.writing-page__body .writing-oa-left-panel__left--expanded .writing-oa-left-panel__bg--etude {
-  opacity: 0;
-}
-
-.writing-page__body .writing-oa-left-panel__left--expanded .writing-oa-left-panel__bg--pale {
-  opacity: 1;
-}
-
-.writing-page__body .writing-oa-left-panel__card {
+.writing-page__body .writing-oa-left-panel__stack-layer img {
   position: absolute;
-  z-index: 5;
   top: 50%;
   left: 50%;
-  width: min(36%, 12.5rem);
-  aspect-ratio: 3 / 4;
-  overflow: hidden;
-  border-radius: 10px;
-  box-shadow: 0 12px 36px rgba(0, 0, 0, 0.45);
-  transform: translate(-50%, -50%);
-  transition:
-    top 0.58s cubic-bezier(0.33, 0, 0.2, 1),
-    left 0.58s cubic-bezier(0.33, 0, 0.2, 1),
-    width 0.58s cubic-bezier(0.33, 0, 0.2, 1),
-    height 0.58s cubic-bezier(0.33, 0, 0.2, 1),
-    border-radius 0.58s cubic-bezier(0.33, 0, 0.2, 1),
-    transform 0.58s cubic-bezier(0.33, 0, 0.2, 1);
-}
-
-.writing-page__body .writing-oa-left-panel__card img {
   width: 100%;
   height: 100%;
+  max-width: none;
   object-fit: cover;
   object-position: center;
   display: block;
-  transform: scale(1);
-  transform-origin: center center;
-  transition: transform 0.58s cubic-bezier(0.33, 0, 0.2, 1);
-  will-change: transform;
-}
-
-/* Zoom in together: Étude bg + Pale Face (in card) while the inset expands */
-.writing-page__body .writing-oa-left-panel__left--zooming .writing-oa-left-panel__bg--etude img,
-.writing-page__body .writing-oa-left-panel__left--zooming .writing-oa-left-panel__card img {
-  transform: scale(1.12);
-}
-
-/* After handoff: Pale Face plate + Amphitrite card zoom in together */
-@keyframes writing-oa-left-expanded-twin-zoom {
-  from {
-    transform: scale(1);
-  }
-
-  to {
-    transform: scale(1.09);
-  }
-}
-
-.writing-page__body .writing-oa-left-panel__left--expanded .writing-oa-left-panel__bg--pale img,
-.writing-page__body .writing-oa-left-panel__left--expanded .writing-oa-left-panel__card img {
-  animation: writing-oa-left-expanded-twin-zoom 0.52s cubic-bezier(0.33, 0, 0.2, 1) forwards;
-  transition: none;
-}
-
-.writing-page__body .writing-oa-left-panel__card--zooming {
-  top: 0;
-  left: 0;
-  width: 100%;
-  height: 100%;
-  aspect-ratio: auto;
-  border-radius: 0;
-  transform: none;
+  /* transform (translate + scale): GSAP */
 }
 
 .writing-page__body .writing-oa-left-panel__index {
   position: absolute;
   top: 0.35rem;
   right: 0.35rem;
+  z-index: 80;
   padding: 0.15rem 0.35rem;
   font-family: $font-writing-mono;
   font-size: clamp(0.52rem, 1.1vw, 0.62rem);
@@ -2608,6 +2517,7 @@
 }
 
 .writing-page__body .writing-oa-left-panel__right {
+  position: relative;
   flex: 1;
   min-width: 0;
   height: 100%;
@@ -2621,41 +2531,61 @@
   display: block;
 }
 
+.writing-page__body .writing-oa-left-panel__next-row {
+  position: absolute;
+  right: clamp(0.5rem, 2vw, 1rem);
+  bottom: clamp(0.5rem, 2vw, 1rem);
+  z-index: 3;
+  display: flex;
+  flex-wrap: wrap;
+  gap: 0.45rem;
+  justify-content: flex-end;
+  max-width: calc(100% - 1rem);
+}
+
+.writing-page__body .writing-oa-left-panel__next,
+.writing-page__body .writing-oa-left-panel__back {
+  font-family: $font-writing-mono;
+  font-size: clamp(0.68rem, 1.25vw, 0.78rem);
+  letter-spacing: 0.12em;
+  text-transform: uppercase;
+  padding: 0.45rem 0.75rem;
+  border-radius: 6px;
+  border: 1px solid rgba(255, 255, 255, 0.35);
+  background: rgba(12, 14, 12, 0.72);
+  color: rgba(252, 252, 252, 0.95);
+  cursor: pointer;
+  backdrop-filter: blur(6px);
+}
+
+.writing-page__body .writing-oa-left-panel__back {
+  border-color: rgba(255, 255, 255, 0.22);
+  background: rgba(32, 36, 34, 0.55);
+}
+
+.writing-page__body .writing-oa-left-panel__next:hover:not(:disabled),
+.writing-page__body .writing-oa-left-panel__back:hover {
+  background: rgba(24, 28, 26, 0.88);
+  border-color: rgba(255, 255, 255, 0.5);
+}
+
+.writing-page__body .writing-oa-left-panel__next:focus-visible,
+.writing-page__body .writing-oa-left-panel__back:focus-visible {
+  outline: 2px solid rgba(244, 246, 252, 0.75);
+  outline-offset: 2px;
+}
+
+.writing-page__body .writing-oa-left-panel__next:disabled {
+  opacity: 0.45;
+  cursor: not-allowed;
+}
+
 .writing-page__body .writing-oa-left-panel__hint {
   margin: 0.55rem 0 0;
   font-family: $font-writing-mono;
   font-size: 0.72rem;
   letter-spacing: 0.06em;
   color: rgba(210, 216, 228, 0.55);
-}
-
-.writing-page__body .writing-oa-left-panel__left--reduced .writing-oa-left-panel__card {
-  transition: none;
-}
-
-.writing-page__body .writing-oa-left-panel__left--reduced .writing-oa-left-panel__bg img,
-.writing-page__body .writing-oa-left-panel__left--reduced .writing-oa-left-panel__card img {
-  animation: none !important;
-  transform: none !important;
-  transition: none !important;
-}
-
-@media (prefers-reduced-motion: reduce) {
-  .writing-page__body .writing-oa-left-panel__card {
-    transition: none;
-  }
-
-  .writing-page__body .writing-oa-left-panel__bg--etude,
-  .writing-page__body .writing-oa-left-panel__bg--pale {
-    transition: none;
-  }
-
-  .writing-page__body .writing-oa-left-panel__bg img,
-  .writing-page__body .writing-oa-left-panel__card img {
-    animation: none !important;
-    transform: none !important;
-    transition: none !important;
-  }
 }
 
 .writing-page__body .writing-oa-left-panel--skeleton .writing-oa-left-panel__caption {
