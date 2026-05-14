@@ -8,7 +8,7 @@ export const writingMeta = {
   date: '2026-05-14',
   category: 'UI',
   excerpt:
-    'Two beats from the storefront: a tinted curtain lifts off a split hero with overlaid wordmark, then the left column behaves like a carousel—inset expands to full bleed on Pale Face before the plate resets with Amphitrite over a Pale Face field.',
+    'Curtain hero plus a sixteen-layer left stack: GSAP tweens a scale ladder (2.7754 / 1 / 0.01) through all CDN plates, then every layer rests at the top zoom.',
   coverSrc: '/media/writings/object-and-archive-hero-reference.png',
   titleLines: ['Object & Archive,', 'hero + left carousel'],
   asideParagraphs: [
@@ -33,8 +33,8 @@ A **tinted full-bleed layer** lifts off the diptych—**Étude de forêt** on th
 
 Replay runs the same sequence without reloading the page. Reduced-motion visitors skip the tween and see the revealed layout immediately.
 
-## Second beat: left-column carousel handoff
+## Second beat: left-column stack
 
-On the live homepage the **left half** stacks a full-bleed plate with a smaller, sharper “card” on top. Advancing the strip **expands the inset** while the **backdrop and inset zoom in on the same timing**; then the **background crossfades** to Pale Face and the **next plate and field zoom in together** as **Amphitrite** replaces the card (here: **Pale Face** → **Amphitrite** over a **Pale Face** field, with **Étude de forêt** as the initial backdrop). The right half stays a static Monet detail so this embed stays readable in a narrow column.
+The left half is a **single stack** of sixteen Shopify images (each slide’s background then inset, in order). **Next →** advances a **scale ladder** in one GSAP pass: layers already passed sit at **2.7754**, the current focal layer at **1**, and deeper layers at **0.01**—then the pattern shifts forward. **← Back** runs the same tween in reverse. The badge tracks depth (1–16); the final step holds every layer at **2.7754**. The right half stays a static Monet detail.
 
 <WritingObjectArchiveLeftPanelPreviewLazy />
