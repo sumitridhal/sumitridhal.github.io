@@ -1,0 +1,40 @@
+import { WritingObjectArchiveHeroRevealPreviewLazy } from '@/components/writings/WritingObjectArchiveHeroRevealPreviewLazy'
+import { WritingObjectArchiveLeftPanelPreviewLazy } from '@/components/writings/WritingObjectArchiveLeftPanelPreviewLazy'
+
+export const writingMeta = {
+  id: 'object-and-archive-hero-opening',
+  order: 1,
+  title: 'Object & Archive: hero opening and left carousel',
+  date: '2026-05-14',
+  category: 'UI',
+  excerpt:
+    'Two beats from the storefront: a tinted curtain lifts off a split hero with overlaid wordmark, then the left column behaves like a carousel—inset expands to full bleed on Pale Face before the plate resets with Amphitrite over a Pale Face field.',
+  coverSrc: '/media/writings/object-and-archive-hero-reference.png',
+  titleLines: ['Object & Archive,', 'hero + left carousel'],
+  asideParagraphs: [
+    'The live site loads the same assets from Shopify CDN; hotlinking here matches their URLs for width variants.',
+    'Curtain color in the first preview is a stand-in gradient (`--writing-oa-hero-curtain`); swap the token to match brand QA without touching markup.',
+  ],
+}
+
+This note walks **two** transitions from [Object & Archive](https://objectandarchive.com/).
+
+## First beat: curtain + split
+
+A **tinted full-bleed layer** lifts off the diptych—**Étude de forêt** on the left, **Monet detail** on the right—while the **wordmark stays on top** of both the panel and the photography, with a light gradient scrim so the SVG stays legible.
+
+<WritingObjectArchiveHeroRevealPreviewLazy />
+
+### Layer model (curtain)
+
+1. **Split media** — two halves, `object-fit: cover`, full-bleed in the stage (`inset: 0`).
+2. **Curtain** — same box as the stage, muted sage gradient (`--writing-oa-hero-curtain`); `transform: translateY(-100%)` when open.
+3. **Wordmark overlay** — highest z-index, bottom-centered `oa-white.svg`, soft dark gradient scrim behind it for contrast on both the curtain and the paintings.
+
+Replay runs the same sequence without reloading the page. Reduced-motion visitors skip the tween and see the revealed layout immediately.
+
+## Second beat: left-column carousel handoff
+
+On the live homepage the **left half** stacks a full-bleed plate with a smaller, sharper “card” on top. Advancing the strip **expands the inset** while the **backdrop and inset zoom in on the same timing**; then the **background crossfades** to Pale Face and the **next plate and field zoom in together** as **Amphitrite** replaces the card (here: **Pale Face** → **Amphitrite** over a **Pale Face** field, with **Étude de forêt** as the initial backdrop). The right half stays a static Monet detail so this embed stays readable in a narrow column.
+
+<WritingObjectArchiveLeftPanelPreviewLazy />
