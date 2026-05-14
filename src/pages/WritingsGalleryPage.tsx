@@ -40,27 +40,27 @@ export function WritingsGalleryPage() {
 
       gsap.set(targets, { opacity: 0, y: 20 })
 
-      let io: IntersectionObserver
-      const onIntersect = contextSafe((entries: IntersectionObserverEntry[]) => {
-        for (const entry of entries) {
-          if (!entry.isIntersecting) continue
-          io.disconnect()
-          gsap.to(targets, {
-            opacity: 1,
-            y: 0,
-            duration: 0.65,
-            stagger: 0.06,
-            ease: 'power2.out',
-          })
-          break
-        }
-      })
-
-      io = new IntersectionObserver(onIntersect, {
-        root: null,
-        threshold: 0.12,
-        rootMargin: '0px 0px -5% 0px',
-      })
+      const io = new IntersectionObserver(
+        contextSafe((entries: IntersectionObserverEntry[]) => {
+          for (const entry of entries) {
+            if (!entry.isIntersecting) continue
+            io.disconnect()
+            gsap.to(targets, {
+              opacity: 1,
+              y: 0,
+              duration: 0.65,
+              stagger: 0.06,
+              ease: 'power2.out',
+            })
+            break
+          }
+        }),
+        {
+          root: null,
+          threshold: 0.12,
+          rootMargin: '0px 0px -5% 0px',
+        },
+      )
 
       io.observe(root)
 
