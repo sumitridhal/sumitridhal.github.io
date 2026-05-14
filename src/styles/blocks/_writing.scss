@@ -434,6 +434,18 @@
   accent-color: $color-writing-mustard;
 }
 
+.writing-page__body .writing-shader-demo__control-row select {
+  flex: 1;
+  min-width: 8rem;
+  max-width: 100%;
+  padding: 0.25rem 0.4rem;
+  font: inherit;
+  color: inherit;
+  background: rgba(8, 12, 20, 0.75);
+  border: 1px solid rgba(200, 210, 224, 0.22);
+  border-radius: 0.2rem;
+}
+
 .writing-page__body .writing-shader-demo__canvas-wrap {
   position: relative;
   width: 100%;
