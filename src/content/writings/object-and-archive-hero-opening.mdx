@@ -7,75 +7,78 @@ import { WritingObjectArchiveScrollPreviewLazy } from "@/components/writings/Wri
 export const writingMeta = {
   id: "object-and-archive-hero-opening",
   order: 1,
-  title: "Object & Archive: tween concept sheet (hero, stack, scroll, styles, resources)",
+  title: "Object & Archive: five motion recipes (CSS + GSAP)",
   date: "2026-05-14",
   category: "UI",
   excerpt:
-    "Tween spec in five parts: curtain CSS reveal, GSAP scale ladder, hero→obsessions scroll composite, a hover-driven interior-style rail (GSAP), and the resources list with a fixed portrait slot (instant src swap, no image animation).",
+    "Five self-contained embeds from the Object & Archive storefront: CSS curtain keyframes, a GSAP scale ladder, Locomotive/Lenis + ScrollTrigger driving a CSS variable, a hover GSAP swap timeline, and a fixed-slot resource preview with instant DOM updates.",
   coverSrc: "/media/writings/object-and-archive-hero-reference.png",
-  titleLines: ["Object & Archive", "Tween concept sheet"],
+  titleLines: ["Object & Archive", "Five motion recipes"],
 };
 
-This note documents storefront motion from [Object & Archive](https://objectandarchive.com/) as a **tween concept sheet**—one part per interaction slice. **Parts 1–5** are implemented below; further beats can append as **Part 6+** using the same headings and vocabulary.
+These notes pick apart motion from [Object & Archive](https://objectandarchive.com/) as **five standalone recipes**—each maps to one live preview below. Together they cover **CSS `@keyframes`**, **GSAP timelines**, **ScrollTrigger**, **Locomotive Scroll (Lenis)** wired into **GSAP’s ticker**, and a **layout-only** hover pattern with **no image tweening**. This article is complete as-is; there is no “Part 6” appendix.
 
-## Tween concept sheet (shared vocabulary)
+## How to read a recipe
 
-Use the same labels in every part so the doc stays scannable as it grows:
-
-| Label                | Meaning                                                                                                                                                                                     |
-| -------------------- | ------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------- |
-| **Target**           | DOM node(s) or property that actually moves.                                                                                                                                                |
-| **From → to**        | Resting values vs. end-of-tween values (or keyframe equivalents).                                                                                                                           |
-| **Driver**           | What starts the tween: first paint, click, scroll, route, etc.                                                                                                                              |
-| **Runtime**          | What executes interpolation in this embed: CSS `@keyframes`, GSAP, or **native scrolling** (`scrollLeft` / `scrollTop`). The production theme may differ; the sheet still describes intent. |
-| **Replay / reverse** | How the preview resets or walks backward without a full reload.                                                                                                                             |
-| **Reduced motion**   | `prefers-reduced-motion: reduce` path: snap to end state or skip non-essential motion.                                                                                                      |
+| Label       | Meaning                                                                 |
+| ----------- | ----------------------------------------------------------------------- |
+| **Target**  | The node or CSS property that actually changes.                        |
+| **Driver**  | What kicks the change: load, click, scroll, hover/focus, etc.          |
+| **Runtime** | What interpolates: CSS animation, GSAP, native scroll, or DOM updates. |
 
 ---
 
 ## Part 1 — Hero curtain and split reveal
 
-**Targets:** (1) full-bleed **curtain** layer sharing the stage box with the split media; (2) **split** halves (Étude de forêt left, Monet detail right) underneath; (3) **wordmark** overlay above both.
+**Target:** A full-bleed **curtain** over a split hero; **driver** is first paint (then optional replay); **runtime** is **CSS** only. `WritingObjectArchiveHeroRevealPreview` toggles classes (`is-lifting` → `is-open`) so the curtain runs `writing-oa-hero-curtain-up` once; reduced motion snaps the curtain off and disables replay.
 
-**From → to:** Curtain starts **closed** (covering the diptych) and tweens to **open** (`translateY` off the top of the stage). Split media stays mounted the whole time; wordmark does not leave the overlay stack—only opacity/contrast is implied by the scrim, not a separate position tween.
+Curtain rules and keyframes live under `.writing-oa-hero*` in `_writing.scss`:
 
-**Driver:** Initial sequence on load; **Replay intro** re-applies the same animation class on the curtain after a microtask so the browser can restart the keyframes.
+```scss
+.writing-page__body .writing-oa-hero__curtain.is-lifting {
+  animation: writing-oa-hero-curtain-up 1.28s cubic-bezier(0.33, 0, 0.2, 1) forwards;
+}
 
-**Runtime:** CSS `@keyframes` on the curtain (see `WritingObjectArchiveHeroRevealPreview` + `.writing-oa-hero*` in `_writing.scss`). Not GSAP in this embed.
+.writing-page__body .writing-oa-hero__curtain.is-open {
+  transform: translate3d(0, -100%, 0);
+}
 
-**Replay / reverse:** Replay button retriggers the curtain cycle. There is no partial “scrub backward” in the preview—only a full replay.
+@keyframes writing-oa-hero-curtain-up {
+  from {
+    transform: translate3d(0, 0, 0);
+  }
+  to {
+    transform: translate3d(0, -100%, 0);
+  }
+}
+```
 
-**Reduced motion:** Preview adds a `--reduced` modifier class: curtain snaps open, **Replay** is disabled so we do not imply a timed experience.
+Stack (bottom → top): split halves, curtain, wordmark + scrim.
 
 <WritingObjectArchiveHeroRevealPreviewLazy />
-
-### Part 1 — layer stack (z-order)
-
-1. **Split media** — two halves, `object-fit: cover`, `inset: 0` on the stage.
-2. **Curtain** — same box, sage gradient token `--writing-oa-hero-curtain`; animated edge is vertical translation.
-3. **Wordmark** — highest z-index, bottom-centered `oa-white.svg`, gradient scrim for legibility on both curtain and photography.
 
 ---
 
 ## Part 2 — Left column: stacked plates and scale ladder
 
-**Targets:** Sixteen absolutely stacked `<img>` nodes (one per plate: each slide’s **background** then **mid**, in order), each centered with `translate(-50%, -50%)` and animated **uniform scale** only. Right half of the stage is static Monet detail (no tween in this part).
+**Target:** Sixteen centered `<img>` plates, **uniform `scale` only**. **Driver:** **Next →** / **← Back** stepping `advanceCount`. **Runtime:** one **GSAP `timeline`** per step; every layer tweens in **parallel** at label time `0` (`power2.inOut`, duration `0` when reduced motion).
 
-**From → to:** State is indexed by `advanceCount` (0 … N−1). For layer index `j` at a given step:
+Core pattern in `WritingObjectArchiveLeftPanelPreview`:
 
-- **Passed** layers (`j ≤ advanceCount`) tween toward **`BIG_SCALE`** — the “already revealed” zoom relative to the left panel (tuned in code so the plate reads full-bleed in the clip).
-- **Focal** layer (`j === advanceCount + 1`, while it exists) sits at **`MID_SCALE`** — the current inset / readable plane.
-- **Ahead** layers use **`HIDDEN_SCALE`** — effectively off-stage until the ladder reaches them.
+```ts
+const tl = gsap.timeline({
+  defaults: { duration: dur, ease: EASE },
+  onComplete: () => {
+    if (alive) setIsAnimating(false)
+  },
+})
 
-Each **Next →** increments `advanceCount` and runs one **parallel** GSAP timeline: every layer’s `scale` tweens together (`power2.inOut`, fixed duration in code, **0** when reduced motion). **← Back** decrements `advanceCount` with the same timeline pattern. The badge is a readout of depth (1 … N).
+imgs.forEach((img, j) => {
+  tl.to(img, { scale: targetScale(j, advanceCount, n) }, 0)
+})
+```
 
-**Driver:** Click on **Next →** / **← Back**; buttons are disabled while the timeline is active.
-
-**Runtime:** GSAP `timeline` with all layer tweens at label time `0` (no stagger in the current embed).
-
-**Replay / reverse:** **← Back** is the reverse driver step-by-step; there is no separate “reset stack” control.
-
-**Reduced motion:** Duration collapsed to zero so scales snap to the new ladder.
+`targetScale` maps each index to **passed** (full-bleed), **focal** (mid), or **ahead** (hidden) scale constants.
 
 <WritingObjectArchiveLeftPanelPreviewLazy />
 
@@ -83,17 +86,57 @@ Each **Next →** increments `advanceCount` and runs one **parallel** GSAP timel
 
 ## Part 3 — Composite: static Part 1 hero + “Current obsessions” scroll strip
 
-**Targets:** (1) **Hero stack** — Part 1 split + wordmark, **sticky** inside a tall **hero-slot** so it stays on screen while the first viewport of shell scroll is consumed. (2) **Obsessions** — cream block **overlaps** the hero (`margin-top: -viewport`) and **`translateY`** tied to **`--oa-cover-p`** so it **slides up to cover** the hero as vertical scroll advances 0→1 over one shell-height. (3) **Intro + strip** — inner **`padding-top`** eases from a lower band toward the top over the same progress; strip still uses **`scrollLeft`** (`overflow-x: auto`). **`data-lenis-prevent`** on the shell so page-level Lenis ignores this region.
+**Target:** CSS variable **`--oa-cover-p`** in `0…1` over one viewport of vertical travel; obsessions block **`translateY`** and intro **`padding-top`** follow it. **Driver:** wheel on the shell (smooth path) or native scroll (reduced). **Runtime:** either **Locomotive’s `scrollCallback`** + **`gsap.ticker`**, or **`ScrollTrigger`** on the track with **`scrub: 0`**.
 
-**From → to:** **`--oa-cover-p`** = **`min(1, scroll / shellHeight)`** where **`scroll`** is Lenis’s smoothed vertical offset (default path) or native **`scrollTop`** (reduced motion). Raise layer: `translateY(viewport * (1 - p))`. Inner intro: `padding-top` shrinks as `p → 1`. Horizontal strip unchanged in runtime.
+Reduced motion — `ScrollTrigger` writes progress from native `scrollTop`:
 
-**Driver:** Vertical wheel / trackpad on the shell (Locomotive / Lenis when motion is allowed). Horizontal gestures on `.writing-oa-scroll__viewport` when focused or direct.
+```ts
+ScrollTrigger.create({
+  trigger: track,
+  scroller: shell,
+  start: 'top top',
+  end: () => `+=${Math.max(32, shell.clientHeight)}`,
+  scrub: 0,
+  invalidateOnRefresh: true,
+  onUpdate(self) {
+    shell.style.setProperty('--oa-cover-p', String(self.progress))
+  },
+})
+```
 
-**Runtime:** **Locomotive Scroll v5** with **`lenisOptions.wrapper`** = shell, **`content`** = track; **`scrollCallback`** → **`--oa-cover-p`**; **GSAP `ticker`** hosts Locomotive’s render loop. **`allowNestedScroll`** so the strip can scroll horizontally. **`ResizeObserver`** → **`loco.resize()`**. Reduced motion: **GSAP `ScrollTrigger`** on the track with **`scroller: shell`**, **`scrub: 0`**, **`onUpdate`** → **`--oa-cover-p`**, and **`ScrollTrigger.refresh()`** on resize. Strip: **`overflow-x: auto`**.
+Default path — Lenis scroll value mapped to the same variable; Locomotive’s RAF is hooked to **GSAP’s ticker** so it lines up with other GSAP work:
 
-**Replay / reverse:** Scroll the shell up/down; strip scrolls independently.
+```ts
+const setCoverFromScroll = (scroll: number) => {
+  const h = Math.max(32, shell.clientHeight)
+  const p = Math.min(1, Math.max(0, scroll / h))
+  shell.style.setProperty('--oa-cover-p', String(p))
+}
 
-**Reduced motion:** Intro **`padding-top`** choreography is disabled (`0`); cover **`translateY`** follows native **`scrollTop`** (no Locomotive instance).
+const loco = new LocomotiveScroll({
+  lenisOptions: {
+    wrapper: shell,
+    content: track,
+    eventsTarget: shell,
+    orientation: 'vertical',
+    smoothWheel: true,
+    lerp: 0.09,
+    allowNestedScroll: true,
+    autoResize: true,
+  },
+  scrollCallback: ({ scroll }) => {
+    setCoverFromScroll(scroll)
+  },
+  initCustomTicker: (render) => {
+    gsap.ticker.add(render)
+  },
+  destroyCustomTicker: (render) => {
+    gsap.ticker.remove(render)
+  },
+})
+```
+
+The horizontal strip stays **`overflow-x: auto`**; the shell carries **`data-lenis-prevent`** so the site Lenis instance does not eat wheel events inside this embed.
 
 <WritingObjectArchiveScrollPreviewLazy />
 
@@ -101,17 +144,26 @@ Each **Next →** increments `advanceCount` and runs one **parallel** GSAP timel
 
 ## Part 4 — Interior style rail: hover / focus swaps the panel (GSAP timeline)
 
-**Targets:** (1) **Kicker + list** — “Explore by interior style” label and a vertical **style list** (typographic active state: weight, italic, ink). (2) **Right panel** — portrait frame + monospace **caption** keyed to the **hovered or focused** style. (3) **Static stage** — no nested scroll; the block is a fixed-height **cream** panel inside the article.
+**Target:** `.writing-oa-style__panel-inner` opacity and **`yPercent`**. **Driver:** **`onPointerEnter`** / **`onFocus`** per style row. **Runtime:** **`gsap.timeline`**: ease out → **`call`** to swap `img.src` and caption → **`fromTo`** in; **`gsap.killTweensOf(inner)`** before each new hover so stacked timelines do not fight.
 
-**From → to:** **`onPointerEnter`** on each list row (and **`onFocus`** on the button for keyboard) calls **`goTo(index)`**. A **GSAP `timeline`** on **`.writing-oa-style__panel-inner`**: quick **out** (`opacity`, `yPercent`), **`call`** to swap **`img.src`** + caption text, then **fromTo** **in** so the stack reads as rising **from center toward rest**.
+From `WritingObjectArchiveInteriorStylePreview`:
 
-**Driver:** Pointer crossing a style row; keyboard **Tab** / **Shift+Tab** onto a style button.
+```ts
+gsap.killTweensOf(inner)
 
-**Runtime:** **GSAP `timeline`** (`to` → `call` → `fromTo`); **`gsap.killTweensOf`** before each new hover so rapid moves do not stack. No **`ScrollTrigger`** in this embed.
+const tl = gsap.timeline({ defaults: { ease: 'power2.inOut' } })
+tl.to(inner, { opacity: 0, yPercent: 5, duration: 0.14 }, 0)
+tl.call(() => {
+  writeDom(i)
+})
+tl.fromTo(
+  inner,
+  { yPercent: 9, opacity: 0.55 },
+  { yPercent: 0, opacity: 1, duration: 0.42, ease: 'power2.out' },
+)
+```
 
-**Replay / reverse:** Move the pointer or focus to another line; the same timeline pattern runs again.
-
-**Reduced motion:** No tween durations—**`writeDom`** only and **`clearProps`** on the panel inner.
+Reduced motion: **`writeDom`** only and **`gsap.set(..., { clearProps: 'transform,opacity' })`**.
 
 <WritingObjectArchiveInteriorStylePreviewLazy />
 
@@ -119,20 +171,25 @@ Each **Next →** increments `advanceCount` and runs one **parallel** GSAP timel
 
 ## Part 5 — Resources: idle list, then hover / focus swaps the portrait (instant, fixed slot)
 
-**Targets:** (1) **Kicker + list** — one **serif** list only. (2) **Overlap stack** — **`ul { display: contents }`**, centered **`.writing-oa-res__float`** over inactive rows (**`pointer-events: none`**), **active `z-index`** above the image. (3) **Portrait** — single **3:4** frame; **`object-fit: cover`** so every CDN still occupies the **same dimensions**. (4) **Caption** — **`.writing-oa-res__caption-dock`** with **`.is-idle`** until a pick.
+**Target:** Same **`img`** element in a **fixed 3:4** box; caption and overlay title text. **Driver:** hover/focus on list buttons. **Runtime:** **immediate DOM** updates—no GSAP on the image. **`ul { display: contents }`** lets each **`li`** stack with a centered **`.writing-oa-res__float`** (`z-index: 2`, **`pointer-events: none`**) while the **active** row stays above the art; **`.is-idle`** hides float and caption dock until the first pick.
 
-**From → to:** **`onPointerEnter`** / **`onFocus`** → **`goTo(index)`** updates **`img.src`**, overlay title, and caption text **immediately** (no tween).
+Fixed slot in `_writing.scss`:
 
-**Driver:** Pointer or keyboard focus on a line button.
+```scss
+.writing-page__body .writing-oa-res__frame {
+  width: min(16.5rem, 100%);
+  max-width: 100%;
+  aspect-ratio: 3 / 4;
+  flex-shrink: 0;
+  overflow: hidden;
+}
 
-**Runtime:** DOM + **CSS** only for visibility (**`.is-idle`** on float and caption dock). No GSAP in this embed.
-
-**Replay / reverse:** Move across rows; same row is a no-op.
-
-**Reduced motion:** N/A for motion (there is none on the image); layout unchanged.
+.writing-page__body .writing-oa-res__frame img {
+  width: 100%;
+  height: 100%;
+  object-fit: cover;
+  object-position: center;
+}
+```
 
 <WritingObjectArchiveResourcesPreviewLazy />
-
-### Adding Part 6+
-
-Keep each new beat under its own `## Part N — …` heading and reuse the **Targets / From → to / Driver / Runtime / Replay / Reduced motion** bullets. Link any new lazy embed from this file the same way as the previews above.
