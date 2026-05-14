@@ -107,7 +107,7 @@ export function WritingObjectArchiveResourcesPreview() {
                 >
                   <div className="writing-oa-res__panel-inner">
                     <div className="writing-oa-res__portrait-col">
-                      <p className="writing-oa-res__kicker-dock">Explore our resources</p>
+                    
                       <div className="writing-oa-res__frame">
                         <img
                           ref={imgRef}
@@ -117,9 +117,6 @@ export function WritingObjectArchiveResourcesPreview() {
                           decoding="async"
                         />
                       </div>
-                      <p ref={overlayTitleRef} className="writing-oa-res__overlay-title" aria-hidden="true">
-                        {'\u00a0'}
-                      </p>
                     </div>
                   </div>
                 </div>
