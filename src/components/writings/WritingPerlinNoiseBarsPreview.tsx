@@ -4,7 +4,7 @@ import { useWritingPreviewReducedMotion } from '@/components/writings/useWriting
 import { perlin2Normalized } from '@/lib/perlin2d'
 
 const BG = '#e4e6ea'
-const BAR = '#1e6fd9'
+const BAR = '#0000FF'
 
 export type WritingPerlinNoiseBarsPreviewProps = {
   caption?: string
@@ -13,7 +13,7 @@ export type WritingPerlinNoiseBarsPreviewProps = {
   cols?: number
   /** Grid rows (reference art ~11). */
   rows?: number
-  /** Noise frequency along columns (higher = smaller blobs). */
+  /** Noise frequency along columns (higher = denser / smaller blobs; lower = sparser / larger blobs). */
   noiseScaleX?: number
   /** Noise frequency along rows. */
   noiseScaleY?: number
@@ -28,14 +28,14 @@ function clamp01(t: number): number {
 }
 
 export function WritingPerlinNoiseBarsPreview({
-  caption = 'Grid: each cell samples 2D Perlin; bar width maps from the scalar field.',
+  caption = 'Perlin sample per cell → bar width.',
   className = '',
   cols = 70,
   rows = 11,
-  noiseScaleX = 0.11,
-  noiseScaleY = 0.14,
-  minWidthFrac = 0.02,
-  maxWidthFrac = 0.92,
+  noiseScaleX = 0.048,
+  noiseScaleY = 0.062,
+  minWidthFrac = 0.015,
+  maxWidthFrac = 0.88,
 }: WritingPerlinNoiseBarsPreviewProps) {
   const reduced = useWritingPreviewReducedMotion()
   const wrapRef = useRef<HTMLDivElement>(null)
@@ -50,7 +50,7 @@ export function WritingPerlinNoiseBarsPreview({
       if (!canvas || !wrap) return
 
       const cssW = wrap.clientWidth
-      const cssH = Math.max(140, Math.min(320, cssW * (rows / cols) * 1.05))
+      const cssH = Math.max(280, Math.min(560, cssW * (rows / cols) * 1.85))
       const dpr = Math.min(2, window.devicePixelRatio || 1)
       const bw = Math.max(1, Math.floor(cssW * dpr))
       const bh = Math.max(1, Math.floor(cssH * dpr))
@@ -78,8 +78,10 @@ export function WritingPerlinNoiseBarsPreview({
         const y1 = (row + 1) * cellH
         const barH = y1 - y0
         for (let col = 0; col < cols; col++) {
-          const nx = col * noiseScaleX + timePhase * 0.08
-          const ny = row * noiseScaleY + timePhase * 0.05
+          const driftX = timePhase * 0.32 + Math.sin(timePhase * 0.55 + row * 0.09) * 0.14
+          const driftY = timePhase * 0.24 + Math.cos(timePhase * 0.48 + col * 0.07) * 0.12
+          const nx = col * noiseScaleX + driftX
+          const ny = row * noiseScaleY + driftY
           const n = perlin2Normalized(nx, ny)
           const w = minPx + clamp01(n) * (maxPx - minPx)
           const cx = (col + 0.5) * cellW
@@ -114,7 +116,7 @@ export function WritingPerlinNoiseBarsPreview({
     const loop = (now: number) => {
       const dt = (now - last) / 1000
       last = now
-      tRef.current += dt * 0.12
+      tRef.current += dt * 0.45
       draw(tRef.current)
       rafRef.current = requestAnimationFrame(loop)
     }
