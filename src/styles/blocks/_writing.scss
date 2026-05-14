@@ -1,3 +1,4 @@
+@use 'sass:color';
 @use '../variables' as *;
 
 .writing-page {
@@ -1080,7 +1081,7 @@
   font-weight: 700;
   letter-spacing: 0.12em;
   text-transform: uppercase;
-  color: rgba(30, 60, 120, 0.85);
+  color: $color-writing-mustard;
   white-space: nowrap;
   overflow: hidden;
   text-overflow: ellipsis;
@@ -1094,8 +1095,10 @@
   position: relative;
   width: 100%;
   border-radius: 2px;
-  border: 1px solid rgba(30, 60, 120, 0.12);
-  background: #e4e6ea;
+  border: 1px solid rgba(233, 184, 88, 0.22);
+  background: #{color.mix(#ffffff, $color-writing-forest, 94%)};
+  --writing-perlin-canvas-bg: #{color.mix(#ffffff, $color-writing-forest, 94%)};
+  --writing-perlin-canvas-bar: #{$color-accent};
   overflow: hidden;
 }
 
@@ -1107,16 +1110,16 @@
 }
 
 .writing-page__body .writing-perlin-bars--skeleton .writing-perlin-bars__caption {
-  color: rgba(30, 60, 120, 0.5);
+  color: rgba(233, 184, 88, 0.45);
 }
 
 .writing-page__body .writing-perlin-bars__stage--skeleton {
   min-height: clamp(16rem, 42vw, 24rem);
   background: linear-gradient(
     105deg,
-    rgba(228, 230, 234, 0.98) 0%,
-    rgba(210, 218, 232, 0.95) 45%,
-    rgba(228, 230, 234, 0.98) 90%
+    #{color.mix(#ffffff, $color-writing-forest, 94%)} 0%,
+    #{color.mix(#f5f7f3, $color-writing-forest, 18%)} 45%,
+    #{color.mix(#ffffff, $color-writing-forest, 94%)} 90%
   );
   background-size: 200% 100%;
   animation: writing-infinite-canvas-skeleton-shimmer 1.1s ease-in-out infinite;
@@ -1125,7 +1128,7 @@
 @media (prefers-reduced-motion: reduce) {
   .writing-page__body .writing-perlin-bars__stage--skeleton {
     animation: none;
-    background: rgba(228, 230, 234, 0.98);
+    background: #{color.mix(#ffffff, $color-writing-forest, 94%)};
   }
 }
 
