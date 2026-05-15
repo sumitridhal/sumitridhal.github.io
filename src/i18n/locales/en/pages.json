@@ -4,8 +4,11 @@
     "experimentsLead": "Small motion studies and visual notes — shaders, layouts, and interface experiments.",
     "experimentsEmpty": "Add entries in src/data/experimentsData.ts to show them here.",
     "experimentsGridAria": "Experiments catalog grid",
+    "experimentsStripNote": "Scroll timeline starts here—then selected projects and bookshelf.",
     "aboutHeading": "About",
     "aboutLead": "Engineer and writer exploring ideas through software, notes, and experiments.",
+    "heroName": "Sumit Ridhal",
+    "heroLead": "Engineer and writer exploring ideas through software, notes, and experiments. This site collects selected work and occasional long-form notes.",
     "heroAtmosphere": {
       "rows": {
         "1": "ENGINEER",
@@ -230,6 +233,27 @@
         }
       }
     }
+  },
+  "sections": {
+    "kicker": "Multi-section page",
+    "title": "Eight sections",
+    "lead": "A dedicated route with eight stacked sections — useful as a layout shell or scroll prototype. Each block has an id for deep links (for example /sections#section-3).",
+    "s1Title": "Opening",
+    "s1Body": "Sets context for what follows and anchors the reader before detail.",
+    "s2Title": "Problem frame",
+    "s2Body": "Name the tension: what is broken, slow, or unclear without jumping to solutions.",
+    "s3Title": "Constraints",
+    "s3Body": "Surface budgets: time, risk, platform limits, and non-negotiable quality bars.",
+    "s4Title": "Approach",
+    "s4Body": "Outline the strategy in plain language — sequencing beats cleverness.",
+    "s5Title": "Implementation notes",
+    "s5Body": "Call out the risky integrations, data flows, or UX edges worth explicit attention.",
+    "s6Title": "Verification",
+    "s6Body": "Describe how you know it works: checks, metrics, or scenarios that must hold.",
+    "s7Title": "Rollout",
+    "s7Body": "Cover migration, flags, comms, and how you throttle blast radius.",
+    "s8Title": "Follow-through",
+    "s8Body": "Leave hooks for the next iteration: debt accepted, experiments queued, owners named."
   },
   "about": {
     "title": "About",
