@@ -4,11 +4,13 @@ import { Outlet, useLocation, useMatch } from 'react-router-dom'
 import { MobileMenu } from '@/components/MobileMenu'
 import { SiteFooter } from '@/components/SiteFooter'
 import { SiteHeader } from '@/components/SiteHeader'
-import { hrefHome } from '@/i18n/routes'
+import { hrefHome, hrefSections } from '@/i18n/routes'
 
 export function AppShell() {
   const location = useLocation()
   const isHome = useMatch({ path: hrefHome, end: true })
+
+  const isSectionsRoute = location.pathname === hrefSections
 
   const isWritingRoute = useMemo(() => {
     const parts = location.pathname.split('/').filter(Boolean)
@@ -34,10 +36,16 @@ export function AppShell() {
     <div className="app">
       <SiteHeader />
       <div className="app__smooth-wrapper">
-        <main className="app__main">
-          <Outlet />
-        </main>
-        {!isHome ? <SiteFooter /> : null}
+        {isSectionsRoute ? (
+          <div className="app__main">
+            <Outlet />
+          </div>
+        ) : (
+          <main className="app__main">
+            <Outlet />
+          </main>
+        )}
+        {!isHome && !isSectionsRoute ? <SiteFooter /> : null}
       </div>
       <MobileMenu />
     </div>
