@@ -4,7 +4,7 @@ export const writingMeta = {
   id: 'palette-mosaic-tiles-shader',
   order: 0,
   title: 'Palette mosaic from a fragment shader',
-  date: '2026-05-14',
+  date: '2025-05-14',
   category: 'Creative code',
   excerpt:
     'Turn the screen into a grid of square tiles, pick a colour per cell from a small palette using a deterministic hash, then break up flat fills with high-frequency grain—all in one fullscreen fragment pass.',
@@ -38,7 +38,7 @@ vec2 cell = floor(frag * g / u_resolution.y);
 
 ## Hash, seed, palette
 
-The hash does not need to be fancy; it only needs to **scatter** nearby integers to unrelated values between zero and one. Mix in a **seed** uniform so the whole assignment shifts without changing the grid resolution. The demo’s **Cell PRNG** menu swaps the implementation (sin–dot, fract permute, interleaved-gradient style, product of 2D hashes, nested sin); all are **pseudo-random**: deterministic on the GPU, sensitive to the chosen formula, never a substitute for crypto RNG.
+The hash does not need to be fancy; it only needs to **scatter** nearby integers to unrelated values between zero and one. Mix in a **seed** uniform so the whole assignment shifts without changing the grid resolution. The demo’s **Cell PRNG** menu swaps the implementation: **sin–dot** hashes, **Simplex** and **gradient Perlin** 2D noise (continuous fields sampled per tile), plus two cheap **pseudo-random** hashes (fract permute, hash product). All are **deterministic** on the GPU, not cryptographic RNG.
 
 ```glsl
 float r = cellRng(cell, u_seed, mode); // mode from uniform u_cell_rng_mode
