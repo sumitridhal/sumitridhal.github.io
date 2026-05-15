@@ -4,6 +4,7 @@ import { useLayoutEffect, type RefObject } from 'react'
 
 import {
   applyHomeThemeTokens,
+  blendHomeThemeTokens,
   DEFAULT_HOME_THEME,
   type HomeThemeId,
 } from '@/utils/homeTheme'
@@ -16,6 +17,11 @@ type UseHomePanelThemeOptions = {
   reducedMotion: boolean
 }
 
+const THEME_BLEND_SCRUB = 0.65
+const THEME_ENTER_END = 'top 34%'
+const THEME_HOLD_START = 'top 34%'
+const THEME_HOLD_END = 'bottom 66%'
+
 export function useHomePanelTheme({ rootRef, reducedMotion }: UseHomePanelThemeOptions) {
   useLenisScrollTrigger()
 
@@ -25,7 +31,7 @@ export function useHomePanelTheme({ rootRef, reducedMotion }: UseHomePanelThemeO
 
     applyHomeThemeTokens(root, DEFAULT_HOME_THEME)
 
-    const sections = root.querySelectorAll<HTMLElement>('[data-home-theme]')
+    const sections = Array.from(root.querySelectorAll<HTMLElement>('[data-home-theme]'))
     if (!sections.length) return
 
     if (reducedMotion) {
@@ -45,20 +51,36 @@ export function useHomePanelTheme({ rootRef, reducedMotion }: UseHomePanelThemeO
       return () => observer.disconnect()
     }
 
+    const themes = sections.map(
+      (section) => section.dataset.homeTheme as HomeThemeId,
+    )
     const triggers: ScrollTrigger[] = []
 
-    sections.forEach((section) => {
-      const themeId = section.dataset.homeTheme as HomeThemeId | undefined
-      if (!themeId) return
+    sections.forEach((section, index) => {
+      const current = themes[index]!
+      const previous = themes[Math.max(0, index - 1)]!
 
-      const st = ScrollTrigger.create({
-        trigger: section,
-        start: 'top 60%',
-        end: 'bottom 40%',
-        onEnter: () => applyHomeThemeTokens(root, themeId),
-        onEnterBack: () => applyHomeThemeTokens(root, themeId),
-      })
-      triggers.push(st)
+      if (index > 0) {
+        triggers.push(
+          ScrollTrigger.create({
+            trigger: section,
+            start: 'top bottom',
+            end: THEME_ENTER_END,
+            scrub: THEME_BLEND_SCRUB,
+            onUpdate: (self) => blendHomeThemeTokens(root, previous, current, self.progress),
+          }),
+        )
+      }
+
+      triggers.push(
+        ScrollTrigger.create({
+          trigger: section,
+          start: THEME_HOLD_START,
+          end: THEME_HOLD_END,
+          onEnter: () => applyHomeThemeTokens(root, current),
+          onEnterBack: () => applyHomeThemeTokens(root, current),
+        }),
+      )
     })
 
     const ro = new ResizeObserver(() => ScrollTrigger.refresh())
