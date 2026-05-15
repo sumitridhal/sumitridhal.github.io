@@ -60,6 +60,13 @@ export function MobileMenu() {
         >
           {t('nav.work')}
         </button>
+        <button
+          type="button"
+          className="mobile-menu__link"
+          onClick={() => go({ pathname: hrefHome, hash: 'experiments' })}
+        >
+          {t('nav.experiments')}
+        </button>
         <button type="button" className="mobile-menu__link" onClick={() => go(hrefWritings)}>
           {t('nav.writings')}
         </button>
