@@ -1,0 +1,62 @@
+@use '../variables' as *;
+
+.sections-page {
+  max-width: 900px;
+  margin: 0 auto;
+  padding: calc(#{$header-h} + 2rem) clamp(1rem, 4vw, 3rem) 4rem;
+}
+
+.sections-page__hero {
+  margin-bottom: 2.75rem;
+}
+
+.sections-page__kicker {
+  margin: 0 0 0.6rem;
+  color: rgba(235, 239, 248, 0.72);
+  text-transform: uppercase;
+  letter-spacing: 0.08em;
+  font-size: 0.75rem;
+}
+
+.sections-page__title {
+  margin: 0 0 0.75rem;
+  font-family: $font-display;
+  font-size: clamp(2rem, 4.4vw, 3.25rem);
+  line-height: 1.05;
+}
+
+.sections-page__lead {
+  margin: 0;
+  max-width: 62ch;
+  color: rgba(235, 239, 248, 0.9);
+  font-size: clamp(1.02rem, 1.9vw, 1.28rem);
+  line-height: 1.45;
+}
+
+.sections-page__sections {
+  display: grid;
+  gap: 1.25rem;
+}
+
+.sections-page__section {
+  border: 1px solid rgba(226, 233, 249, 0.18);
+  background: rgba(15, 26, 22, 0.38);
+  border-radius: 12px;
+  padding: 1.25rem clamp(1rem, 3vw, 1.5rem);
+}
+
+.sections-page__section-title {
+  margin: 0 0 0.65rem;
+  font-family: $font-display;
+  font-size: clamp(1.15rem, 2.2vw, 1.45rem);
+  font-weight: 600;
+  letter-spacing: -0.02em;
+}
+
+.sections-page__section-body {
+  margin: 0;
+  max-width: 68ch;
+  color: rgba(235, 239, 248, 0.88);
+  font-size: 1rem;
+  line-height: 1.55;
+}
