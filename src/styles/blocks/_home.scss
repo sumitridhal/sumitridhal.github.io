@@ -2,15 +2,12 @@
 @use '../variables' as *;
 
 .home-theme {
-  background: var(--home-bg, #033b1f);
+  background: var(--home-bg, #033220);
   color: var(--home-fg, #e8ecf4);
-  transition:
-    background 0.85s $ease-out,
-    color 0.85s $ease-out;
 }
 
 .home-panels {
-  --home-bg: linear-gradient(165deg, #023218 0%, #033f21 58%, #032f19 100%);
+  --home-bg: #033220;
   --home-fg: #e7f5eb;
   --home-fg-muted: rgba(214, 235, 224, 0.82);
   --home-accent: #74c2a0;
@@ -28,7 +25,18 @@
   z-index: -1;
   pointer-events: none;
   background: var(--home-bg);
-  transition: background 0.9s $ease-out;
+}
+
+@media (prefers-reduced-motion: reduce) {
+  .home-theme {
+    transition:
+      background 0.85s $ease-out,
+      color 0.85s $ease-out;
+  }
+
+  .home-panels::before {
+    transition: background 0.9s $ease-out;
+  }
 }
 
 .home-section {
@@ -36,6 +44,11 @@
   width: 100%;
   color: var(--home-fg);
   background: transparent;
+}
+
+/* Stack panels above pinned hero so they scroll visibly over it while GSAP pinning is active. */
+.home-panels > section:not(#hero) {
+  z-index: 1;
 }
 
 .home-section__inner {
@@ -46,6 +59,7 @@
 }
 
 .home-section--hero {
+  z-index: 0;
   min-height: 100vh;
   min-height: 100dvh;
 
@@ -486,16 +500,40 @@
   color: var(--home-fg-muted);
 }
 
+.home-experiments__track {
+  width: 100%;
+  min-width: 0;
+}
+
+.home-experiments__track--scrub {
+  overflow-x: hidden;
+}
+
+.home-experiments__track:not(.home-experiments__track--scrub) {
+  overflow-x: auto;
+  overscroll-behavior-x: contain;
+}
+
 .home-experiments__grid {
-  display: grid;
-  grid-template-columns: repeat(auto-fill, minmax(min(11rem, 100%), 1fr));
+  display: flex;
+  flex-wrap: nowrap;
   gap: clamp(1rem, 2.5vw, 1.5rem);
   list-style: none;
   margin: 0;
-  padding: 0;
+  padding: 0 0 0.35rem;
+}
+
+.home-experiments__track:not(.home-experiments__track--scrub) .home-experiments__grid {
+  scroll-snap-type: x proximity;
+}
+
+.home-experiments__track:not(.home-experiments__track--scrub) .home-experiments__cell {
+  scroll-snap-align: start;
 }
 
 .home-experiments__cell {
+  flex: 0 0 min(11rem, 76vw);
+  max-width: 11rem;
   margin: 0;
 }
 
@@ -529,8 +567,6 @@
   width: 100%;
   border-radius: 4px;
   overflow: hidden;
-  background: #ebe7df;
-  box-shadow: 0 14px 28px rgba(20, 18, 16, 0.12);
 }
 
 .home-experiments__image {
@@ -574,11 +610,40 @@
   }
 }
 
+.bookshelf__track {
+  width: 100%;
+  min-width: 0;
+}
+
+.bookshelf__track--scrub {
+  overflow-x: hidden;
+}
+
+.bookshelf__track:not(.bookshelf__track--scrub) {
+  overflow-x: auto;
+  overscroll-behavior-x: contain;
+}
+
 .bookshelf__grid {
   display: flex;
-  flex-wrap: wrap;
+  flex-wrap: nowrap;
   gap: 0.35rem;
   align-items: flex-end;
+  padding: 0 0 0.35rem;
+}
+
+.bookshelf__track:not(.bookshelf__track--scrub) .bookshelf__grid {
+  scroll-snap-type: x proximity;
+
+  &:focus-visible {
+    outline: 2px solid color-mix(in srgb, var(--home-accent) 55%, transparent);
+    outline-offset: 4px;
+    border-radius: 6px;
+  }
+}
+
+.bookshelf__track:not(.bookshelf__track--scrub) .bookshelf__book {
+  scroll-snap-align: start;
 }
 
 .bookshelf__book {
@@ -586,6 +651,7 @@
   --book-spine-color: #273245;
   --book-text-color: #f2f6ff;
 
+  flex-shrink: 0;
   width: var(--book-width);
   min-width: var(--book-width);
   height: clamp(240px, 45vw, 330px);

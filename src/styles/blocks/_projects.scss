@@ -1,118 +1,139 @@
 @use '../variables' as *;
 
-.work-panel .home-slide__media {
-  min-height: clamp(18rem, 42vw, 32rem);
+.work-slide.home-slide {
+  flex-direction: column;
 }
 
-.work__media-frame {
+.work-slide .home-slide__content {
+  flex: 1 1 100%;
   width: 100%;
+}
+
+.work-slide .home-slide__header {
+  text-align: center;
+}
+
+.work {
+  width: 100%;
+  margin: 0;
+}
+
+.work__track {
+  width: 100%;
+  min-width: 0;
+}
+
+.work__track--scrub {
+  overflow-x: hidden;
+}
+
+.work__track:not(.work__track--scrub) {
+  overflow-x: auto;
+  overscroll-behavior-x: contain;
+}
+
+.work__strip {
+  display: flex;
+  flex-wrap: nowrap;
+  gap: clamp(1rem, 2.25vw, 1.65rem);
+  list-style: none;
+  margin: 0;
+  padding: 0 0 0.35rem;
+}
+
+.work__track:not(.work__track--scrub) .work__strip {
+  scroll-snap-type: x proximity;
+
+  &:focus-visible {
+    outline: 2px solid var(--home-accent);
+    outline-offset: 4px;
+    border-radius: 6px;
+  }
+}
+
+.work__track:not(.work__track--scrub) .work__cell {
+  scroll-snap-align: start;
+}
+
+.work__cell {
+  flex: 0 0 min(18.5rem, 86vw);
+  max-width: 22rem;
+  margin: 0;
+}
+
+.work__tile {
+  display: flex;
+  flex-direction: column;
+  gap: 0.75rem;
   height: 100%;
-  min-height: inherit;
+  color: inherit;
+  text-decoration: none;
+  text-align: left;
+  border-radius: 6px;
+  transition:
+    transform 0.24s $ease-out,
+    opacity 0.2s ease;
+}
+
+.work__tile:hover,
+.work__tile:focus-visible {
+  transform: translateY(-3px);
+}
+
+.work__tile:focus-visible {
+  outline: 2px solid var(--home-accent);
+  outline-offset: 4px;
+}
+
+.work__tile-frame {
+  margin: 0;
+  aspect-ratio: 4 / 5;
+  width: 100%;
   overflow: hidden;
   border-radius: 4px;
-  background: color-mix(in srgb, var(--home-fg) 8%, transparent);
   border: 1px solid var(--home-border);
+  background: color-mix(in srgb, var(--home-fg) 10%, transparent);
+  box-shadow: 0 12px 28px rgba(20, 18, 16, 0.1);
 }
 
-.work__media-image {
+.work__tile-frame img {
   display: block;
   width: 100%;
   height: 100%;
-  min-height: clamp(18rem, 42vw, 32rem);
   object-fit: cover;
   object-position: center;
 }
 
-.work {
+.work__tile-copy {
   display: flex;
   flex-direction: column;
-  gap: clamp(0.75rem, 2vw, 1.25rem);
+  gap: 0.35rem;
+  padding-inline: 0.1rem;
 }
 
-.work__list {
+.work__tile-title {
   margin: 0;
-  padding: 0;
-  list-style: none;
-}
-
-.work__item {
-  margin: 0;
-  padding: 0;
-}
-
-.work__link {
-  display: block;
-  width: 100%;
-  margin: 0;
-  padding: 0.28rem 0;
   font-family: 'Iowan Old Style', 'Times New Roman', serif;
-  font-size: clamp(1.5rem, 3.8vw, 2.75rem);
-  font-weight: 400;
-  font-style: normal;
-  font-synthesis: none;
-  line-height: 1.2;
-  letter-spacing: 0.01em;
-  text-decoration: none;
-  color: color-mix(in srgb, var(--home-fg) 42%, transparent);
-  transition: color 0.2s ease;
-}
-
-.work__item.is-active .work__link {
-  color: var(--home-fg);
+  font-size: clamp(1.05rem, 2vw, 1.35rem);
+  font-weight: 500;
   font-style: italic;
-}
-
-.work__item:not(.is-active) .work__link:hover,
-.work__item:not(.is-active) .work__link:focus-visible {
-  color: color-mix(in srgb, var(--home-fg) 72%, transparent);
-}
-
-.work__item.is-active .work__link:hover,
-.work__item.is-active .work__link:focus-visible {
+  line-height: 1.28;
   color: var(--home-fg);
-  font-style: italic;
 }
 
-.work__link:focus-visible {
-  outline: 2px solid var(--home-accent);
-  outline-offset: 2px;
-}
-
-.work__idle-hint {
+.work__tile-tagline {
   margin: 0;
-  max-width: 22rem;
   font-family: $font-writing-mono;
-  font-size: clamp(0.65rem, 1.1vw, 0.75rem);
-  line-height: 1.45;
-  color: var(--home-fg-muted);
-}
-
-.work__caption-dock {
-  overflow: hidden;
-  transition:
-    max-height 0.35s $ease-out,
-    opacity 0.3s ease,
-    margin 0.35s $ease-out;
-}
-
-.work__caption-dock:not(.is-idle) {
-  max-height: 12rem;
-  opacity: 1;
-}
-
-.work__caption-dock.is-idle {
-  max-height: 0;
-  opacity: 0;
-  pointer-events: none;
-}
-
-.work__dock-caption {
-  margin: 0;
-  max-width: 36rem;
-  font-family: $font-writing-mono;
-  font-size: clamp(0.68rem, 1.15vw, 0.78rem);
+  font-size: clamp(0.66rem, 1.05vw, 0.74rem);
   line-height: 1.55;
   color: var(--home-fg-muted);
+}
+
+@media (prefers-reduced-motion: reduce) {
+  .work__tile:hover,
+  .work__tile:focus-visible {
+    transform: none;
+  }
 }
 
 .project-card__link {
