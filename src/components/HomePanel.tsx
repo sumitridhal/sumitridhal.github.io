@@ -27,8 +27,8 @@ export function HomePanel({
 
   const style = hasBanner
     ? ({
-        '--home-section-banner': `url("${backgroundImage}")`,
-      } as CSSProperties)
+      '--home-section-banner': `url("${backgroundImage}")`,
+    } as CSSProperties)
     : undefined
 
   return (
