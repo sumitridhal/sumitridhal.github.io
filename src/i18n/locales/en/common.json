@@ -6,6 +6,10 @@
   "sections": {
     "hero": "Intro",
     "work": "Selected work",
+    "experiments": "Experiments",
+    "writings": "Writings",
+    "talks": "Talks",
+    "books": "Bookshelf",
     "aboutTeaser": "Profile"
   }
 }

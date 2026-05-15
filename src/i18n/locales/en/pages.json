@@ -1,5 +1,9 @@
 {
   "home": {
+    "experimentsHeading": "Experiments",
+    "experimentsLead": "Small motion studies and visual notes — shaders, layouts, and interface experiments.",
+    "experimentsEmpty": "Add entries in src/data/experimentsData.ts to show them here.",
+    "experimentsGridAria": "Experiments catalog grid",
     "aboutHeading": "About",
     "aboutLead": "Engineer and writer exploring ideas through software, notes, and experiments.",
     "heroAtmosphere": {
@@ -254,6 +258,7 @@
     "intro": "Engineer and writer exploring ideas through software, notes, and experiments. This site collects selected work and occasional long-form notes.",
     "exploreHeading": "Explore",
     "linkWork": "Work",
+    "linkExperiments": "Experiments",
     "linkWritings": "Writings",
     "linkAbout": "About",
     "tagline": "Open to interesting collaborations and mentoring conversations.",
