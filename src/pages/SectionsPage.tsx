@@ -10,6 +10,15 @@ const OA_HERO_LEFT_IMG =
 const OA_HERO_RIGHT_IMG =
   'https://objectandarchive.com/cdn/shop/files/monet_detail.png?v=1777132945&width=1000'
 
+const MOOD_PANEL_BG_IMG =
+  'https://objectandarchive.com/cdn/shop/files/bottom-banner2.jpg?v=1774725463&width=1500'
+
+const NICHE_PANEL_BG_IMG =
+  'https://objectandarchive.com/cdn/shop/files/firmament-banner.png?v=1775309298&width=1800'
+
+const NEWSLETTER_PANEL_BG_IMG =
+  'https://objectandarchive.com/cdn/shop/files/StillLifewithMeat_Fish_Vegetables_andFruit_c.1615_20.jpg?v=1778678205&width=1500'
+
 const INTERIOR_EXPLORE_IMG =
   'https://images.unsplash.com/photo-1615875479889-2fb72aed924c?auto=format&fit=crop&w=720&q=82'
 
@@ -133,49 +142,51 @@ export function SectionsPage() {
           className="sections-page__section sections-page__section--obsessions"
           aria-labelledby="sections-page-heading-2"
         >
-          <div className="obsessions">
-            <header className="obsessions__header">
-              <div className="obsessions__intro">
-                <h2 id="sections-page-heading-2" className="obsessions__title">
-                  {t('pages.sections.obsHeading')}
-                </h2>
-                <p className="obsessions__lead">{t('pages.sections.obsLead')}</p>
-              </div>
-              <a className="obsessions__cta" href="#section-2">
-                {t('pages.sections.obsCta')}
-              </a>
-            </header>
+          <div className="obsessions__scroll-shift">
+            <div className="obsessions">
+              <header className="obsessions__header">
+                <div className="obsessions__intro">
+                  <h2 id="sections-page-heading-2" className="obsessions__title">
+                    {t('pages.sections.obsHeading')}
+                  </h2>
+                  <p className="obsessions__lead">{t('pages.sections.obsLead')}</p>
+                </div>
+                <a className="obsessions__cta" href="#section-2">
+                  {t('pages.sections.obsCta')}
+                </a>
+              </header>
 
-            <ul className="obsessions__gallery">
-              {STYLE_PREVIEW_TILES.map((style, index) => {
-                const frame = OBS_FRAME_ROTATION[index % OBS_FRAME_ROTATION.length]
-                return (
-                  <li key={style.label} className="obsessions__tile">
-                    <figure className="obsessions__figure">
-                      <div className={`obs-frame obs-frame--${frame}`}>
-                        <div className="obs-frame__mat">
-                          <div className="obs-frame__img-wrap">
-                            <img
-                              className="obs-frame__img"
-                              src={style.image}
-                              alt=""
-                              loading="lazy"
-                              decoding="async"
-                              width={720}
-                              height={900}
-                            />
+              <ul className="obsessions__gallery">
+                {STYLE_PREVIEW_TILES.map((style, index) => {
+                  const frame = OBS_FRAME_ROTATION[index % OBS_FRAME_ROTATION.length]
+                  return (
+                    <li key={style.label} className="obsessions__tile">
+                      <figure className="obsessions__figure">
+                        <div className={`obs-frame obs-frame--${frame}`}>
+                          <div className="obs-frame__mat">
+                            <div className="obs-frame__img-wrap">
+                              <img
+                                className="obs-frame__img"
+                                src={style.image}
+                                alt=""
+                                loading="lazy"
+                                decoding="async"
+                                width={720}
+                                height={900}
+                              />
+                            </div>
                           </div>
                         </div>
-                      </div>
-                      <figcaption className="obsessions__caption">
-                        <span className="obsessions__work-title">{style.label}</span>
-                        <p className="obsessions__tile-caption">{style.caption}</p>
-                      </figcaption>
-                    </figure>
-                  </li>
-                )
-              })}
-            </ul>
+                        <figcaption className="obsessions__caption">
+                          <span className="obsessions__work-title">{style.label}</span>
+                          <p className="obsessions__tile-caption">{style.caption}</p>
+                        </figcaption>
+                      </figure>
+                    </li>
+                  )
+                })}
+              </ul>
+            </div>
           </div>
         </section>
 
@@ -185,6 +196,15 @@ export function SectionsPage() {
           aria-labelledby="sections-page-heading-3"
         >
           <div className="mood-panel">
+            <img
+              className="mood-panel__bg-img"
+              src={MOOD_PANEL_BG_IMG}
+              alt=""
+              decoding="async"
+              width={1500}
+              height={1000}
+              aria-hidden="true"
+            />
 
             <div className="mood-panel__layout">
               <div className="mood-panel__content">
@@ -251,6 +271,15 @@ export function SectionsPage() {
           aria-labelledby="sections-page-heading-5"
         >
           <div className="niche-panel">
+            <img
+              className="niche-panel__bg-img"
+              src={NICHE_PANEL_BG_IMG}
+              alt=""
+              decoding="async"
+              width={1800}
+              height={1000}
+              aria-hidden="true"
+            />
             <div className="niche-panel__scrim" aria-hidden="true" />
 
             <div className="niche-panel__layout">
@@ -333,6 +362,15 @@ export function SectionsPage() {
           aria-labelledby="sections-page-heading-7"
         >
           <div className="newsletter-panel">
+            <img
+              className="newsletter-panel__bg-img"
+              src={NEWSLETTER_PANEL_BG_IMG}
+              alt=""
+              decoding="async"
+              width={1500}
+              height={1000}
+              aria-hidden="true"
+            />
             <div className="newsletter-panel__backdrop" aria-hidden="true" />
 
             <div className="newsletter-panel__center">
