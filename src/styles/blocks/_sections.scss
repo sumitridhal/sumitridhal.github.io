@@ -54,7 +54,7 @@
   padding: 0;
   border: none;
   border-radius: 0;
-  background: transparent;
+  background: #f4efe6;
 }
 
 .sections-page__section--mood-movement {
@@ -377,15 +377,12 @@
   min-height: clamp(560px, 88vh, 940px);
   overflow: hidden;
   background-color: #9aa3ad;
-  background-image: url('https://objectandarchive.com/cdn/shop/files/firmament-banner.png?v=1775309298&width=1800');
-  background-size: cover;
-  background-position: center;
 }
 
 .niche-panel__scrim {
   position: absolute;
   inset: 0;
-  z-index: 0;
+  z-index: 1;
   pointer-events: none;
   background: linear-gradient(
     105deg,
@@ -397,7 +394,7 @@
 
 .niche-panel__layout {
   position: relative;
-  z-index: 1;
+  z-index: 2;
   display: grid;
   grid-template-columns: minmax(0, min(340px, 38vw)) minmax(0, 1fr);
   gap: clamp(1.75rem, 5vw, 4rem);
@@ -748,15 +745,12 @@
   min-height: clamp(640px, 88vh, 980px);
   overflow: hidden;
   background-color: #1c1510;
-  background-image: url('https://objectandarchive.com/cdn/shop/files/StillLifewithMeat_Fish_Vegetables_andFruit_c.1615_20.jpg?v=1778678205&width=1500');
-  background-size: cover;
-  background-position: center;
 }
 
 .newsletter-panel__backdrop {
   position: absolute;
   inset: 0;
-  z-index: 0;
+  z-index: 1;
   pointer-events: none;
   background: linear-gradient(
     180deg,
@@ -1148,6 +1142,10 @@
   }
 }
 
+.obsessions__scroll-shift {
+  width: 100%;
+}
+
 .obsessions {
   background: #f4efe6;
   color: #111;
@@ -1363,9 +1361,24 @@
   min-height: clamp(560px, 88vh, 920px);
   overflow: hidden;
   background-color: #e8bfb2;
-  background-image: url('https://objectandarchive.com/cdn/shop/files/bottom-banner2.jpg?v=1774725463&width=1500');
-  background-size: cover;
-  background-position: center;
+}
+
+.mood-panel__bg-img,
+.niche-panel__bg-img,
+.newsletter-panel__bg-img {
+  position: absolute;
+  inset: 0;
+  z-index: 0;
+  width: 100%;
+  height: 100%;
+  object-fit: cover;
+  object-position: center;
+  pointer-events: none;
+  margin-top: -8%;
+}
+
+.mood-panel__bg-img {
+  margin-top: -8.5%;
 }
 
 .mood-panel__corner {
