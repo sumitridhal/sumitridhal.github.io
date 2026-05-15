@@ -12,6 +12,7 @@ import { useI18n } from '@/contexts/I18nContext'
 import { homeExperiments } from '@/data/experimentsData'
 import { talks } from '@/data/talksData'
 import { writings } from '@/data/writingsData'
+import { useHomeLinkedHorizontalGalleryScroll } from '@/hooks/useHomeLinkedHorizontalGalleryScroll'
 import { useHomePanelReveal } from '@/hooks/useHomePanelReveal'
 import { useHomePanelTheme } from '@/hooks/useHomePanelTheme'
 import { usePrefersReducedMotion } from '@/hooks/usePrefersReducedMotion'
@@ -232,8 +233,26 @@ export function HomePage() {
   const { t } = useI18n()
   const heroSectionRef = useRef<HTMLElement>(null)
   const panelsRef = useRef<HTMLDivElement>(null)
+  const experimentsTrackRef = useRef<HTMLDivElement>(null)
+  const experimentsStripRef = useRef<HTMLUListElement>(null)
+  const workTrackRef = useRef<HTMLDivElement>(null)
+  const workStripRef = useRef<HTMLUListElement>(null)
+  const booksTrackRef = useRef<HTMLDivElement>(null)
+  const booksStripRef = useRef<HTMLDivElement>(null)
   const reducedMotion = usePrefersReducedMotion()
   const location = useLocation()
+  const linkedHorizontalGallery = !reducedMotion && homeExperiments.length > 0
+
+  useHomeLinkedHorizontalGalleryScroll({
+    rootRef: panelsRef,
+    experimentsTrackRef,
+    experimentsStripRef,
+    workTrackRef,
+    workStripRef,
+    booksTrackRef,
+    booksStripRef,
+    enabled: linkedHorizontalGallery,
+  })
 
   useHomePanelTheme({
     rootRef: panelsRef,
@@ -287,10 +306,18 @@ export function HomePage() {
         </div>
       </section>
 
-      <HomeExperimentsSection />
+      <HomeExperimentsSection
+        trackRef={experimentsTrackRef}
+        stripRef={experimentsStripRef}
+        scrubHorizontal={linkedHorizontalGallery}
+      />
 
       <HomePanel id="work" theme="work" className="work-panel" aria-labelledby="work-heading">
-        <HomeWorkSection />
+        <HomeWorkSection
+          trackRef={workTrackRef}
+          stripRef={workStripRef}
+          scrubHorizontal={linkedHorizontalGallery}
+        />
       </HomePanel>
 
       <HomePanel
@@ -344,7 +371,12 @@ export function HomePage() {
         </HomeSlideLayout>
       </HomePanel>
 
-      <HomeBookshelfSection books={bookshelf} />
+      <HomeBookshelfSection
+        books={bookshelf}
+        trackRef={booksTrackRef}
+        stripRef={booksStripRef}
+        scrubHorizontal={linkedHorizontalGallery}
+      />
     </div>
   )
 }
