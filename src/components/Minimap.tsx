@@ -5,7 +5,16 @@ import { useI18n } from '@/contexts/I18nContext'
 import { hrefHome } from '@/i18n/routes'
 import { useLenis } from '@/providers/LenisProvider'
 
-const SECTIONS = ['hero', 'work', 'about-teaser'] as const
+const SECTIONS = ['hero', 'experiments', 'work', 'writings', 'talks', 'books'] as const
+
+const SECTION_LABEL_KEYS: Record<(typeof SECTIONS)[number], string> = {
+  hero: 'common.sections.hero',
+  work: 'common.sections.work',
+  experiments: 'common.sections.experiments',
+  writings: 'common.sections.writings',
+  talks: 'common.sections.talks',
+  books: 'common.sections.books',
+}
 
 export function Minimap() {
   const { t } = useI18n()
@@ -47,12 +56,7 @@ export function Minimap() {
   return (
     <nav className="minimap" aria-label="Sections">
       {SECTIONS.map((id) => {
-        const labelKey =
-          id === 'hero'
-            ? 'common.sections.hero'
-            : id === 'work'
-              ? 'common.sections.work'
-              : 'common.sections.aboutTeaser'
+        const labelKey = SECTION_LABEL_KEYS[id]
         return (
           <button
             key={id}
