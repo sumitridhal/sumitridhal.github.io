@@ -42,6 +42,11 @@ export function SiteFooter() {
                 </Link>
               </li>
               <li>
+                <Link className="site-footer__link" to={{ pathname: hrefHome, hash: 'experiments' }}>
+                  {t('pages.footer.linkExperiments')}
+                </Link>
+              </li>
+              <li>
                 <Link className="site-footer__link" to={hrefWritings}>
                   {t('pages.footer.linkWritings')}
                 </Link>
@@ -76,6 +81,11 @@ export function SiteFooter() {
               <li>
                 <Link className="site-footer__nav-link" to={{ pathname: hrefHome, hash: 'work' }}>
                   {t('pages.footer.linkWork')}
+                </Link>
+              </li>
+              <li>
+                <Link className="site-footer__nav-link" to={{ pathname: hrefHome, hash: 'experiments' }}>
+                  {t('pages.footer.linkExperiments')}
                 </Link>
               </li>
               <li>
