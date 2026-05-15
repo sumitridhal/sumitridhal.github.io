@@ -11,7 +11,7 @@ const RESOURCES = [
   {
     label: 'Artist Index',
     caption:
-      "An alphabetical index of the artists in our collection. You can flip through their work and read a short bio for context. A way to understand the big picture of artists' worlds.",
+      "An alphabetical index of the artists in our collection. You can flip through their work and read a short bio. A way to understand the big picture of artists' worlds.",
     image:
       'https://objectandarchive.com/cdn/shop/files/kirchner-self-portrait.jpg?v=1775999782&width=1200',
   },
