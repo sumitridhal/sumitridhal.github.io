@@ -2376,11 +2376,16 @@
   color: rgba(232, 236, 244, 0.72);
 }
 
+.writing-oa-scroll__hero-stage {
+  height: 100%;
+}
+
 .writing-page__body .writing-oa-hero__stage {
   position: relative;
   width: 100%;
   aspect-ratio: 16 / 10;
   max-height: min(78vh, 38rem);
+  height: 100%;
   margin: 0 auto;
   border-radius: 10px;
   overflow: hidden;

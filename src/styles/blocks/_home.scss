@@ -166,11 +166,13 @@
 
 .zoom-hero__shell {
   padding: 0;
+  min-height: calc(100dvh);
 }
 
 .zoom-hero__panel-bg {
   position: relative;
   isolation: isolate;
+  min-height: calc(100dvh);
 }
 
 .zoom-hero {
