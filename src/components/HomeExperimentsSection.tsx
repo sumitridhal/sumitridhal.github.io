@@ -1,3 +1,4 @@
+import type { RefObject } from 'react'
 import { Link } from 'react-router-dom'
 
 import { HomePanel } from '@/components/HomePanel'
@@ -6,7 +7,18 @@ import { HOME_SECTION_BANNERS } from '@/data/homeSectionBanners'
 import { useI18n } from '@/contexts/I18nContext'
 import { homeExperiments } from '@/data/experimentsData'
 
-export function HomeExperimentsSection() {
+type HomeExperimentsSectionProps = {
+  trackRef?: RefObject<HTMLDivElement | null>
+  stripRef?: RefObject<HTMLUListElement | null>
+  /** Transform-driven strip (linked scroll timeline). Otherwise native horizontal scroll. */
+  scrubHorizontal?: boolean
+}
+
+export function HomeExperimentsSection({
+  trackRef,
+  stripRef,
+  scrubHorizontal = false,
+}: HomeExperimentsSectionProps) {
   const { t } = useI18n()
 
   return (
@@ -25,7 +37,16 @@ export function HomeExperimentsSection() {
         {homeExperiments.length === 0 ? (
           <p className="home-experiments__empty">{t('pages.home.experimentsEmpty')}</p>
         ) : (
-          <ul className="home-experiments__grid" role="list" aria-label={t('pages.home.experimentsGridAria')}>
+          <div
+            ref={trackRef}
+            className={`home-experiments__track${scrubHorizontal ? ' home-experiments__track--scrub' : ''}`}
+          >
+            <ul
+              ref={stripRef}
+              className="home-experiments__grid"
+              role="list"
+              aria-label={t('pages.home.experimentsGridAria')}
+            >
             {homeExperiments.map((item) => {
               const caption = (
                 <>
@@ -76,7 +97,8 @@ export function HomeExperimentsSection() {
                 </li>
               )
             })}
-          </ul>
+            </ul>
+          </div>
         )}
       </HomeSlideLayout>
     </HomePanel>

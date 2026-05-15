@@ -1,4 +1,4 @@
-import type { CSSProperties } from 'react'
+import type { CSSProperties, RefObject } from 'react'
 
 import { HomePanel } from '@/components/HomePanel'
 import { HomeSlideLayout } from '@/components/HomeSlideLayout'
@@ -26,9 +26,20 @@ function spineWidthFromPages(pages: number): string {
 
 type HomeBookshelfSectionProps = {
   books: BookItem[]
+  trackRef?: RefObject<HTMLDivElement | null>
+  stripRef?: RefObject<HTMLDivElement | null>
+  /** Transform-driven strip (linked scroll timeline). Otherwise native horizontal scroll. */
+  scrubHorizontal?: boolean
 }
 
-export function HomeBookshelfSection({ books }: HomeBookshelfSectionProps) {
+export function HomeBookshelfSection({
+  books,
+  trackRef,
+  stripRef,
+  scrubHorizontal = false,
+}: HomeBookshelfSectionProps) {
+  const nativeHorizontalScroll = !scrubHorizontal
+
   return (
     <HomePanel
       id="books"
@@ -38,7 +49,17 @@ export function HomeBookshelfSection({ books }: HomeBookshelfSectionProps) {
       aria-labelledby="books-heading"
     >
       <HomeSlideLayout titleId="books-heading" title="Bookshelf">
-        <div className="bookshelf__grid" role="list">
+        <div
+          ref={trackRef}
+          className={`bookshelf__track${scrubHorizontal ? ' bookshelf__track--scrub' : ''}`}
+        >
+          <div
+            ref={stripRef}
+            className="bookshelf__grid"
+            role="list"
+            tabIndex={nativeHorizontalScroll ? 0 : -1}
+            aria-labelledby="books-heading"
+          >
           {books.map((book) => (
             <article
               key={book.id}
@@ -63,6 +84,7 @@ export function HomeBookshelfSection({ books }: HomeBookshelfSectionProps) {
               </div>
             </article>
           ))}
+          </div>
         </div>
       </HomeSlideLayout>
     </HomePanel>
