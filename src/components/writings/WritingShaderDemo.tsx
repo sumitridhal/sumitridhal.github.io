@@ -53,10 +53,10 @@ type MosaicUniformCpuRef = {
 
 const MOSAIC_CELL_RNG_OPTIONS = [
   { value: 0, label: 'Sin · dot (classic)' },
-  { value: 1, label: 'Fract permute' },
-  { value: 2, label: 'Interleaved gradient' },
-  { value: 3, label: 'Hash product' },
-  { value: 4, label: 'Double sin' },
+  { value: 1, label: 'Simplex 2D' },
+  { value: 2, label: 'Perlin gradient 2D' },
+  { value: 3, label: 'Fract permute' },
+  { value: 4, label: 'Hash product' },
 ] as const
 
 function usePrefersReducedMotion(): boolean {
