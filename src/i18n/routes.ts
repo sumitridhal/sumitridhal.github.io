@@ -4,6 +4,8 @@ export const hrefHome = '/'
 
 export const hrefAbout = '/about'
 
+export const hrefSections = '/sections'
+
 export const hrefWritings = '/writing'
 
 export function hrefWork(projectSlug: string): string {
