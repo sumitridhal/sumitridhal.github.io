@@ -34,6 +34,9 @@ export function HomeExperimentsSection({
         title={t('pages.home.experimentsHeading')}
         lead={t('pages.home.experimentsLead')}
       >
+        <p className="home-experiments__note" data-home-reveal>
+          {t('pages.home.experimentsStripNote')}
+        </p>
         {homeExperiments.length === 0 ? (
           <p className="home-experiments__empty">{t('pages.home.experimentsEmpty')}</p>
         ) : (
