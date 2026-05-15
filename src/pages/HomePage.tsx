@@ -1,22 +1,21 @@
-import {
-  useEffect,
-  useRef,
-  useState,
-  type CSSProperties,
-  type MouseEvent,
-} from 'react'
-import LocomotiveScroll from 'locomotive-scroll'
+import { useEffect, useRef } from 'react'
 import { Link, useLocation } from 'react-router-dom'
-import 'locomotive-scroll/dist/locomotive-scroll.css'
 
 import { HeroAtmosphere } from '@/components/HeroAtmosphere'
+import { HomeBookshelfSection } from '@/components/HomeBookshelfSection'
+import { HomeExperimentsSection } from '@/components/HomeExperimentsSection'
+import { HOME_BANNER_URLS, HOME_SECTION_BANNERS } from '@/data/homeSectionBanners'
+import { HomePanel } from '@/components/HomePanel'
+import { HomeSlideLayout } from '@/components/HomeSlideLayout'
+import { HomeWorkSection } from '@/components/HomeWorkSection'
 import { useI18n } from '@/contexts/I18nContext'
-import { projects } from '@/data/projectsData'
+import { homeExperiments } from '@/data/experimentsData'
 import { talks } from '@/data/talksData'
 import { writings } from '@/data/writingsData'
-import { hrefAbout, hrefWork, hrefWriting, hrefWritings } from '@/i18n/routes'
+import { useHomePanelReveal } from '@/hooks/useHomePanelReveal'
+import { useHomePanelTheme } from '@/hooks/useHomePanelTheme'
 import { usePrefersReducedMotion } from '@/hooks/usePrefersReducedMotion'
-import { useLenis } from '@/providers/LenisProvider'
+import { hrefWriting, hrefWritings } from '@/i18n/routes'
 import { lenisService } from '@/services/lenisService'
 import { formatWritingDate } from '@/utils/formatWritingDate'
 import { preloadImages } from '@/utils/imagePreloadCache'
@@ -29,20 +28,8 @@ type BookItem = {
   author: string
   spineColor: string
   textColor: string
-  /** Representative print page count — drives spine thickness. */
   pages: number
   coverSrc?: string
-}
-
-/** Linear map from page count to spine width (thin books narrower, bricks wider). */
-function spineWidthFromPages(pages: number): string {
-  const minPages = 80
-  const maxPages = 1200
-  const minW = 50
-  const maxW = 100
-  const clamped = Math.min(maxPages, Math.max(minPages, pages))
-  const t = (clamped - minPages) / (maxPages - minPages)
-  return `${Math.round(minW + t * (maxW - minW))}px`
 }
 
 const bookshelf: BookItem[] = [
@@ -233,32 +220,41 @@ const bookshelf: BookItem[] = [
   },
 ]
 
+const HASH_SECTION_IDS: Record<string, string> = {
+  '#work': 'work',
+  '#experiments': 'experiments',
+  '#writings': 'writings',
+  '#talks': 'talks',
+  '#books': 'books',
+}
+
 export function HomePage() {
   const { t } = useI18n()
   const heroSectionRef = useRef<HTMLElement>(null)
-  const reducedHero = usePrefersReducedMotion()
+  const panelsRef = useRef<HTMLDivElement>(null)
+  const reducedMotion = usePrefersReducedMotion()
   const location = useLocation()
-  const lenis = useLenis()
-  const [activeWorkId, setActiveWorkId] = useState<string | null>(null)
-  const [previewOffset, setPreviewOffset] = useState({ x: 0, y: 0 })
-  const booksViewportRef = useRef<HTMLDivElement | null>(null)
-  const booksTrackRef = useRef<HTMLDivElement | null>(null)
-  const books = bookshelf
+
+  useHomePanelTheme({
+    rootRef: panelsRef,
+    reducedMotion,
+  })
+
+  useHomePanelReveal({
+    rootRef: panelsRef,
+    reducedMotion,
+  })
 
   useEffect(() => {
-    void preloadImages(projects.map((p) => p.coverSrc))
+    const images = [
+      ...homeExperiments.map((e) => e.mediaSrc).filter(Boolean),
+      ...HOME_BANNER_URLS,
+    ]
+    if (images.length) void preloadImages(images)
   }, [])
 
   useEffect(() => {
-    const hash = location.hash
-    const sectionId =
-      hash === '#work'
-        ? 'work'
-        : hash === '#writings'
-          ? 'writings'
-          : hash === '#talks'
-            ? 'talks'
-            : null
+    const sectionId = HASH_SECTION_IDS[location.hash]
     if (!sectionId) return
     const el = document.getElementById(sectionId)
     if (!el) return
@@ -269,234 +265,86 @@ export function HomePage() {
     return () => cancelAnimationFrame(id)
   }, [location.hash])
 
-  const handleWorkMouseMove = (event: MouseEvent<HTMLDivElement>) => {
-    if (!activeWorkId) return
-    const rect = event.currentTarget.getBoundingClientRect()
-    if (!rect.width || !rect.height) return
-    const normalizedX = (event.clientX - rect.left) / rect.width - 0.5
-    const normalizedY = (event.clientY - rect.top) / rect.height - 0.5
-    setPreviewOffset({
-      x: normalizedX * 18,
-      y: normalizedY * 14,
-    })
-  }
-
-  const handleWorkMouseLeave = () => {
-    setActiveWorkId(null)
-    setPreviewOffset({ x: 0, y: 0 })
-  }
-
-  useEffect(() => {
-    const viewport = booksViewportRef.current
-    const track = booksTrackRef.current
-    if (!viewport || !track) return
-
-    if (window.matchMedia('(prefers-reduced-motion: reduce)').matches) {
-      return
-    }
-
-    const scroll = new LocomotiveScroll({
-      lenisOptions: {
-        wrapper: viewport,
-        content: track,
-        orientation: 'horizontal',
-        gestureOrientation: 'both',
-        smoothWheel: true,
-        wheelMultiplier: 0.75,
-        lerp: 0.08,
-      },
-    })
-
-    const horizontalLenis = scroll.lenisInstance
-    const pausePageScroll = () => lenis?.stop()
-    const resumePageScroll = () => lenis?.start()
-    const onWheel = (event: WheelEvent) => event.stopPropagation()
-    const onKeyDown = (event: KeyboardEvent) => {
-      if (!horizontalLenis) return
-      const step = Math.max(180, viewport.clientWidth * 0.45)
-      if (event.key === 'ArrowRight' || event.key === 'PageDown') {
-        event.preventDefault()
-        horizontalLenis.scrollTo(horizontalLenis.scroll + step, {
-          duration: 0.9,
-        })
-      } else if (event.key === 'ArrowLeft' || event.key === 'PageUp') {
-        event.preventDefault()
-        horizontalLenis.scrollTo(horizontalLenis.scroll - step, {
-          duration: 0.9,
-        })
-      }
-    }
-
-    const resizeObserver = new ResizeObserver(() => scroll.resize())
-    resizeObserver.observe(track)
-    viewport.addEventListener('wheel', onWheel, { passive: true })
-    viewport.addEventListener('keydown', onKeyDown)
-    viewport.addEventListener('mouseenter', pausePageScroll)
-    viewport.addEventListener('mouseleave', resumePageScroll)
-    viewport.addEventListener('focusin', pausePageScroll)
-    viewport.addEventListener('focusout', resumePageScroll)
-
-    return () => {
-      resizeObserver.disconnect()
-      viewport.removeEventListener('wheel', onWheel)
-      viewport.removeEventListener('keydown', onKeyDown)
-      viewport.removeEventListener('mouseenter', pausePageScroll)
-      viewport.removeEventListener('mouseleave', resumePageScroll)
-      viewport.removeEventListener('focusin', pausePageScroll)
-      viewport.removeEventListener('focusout', resumePageScroll)
-      scroll.destroy()
-      lenis?.start()
-    }
-  }, [lenis])
-
   return (
-    <>
+    <div ref={panelsRef} className="home-panels">
       <section
         ref={heroSectionRef}
         id="hero"
-        className={`zoom-hero zoom-hero--kinetic${reducedHero ? ' zoom-hero--reduced' : ''}`}
+        data-home-panel
+        data-home-theme="hero"
+        className={`home-section home-section--hero zoom-hero zoom-hero--kinetic${reducedMotion ? ' zoom-hero--reduced' : ''}`}
         aria-labelledby="hero-heading"
       >
-        <HeroAtmosphere
-          sectionRef={heroSectionRef}
-          reducedMotion={reducedHero}
-        >
-          <h1 id="hero-heading" className="zoom-hero__heading-sr-only">
-            Sumit Ridhal
-          </h1>
-        </HeroAtmosphere>
-
-        <div className="zoom-hero__veil" aria-hidden />
-      </section>
-
-      <section id="work" className="work">
-        <h2 className="work__heading">Selected projects</h2>
-        <div className="work__layout">
-          <div
-            className="work__list"
-            role="list"
-            onMouseMove={handleWorkMouseMove}
-            onMouseLeave={handleWorkMouseLeave}
-          >
-            {projects.map((project) => {
-              const isActive = activeWorkId === project.id
-
-              return (
-                <Link
-                  key={project.id}
-                  to={hrefWork(project.slug)}
-                  className={`work__row${isActive ? ' work__row--active' : ''}`}
-                  role="listitem"
-                  onMouseEnter={() => setActiveWorkId(project.id)}
-                  onFocus={() => setActiveWorkId(project.id)}
-                >
-                  <h3 className="work__title">{project.title}</h3>
-                  <p className="work__meta">{project.tagline}</p>
-                </Link>
-              )
-            })}
+        <div className="home-section__inner zoom-hero__shell">
+          <div className="zoom-hero__panel-bg">
+            <HeroAtmosphere sectionRef={heroSectionRef} reducedMotion={reducedMotion}>
+              <h1 id="hero-heading" className="zoom-hero__heading-sr-only">
+                Sumit Ridhal
+              </h1>
+            </HeroAtmosphere>
+            <div className="zoom-hero__veil" aria-hidden />
           </div>
-          <aside
-            className={`work__preview${activeWorkId ? ' work__preview--visible' : ''}`}
-            aria-hidden="true"
-            style={
-              {
-                '--preview-x': `${previewOffset.x}px`,
-                '--preview-y': `${previewOffset.y}px`,
-              } as CSSProperties
-            }
-          >
-            {projects.map((project) => (
-              <img
-                key={project.id}
-                src={project.coverSrc}
-                alt=""
-                className={`work__preview-image${activeWorkId === project.id ? ' work__preview-image--active' : ''}`}
-              />
-            ))}
-          </aside>
         </div>
       </section>
 
-      <section id="writings" className="home-listing">
-        <h2 className="home-listing__heading">Writings</h2>
-        <div className="home-listing__rows" role="list">
-          {writings.slice(0, HOME_WRITINGS_PREVIEW_COUNT).map((item) => (
-            <Link
-              key={item.id}
-              to={hrefWriting(item.id)}
-              className="home-listing__row"
-              role="listitem"
-            >
-              <p className="home-listing__title">{item.title}</p>
-              <p className="home-listing__date">{formatWritingDate(item.date)}</p>
-              <span className="home-listing__tag">{item.category}</span>
-            </Link>
-          ))}
-        </div>
-        <Link className="home-listing__view-all" to={hrefWritings}>
-          {t('pages.writing.viewAllHome')}
-        </Link>
-      </section>
+      <HomeExperimentsSection />
 
-      <section id="talks" className="home-listing">
-        <h2 className="home-listing__heading">Talks</h2>
-        <div className="home-listing__rows" role="list">
-          {talks.map((item) => (
-            <a
-              key={item.id}
-              href={item.href}
-              className="home-listing__row"
-              role="listitem"
-              target="_blank"
-              rel="noopener noreferrer"
-            >
-              <p className="home-listing__title">{item.title}</p>
-              <p className="home-listing__date">{formatWritingDate(item.date)}</p>
-              <span className="home-listing__tag">{item.tag}</span>
-            </a>
-          ))}
-        </div>
-      </section>
+      <HomePanel id="work" theme="work" className="work-panel" aria-labelledby="work-heading">
+        <HomeWorkSection />
+      </HomePanel>
 
-      <section id="books" className="bookshelf">
-        <h2 className="bookshelf__heading">Bookshelf</h2>
-        <div className="bookshelf__viewport" ref={booksViewportRef} tabIndex={0}>
-          <div className="bookshelf__track" ref={booksTrackRef} role="list">
-            {books.map((book) => (
-              <article
-                key={book.id}
-                className="bookshelf__book"
+      <HomePanel
+        id="writings"
+        theme="writings"
+        className="home-listing"
+        backgroundImage={HOME_SECTION_BANNERS.writings}
+        aria-labelledby="writings-heading"
+      >
+        <HomeSlideLayout titleId="writings-heading" title="Writings">
+          <div className="home-listing__rows" role="list">
+            {writings.slice(0, HOME_WRITINGS_PREVIEW_COUNT).map((item) => (
+              <Link
+                key={item.id}
+                to={hrefWriting(item.id)}
+                className="home-listing__row"
+                data-home-reveal
                 role="listitem"
-                aria-label={`${book.title}, ${book.author}, ${book.pages} pages`}
-                style={
-                  {
-                    '--book-width': spineWidthFromPages(book.pages),
-                    '--book-spine-color': book.spineColor,
-                    '--book-text-color': book.textColor,
-                  } as CSSProperties
-                }
               >
-                <span className="bookshelf__badge" aria-hidden="true">
-                  {book.author}
-                </span>
-                <div className="bookshelf__spine">
-                  <p className="bookshelf__title">{book.title}</p>
-                  <p className="bookshelf__author">{book.author}</p>
-                </div>
-              </article>
+                <p className="home-listing__title">{item.title}</p>
+                <p className="home-listing__date">{formatWritingDate(item.date)}</p>
+                <span className="home-listing__tag">{item.category}</span>
+              </Link>
             ))}
           </div>
-        </div>
-      </section>
+          <Link className="home-listing__view-all" to={hrefWritings} data-home-reveal>
+            {t('pages.writing.viewAllHome')}
+          </Link>
+        </HomeSlideLayout>
+      </HomePanel>
 
-      <section id="about-teaser" className="home-about-teaser">
-        <h2 className="home-about-teaser__title">{t('pages.home.aboutHeading')}</h2>
-        <p className="home-about-teaser__lead">{t('pages.home.aboutLead')}</p>
-        <Link className="home-about-teaser__link" to={hrefAbout}>
-          {t('nav.about')}
-        </Link>
-      </section>
-    </>
+      <HomePanel id="talks" theme="talks" className="home-listing" aria-labelledby="talks-heading">
+        <HomeSlideLayout titleId="talks-heading" title="Talks">
+          <div className="home-listing__rows" role="list">
+            {talks.map((item) => (
+              <a
+                key={item.id}
+                href={item.href}
+                className="home-listing__row"
+                data-home-reveal
+                role="listitem"
+                target="_blank"
+                rel="noopener noreferrer"
+              >
+                <p className="home-listing__title">{item.title}</p>
+                <p className="home-listing__date">{formatWritingDate(item.date)}</p>
+                <span className="home-listing__tag">{item.tag}</span>
+              </a>
+            ))}
+          </div>
+        </HomeSlideLayout>
+      </HomePanel>
+
+      <HomeBookshelfSection books={bookshelf} />
+    </div>
   )
 }
