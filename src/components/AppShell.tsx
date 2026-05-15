@@ -1,12 +1,14 @@
 import { useEffect, useMemo } from 'react'
-import { Outlet, useLocation } from 'react-router-dom'
+import { Outlet, useLocation, useMatch } from 'react-router-dom'
 
 import { MobileMenu } from '@/components/MobileMenu'
 import { SiteFooter } from '@/components/SiteFooter'
 import { SiteHeader } from '@/components/SiteHeader'
+import { hrefHome } from '@/i18n/routes'
 
 export function AppShell() {
   const location = useLocation()
+  const isHome = useMatch({ path: hrefHome, end: true })
 
   const isWritingRoute = useMemo(() => {
     const parts = location.pathname.split('/').filter(Boolean)
@@ -14,11 +16,11 @@ export function AppShell() {
   }, [location.pathname])
 
   useEffect(() => {
-    document.body.classList.add('home-theme')
+    document.body.classList.toggle('home-theme', Boolean(isHome))
     return () => {
       document.body.classList.remove('home-theme')
     }
-  }, [])
+  }, [isHome])
 
   useEffect(() => {
     if (!isWritingRoute) return
@@ -35,7 +37,7 @@ export function AppShell() {
         <main className="app__main">
           <Outlet />
         </main>
-        <SiteFooter />
+        {!isHome ? <SiteFooter /> : null}
       </div>
       <MobileMenu />
     </div>
