@@ -12,7 +12,7 @@ import { useI18n } from '@/contexts/I18nContext'
 import { homeExperiments } from '@/data/experimentsData'
 import { talks } from '@/data/talksData'
 import { writings } from '@/data/writingsData'
-import { useHomeLinkedHorizontalGalleryScroll } from '@/hooks/useHomeLinkedHorizontalGalleryScroll'
+import { useHomeStripScroll } from '@/hooks/useHomeStripScroll'
 import { useHomePanelReveal } from '@/hooks/useHomePanelReveal'
 import { useHomePanelTheme } from '@/hooks/useHomePanelTheme'
 import { usePrefersReducedMotion } from '@/hooks/usePrefersReducedMotion'
@@ -243,7 +243,7 @@ export function HomePage() {
   const location = useLocation()
   const linkedHorizontalGallery = !reducedMotion && homeExperiments.length > 0
 
-  useHomeLinkedHorizontalGalleryScroll({
+  useHomeStripScroll({
     rootRef: panelsRef,
     experimentsTrackRef,
     experimentsStripRef,
