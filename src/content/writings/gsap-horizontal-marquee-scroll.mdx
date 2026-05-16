@@ -1,19 +1,19 @@
-import { WritingGsapHorizontalMarqueePreviewLazy } from '@/components/writings/WritingGsapHorizontalMarqueePreviewLazy'
+import { WritingGsapHorizontalMarqueePreviewLazy } from "@/components/writings/WritingGsapHorizontalMarqueePreviewLazy";
 
 export const writingMeta = {
-  id: 'gsap-horizontal-marquee-scroll',
+  id: "gsap-horizontal-marquee-scroll",
   order: -2.3,
-  title: 'GSAP horizontal marquee: duplicated strips and linear loops',
-  date: '2025-04-16',
-  category: 'UI',
+  title: "GSAP horizontal marquee: duplicated strips and linear loops",
+  date: "2025-04-16",
+  category: "UI",
   excerpt:
-    'Build hero bands like three offset ticker rows: clip overflow, clone the content once, then tween translateX by exactly half the inner width so the loop never hiccups.',
-  titleLines: ['GSAP horizontal marquee', 'duplicated strips, linear loops'],
+    "Build hero bands like three offset ticker rows: clip overflow, clone the content once, then tween translateX by exactly half the inner width so the loop never hiccups.",
+  titleLines: ["GSAP horizontal marquee", "duplicated strips, linear loops"],
   asideParagraphs: [
-    'If copy comes from a CMS, render the same array twice in the DOM (or once plus a template clone) and keep the second block `aria-hidden` so screen readers do not hear the duplicate.',
-    'When scroll position should drive speed, swap the infinite tween for `ScrollTrigger` scrubbing on the same translate range; the half-width seam math stays identical.',
+    "If copy comes from a CMS, render the same array twice in the DOM (or once plus a template clone) and keep the second block `aria-hidden` so screen readers do not hear the duplicate.",
+    "When scroll position should drive speed, swap the infinite tween for `ScrollTrigger` scrubbing on the same translate range; the half-width seam math stays identical.",
   ],
-}
+};
 
 Three parallel ticker rows on a flat field—white lowercase type, small circular portraits, sometimes a hairline divider—read as **one motion system**, not three independent sliders. The trick is mechanical: each row is a viewport with `overflow: hidden`, and the moving layer is **exactly two copies** of the same horizontal strip. When the strip has translated by half of its own scroll width, the second copy lines up where the first started, so you can repeat forever with `ease: 'none'` and no visible jump.
 
@@ -28,8 +28,12 @@ The live embed above uses the **#1C51BE** field, headline stack (**Avenir**, **P
 3. **Tween** — animate the track’s `x` (transform) from `0` to `-half` where `half = track.scrollWidth / 2`. GSAP’s `repeat: -1` rewinds the tween to the start values each cycle, which lands on the same pixel alignment as long as both groups match.
 
 ```ts
-const half = track.scrollWidth / 2
-gsap.fromTo(track, { x: 0 }, { x: -half, duration: 24, ease: 'none', repeat: -1 })
+const half = track.scrollWidth / 2;
+gsap.fromTo(
+  track,
+  { x: 0 },
+  { x: -half, duration: 24, ease: "none", repeat: -1 },
+);
 ```
 
 ## Opposite directions
@@ -37,7 +41,11 @@ gsap.fromTo(track, { x: 0 }, { x: -half, duration: 24, ease: 'none', repeat: -1 
 To make the middle row drift the other way, start from the aligned “second copy” pose and tween back toward `0`:
 
 ```ts
-gsap.fromTo(track, { x: -half }, { x: 0, duration: 32, ease: 'none', repeat: -1 })
+gsap.fromTo(
+  track,
+  { x: -half },
+  { x: 0, duration: 32, ease: "none", repeat: -1 },
+);
 ```
 
 Visually the glyphs slide the opposite direction while the seam logic is unchanged.
@@ -56,4 +64,4 @@ The preview is lazy-loaded so listing routes do not pay for GSAP until you open 
 
 - **Half-width loop invariant** — measure once per layout pass; if fonts or copy change, `invalidateOnRefresh` on a `ScrollTrigger` wrapper (or a `ResizeObserver` that re-measures) keeps the seam tight.
 - **Linear infinite tweens** — reserve easing for one-shot entrances; marquees stay `ease: 'none'`.
-- **Row independence** — duplicate *per row* if the sequences differ (as in the preview); do not share one global strip unless every row’s content matches.
+- **Row independence** — duplicate _per row_ if the sequences differ (as in the preview); do not share one global strip unless every row’s content matches.

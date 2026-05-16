@@ -1,19 +1,19 @@
-import { WritingShaderDemo } from '@/components/writings/WritingShaderDemo'
+import { WritingShaderDemo } from "@/components/writings/WritingShaderDemo";
 
 export const writingMeta = {
-  id: 'palette-mosaic-tiles-shader',
+  id: "palette-mosaic-tiles-shader",
   order: 0,
-  title: 'Palette mosaic from a fragment shader',
-  date: '2025-05-14',
-  category: 'Creative code',
+  title: "Palette mosaic from a fragment shader",
+  date: "2025-05-14",
+  category: "Creative code",
   excerpt:
-    'Turn the screen into a grid of square tiles, pick a colour per cell from a small palette using a deterministic hash, then break up flat fills with high-frequency grain—all in one fullscreen fragment pass.',
-  titleLines: ['Palette mosaic', 'from a fragment shader'],
+    "Turn the screen into a grid of square tiles, pick a colour per cell from a small palette using a deterministic hash, then break up flat fills with high-frequency grain—all in one fullscreen fragment pass.",
+  titleLines: ["Palette mosaic", "from a fragment shader"],
   asideParagraphs: [
-    'A hash over integer cell coordinates is not cryptographic randomness; it is a repeatable PRNG keyed by the cell so the same seed always reproduces the same mosaic.',
-    'If you divide `v_uv` alone, rectangles stay square only on square viewports. Scale by resolution so one axis matches pixel height, then count cells the same way in x and y.',
+    "A hash over integer cell coordinates is not cryptographic randomness; it is a repeatable PRNG keyed by the cell so the same seed always reproduces the same mosaic.",
+    "If you divide `v_uv` alone, rectangles stay square only on square viewports. Scale by resolution so one axis matches pixel height, then count cells the same way in x and y.",
   ],
-}
+};
 
 A **fullscreen triangle** (or quad) gives every pixel a pair of coordinates. Treat those coordinates as lying on a checkerboard: each **cell** gets one index into a short list of colours. The pattern looks random because the index comes from a **hash** of the cell id, but it is fully **deterministic**: the same inputs yield the same tile, which is what you want for art direction, thumbnails, and reproducible demos.
 
