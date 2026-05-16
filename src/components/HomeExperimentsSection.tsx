@@ -5,6 +5,7 @@ import { HomePanel } from '@/components/HomePanel'
 import { HomeSlideLayout } from '@/components/HomeSlideLayout'
 import { useI18n } from '@/contexts/I18nContext'
 import { homeExperiments } from '@/data/experimentsData'
+import { HOME_SECTION_BANNERS } from '@/data/homeSectionBanners'
 
 type HomeExperimentsSectionProps = {
   trackRef?: RefObject<HTMLDivElement | null>
@@ -25,6 +26,7 @@ export function HomeExperimentsSection({
       id="experiments"
       theme="experiments"
       className="home-experiments"
+      backgroundImage={HOME_SECTION_BANNERS.experiments}
       aria-labelledby="experiments-heading"
     >
       <HomeSlideLayout
@@ -33,9 +35,6 @@ export function HomeExperimentsSection({
         lead={t('pages.home.experimentsLead')}
       >
         <div className="home-experiments__scroll-shift">
-          <p className="home-experiments__note" data-home-reveal>
-            {t('pages.home.experimentsStripNote')}
-          </p>
           {homeExperiments.length === 0 ? (
             <p className="home-experiments__empty">{t('pages.home.experimentsEmpty')}</p>
           ) : (
