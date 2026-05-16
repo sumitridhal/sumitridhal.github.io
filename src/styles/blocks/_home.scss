@@ -502,16 +502,6 @@
   color: var(--home-fg-muted);
 }
 
-.home-experiments__note {
-  margin: 0 0 clamp(0.75rem, 2vw, 1.1rem);
-  max-width: 34rem;
-  font-family: $font-writing-mono;
-  font-size: clamp(0.7rem, 1.05vw, 0.8rem);
-  line-height: 1.55;
-  letter-spacing: 0.03em;
-  color: color-mix(in srgb, var(--home-fg-muted) 92%, var(--home-accent));
-}
-
 .home-experiments__track {
   width: 100%;
   min-width: 0;
