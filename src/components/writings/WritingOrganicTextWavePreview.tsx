@@ -41,7 +41,7 @@ export type WritingOrganicTextWavePreviewProps = {
 export function WritingOrganicTextWavePreview({
   caption = 'Two rails: left translates up, right down; sin vs cos on translateX.',
   className = '',
-  amplitudePx = 12,
+  amplitudePx = 14,
   autoScrollPxPerSec = 22,
 }: WritingOrganicTextWavePreviewProps) {
   const reduced = useWritingPreviewReducedMotion()
