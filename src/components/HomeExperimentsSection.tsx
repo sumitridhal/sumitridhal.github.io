@@ -3,7 +3,6 @@ import { Link } from 'react-router-dom'
 
 import { HomePanel } from '@/components/HomePanel'
 import { HomeSlideLayout } from '@/components/HomeSlideLayout'
-import { HOME_SECTION_BANNERS } from '@/data/homeSectionBanners'
 import { useI18n } from '@/contexts/I18nContext'
 import { homeExperiments } from '@/data/experimentsData'
 
@@ -26,7 +25,6 @@ export function HomeExperimentsSection({
       id="experiments"
       theme="experiments"
       className="home-experiments"
-      backgroundImage={HOME_SECTION_BANNERS.experiments}
       aria-labelledby="experiments-heading"
     >
       <HomeSlideLayout
