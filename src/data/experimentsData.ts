@@ -1,74 +1,109 @@
 /**
- * Square (1:1) stills for the home “Experiments” catalog strip.
+ * Square (1:1) GIFs for the home “Experiments” catalog strip.
  */
 export type HomeExperiment = {
   id: string
   title: string
   mediaSrc: string
   alt: string
-  /** Shown as a second mono line (e.g. “ALUMINUM”, “WHITE”). */
+  /** Shown as a second mono line (e.g. “GSAP”, “SHADER”). */
   tag?: string
   /** Optional link — e.g. a related writing or demo repo. */
   href?: string
 }
 
-const FRAMER_BASE = 'https://framerusercontent.com/images'
+const MEDIA = '/media/experiments'
 
 export const homeExperiments: HomeExperiment[] = [
   {
-    id: 'cm-15-aluminum',
-    title: 'CM-15',
-    tag: 'ALUMINUM',
-    mediaSrc: `${FRAMER_BASE}/Xfva43ze3HHzHf20xwAkRLO5GA.webp?scale-down-to=2048&width=4096&height=4096`,
-    alt: 'CM-15 ALUMINUM product study',
+    id: 'gsap-1',
+    title: 'GSAP Study 1',
+    tag: 'GSAP',
+    mediaSrc: `${MEDIA}/gsap-1.gif`,
+    alt: 'GSAP motion study 1',
   },
   {
-    id: 'tx-6-aluminum',
-    title: 'TX-6',
-    tag: 'ALUMINUM',
-    mediaSrc: `${FRAMER_BASE}/xTNCf2p2zoCDWpZ1NxcyldQ0Ml8.webp?scale-down-to=2048&width=4096&height=4096`,
-    alt: 'TX-6 ALUMINUM product study',
+    id: 'gsap-2',
+    title: 'GSAP Study 2',
+    tag: 'GSAP',
+    mediaSrc: `${MEDIA}/gsap-2.gif`,
+    alt: 'GSAP motion study 2',
   },
   {
-    id: 'ob-4-white',
-    title: 'OB-4',
-    tag: 'WHITE',
-    mediaSrc: `${FRAMER_BASE}/UtCWlH6iWI2bYxwvhuwOG9VEChw.webp?scale-down-to=2048&width=4096&height=4096`,
-    alt: 'OB-4 WHITE product study',
+    id: 'gsap-3',
+    title: 'GSAP Study 3',
+    tag: 'GSAP',
+    mediaSrc: `${MEDIA}/gsap-3.gif`,
+    alt: 'GSAP motion study 3',
   },
   {
-    id: 'cm-15-black',
-    title: 'CM-15',
-    tag: 'BLACK',
-    mediaSrc: `${FRAMER_BASE}/wnMcsvCQwbGe4EwRuYvFCH7Do.webp?scale-down-to=2048&width=4096&height=4096`,
-    alt: 'CM-15 BLACK product study',
+    id: 'motion-path',
+    title: 'Motion Path',
+    tag: 'GSAP',
+    mediaSrc: `${MEDIA}/motion-path.gif`,
+    alt: 'Motion along SVG paths',
   },
   {
-    id: 'tx-6-black',
-    title: 'TX-6',
-    tag: 'BLACK',
-    mediaSrc: `${FRAMER_BASE}/rzbvprj9ituawGOofkrgK9K5Y.webp?scale-down-to=2048&width=4096&height=4096`,
-    alt: 'TX-6 BLACK product study',
+    id: 'reveal',
+    title: 'Reveal',
+    tag: 'GSAP',
+    mediaSrc: `${MEDIA}/reveal.gif`,
+    alt: 'Scroll-linked reveal choreography',
   },
   {
-    id: 'ob-4-black',
-    title: 'OB-4',
-    tag: 'BLACK',
-    mediaSrc: `${FRAMER_BASE}/mwYJAhxg6vEZG1VWCaGYLZFlr8.webp?scale-down-to=2048&width=4096&height=4096`,
-    alt: 'OB-4 BLACK product study',
+    id: 'svg-mask',
+    title: 'SVG Mask',
+    tag: 'GSAP',
+    mediaSrc: `${MEDIA}/svg-mask.gif`,
+    alt: 'SVG mask transition study',
   },
   {
-    id: 'tp-7-white',
-    title: 'TP-7',
-    tag: 'WHITE',
-    mediaSrc: `${FRAMER_BASE}/wcZoDYV2m12sDwr0Ei9Ic5VoQkY.webp?scale-down-to=2048&width=4096&height=4096`,
-    alt: 'TP-7 WHITE product study',
+    id: 'gradient',
+    title: 'Gradient',
+    tag: 'SHADER',
+    mediaSrc: `${MEDIA}/gradient.gif`,
+    alt: 'Animated gradient shader',
   },
   {
-    id: 'tp-7-black',
-    title: 'TP-7',
-    tag: 'BLACK',
-    mediaSrc: `${FRAMER_BASE}/LvpuZV8ce8UqufvZiHDo7DlGMM.webp?scale-down-to=2048&width=4096&height=4096`,
-    alt: 'TP-7 BLACK product study',
+    id: 'fractal',
+    title: 'Fractal',
+    tag: 'SHADER',
+    mediaSrc: `${MEDIA}/fractal.gif`,
+    alt: 'Fractal field shader',
+  },
+  {
+    id: 'mosaic',
+    title: 'Mosaic',
+    tag: 'SHADER',
+    mediaSrc: `${MEDIA}/mosaic.gif`,
+    alt: 'Palette mosaic tiles shader',
+  },
+  {
+    id: 'simplex-1',
+    title: 'Simplex Noise',
+    tag: 'SHADER',
+    mediaSrc: `${MEDIA}/simplex-1.gif`,
+    alt: 'Simplex noise displacement study',
+  },
+  {
+    id: 'alpha',
+    title: 'Alpha',
+    tag: 'SHADER',
+    mediaSrc: `${MEDIA}/alpha.gif`,
+    alt: 'Alpha compositing shader study',
+  },
+  {
+    id: 'ascii-1',
+    title: 'ASCII Field',
+    tag: 'ASCII',
+    mediaSrc: `${MEDIA}/ascii-1.gif`,
+    alt: 'ASCII character field animation',
+  },
+  {
+    id: 'web-gpu',
+    title: 'WebGPU',
+    tag: 'WEBGPU',
+    mediaSrc: `${MEDIA}/web-gpu.gif`,
+    alt: 'WebGPU compute and render study',
   },
 ]
