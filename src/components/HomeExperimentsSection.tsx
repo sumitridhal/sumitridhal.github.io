@@ -34,75 +34,77 @@ export function HomeExperimentsSection({
         title={t('pages.home.experimentsHeading')}
         lead={t('pages.home.experimentsLead')}
       >
-        <p className="home-experiments__note" data-home-reveal>
-          {t('pages.home.experimentsStripNote')}
-        </p>
-        {homeExperiments.length === 0 ? (
-          <p className="home-experiments__empty">{t('pages.home.experimentsEmpty')}</p>
-        ) : (
-          <div
-            ref={trackRef}
-            className={`home-experiments__track${scrubHorizontal ? ' home-experiments__track--scrub' : ''}`}
-          >
-            <ul
-              ref={stripRef}
-              className="home-experiments__grid"
-              role="list"
-              aria-label={t('pages.home.experimentsGridAria')}
+        <div className="home-experiments__scroll-shift">
+          <p className="home-experiments__note" data-home-reveal>
+            {t('pages.home.experimentsStripNote')}
+          </p>
+          {homeExperiments.length === 0 ? (
+            <p className="home-experiments__empty">{t('pages.home.experimentsEmpty')}</p>
+          ) : (
+            <div
+              ref={trackRef}
+              className={`home-experiments__track${scrubHorizontal ? ' home-experiments__track--scrub' : ''}`}
             >
-            {homeExperiments.map((item) => {
-              const caption = (
-                <>
-                  <span className="home-experiments__title">{item.title}</span>
-                  {item.tag ? <span className="home-experiments__tag">{item.tag}</span> : null}
-                </>
-              )
-              const media = (
-                <div className="home-experiments__frame">
-                  <img
-                    className="home-experiments__image"
-                    src={item.mediaSrc}
-                    alt={item.alt}
-                    width={512}
-                    height={512}
-                    loading="lazy"
-                    decoding="async"
-                    draggable={false}
-                  />
-                </div>
-              )
-
-              return (
-                <li key={item.id} className="home-experiments__cell" data-home-reveal role="listitem">
-                  {item.href ? (
-                    item.href.startsWith('http') ? (
-                      <a
-                        className="home-experiments__tile"
-                        href={item.href}
-                        target="_blank"
-                        rel="noopener noreferrer"
-                      >
-                        {media}
-                        <span className="home-experiments__caption">{caption}</span>
-                      </a>
-                    ) : (
-                      <Link className="home-experiments__tile" to={item.href}>
-                        {media}
-                        <span className="home-experiments__caption">{caption}</span>
-                      </Link>
-                    )
-                  ) : (
-                    <div className="home-experiments__tile home-experiments__tile--static">
-                      {media}
-                      <span className="home-experiments__caption">{caption}</span>
+              <ul
+                ref={stripRef}
+                className="home-experiments__grid"
+                role="list"
+                aria-label={t('pages.home.experimentsGridAria')}
+              >
+                {homeExperiments.map((item) => {
+                  const caption = (
+                    <>
+                      <span className="home-experiments__title">{item.title}</span>
+                      {item.tag ? <span className="home-experiments__tag">{item.tag}</span> : null}
+                    </>
+                  )
+                  const media = (
+                    <div className="home-experiments__frame">
+                      <img
+                        className="home-experiments__image"
+                        src={item.mediaSrc}
+                        alt={item.alt}
+                        width={512}
+                        height={512}
+                        loading="lazy"
+                        decoding="async"
+                        draggable={false}
+                      />
                     </div>
-                  )}
-                </li>
-              )
-            })}
-            </ul>
-          </div>
-        )}
+                  )
+
+                  return (
+                    <li key={item.id} className="home-experiments__cell" data-home-reveal role="listitem">
+                      {item.href ? (
+                        item.href.startsWith('http') ? (
+                          <a
+                            className="home-experiments__tile"
+                            href={item.href}
+                            target="_blank"
+                            rel="noopener noreferrer"
+                          >
+                            {media}
+                            <span className="home-experiments__caption">{caption}</span>
+                          </a>
+                        ) : (
+                          <Link className="home-experiments__tile" to={item.href}>
+                            {media}
+                            <span className="home-experiments__caption">{caption}</span>
+                          </Link>
+                        )
+                      ) : (
+                        <div className="home-experiments__tile home-experiments__tile--static">
+                          {media}
+                          <span className="home-experiments__caption">{caption}</span>
+                        </div>
+                      )}
+                    </li>
+                  )
+                })}
+              </ul>
+            </div>
+          )}
+        </div>
       </HomeSlideLayout>
     </HomePanel>
   )
