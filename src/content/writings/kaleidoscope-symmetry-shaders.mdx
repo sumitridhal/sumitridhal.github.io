@@ -1,20 +1,20 @@
-import { WritingKaleidoscopeR3fPreviewLazy } from '@/components/writings/WritingKaleidoscopeR3fPreviewLazy'
+import { WritingKaleidoscopeR3fPreviewLazy } from "@/components/writings/WritingKaleidoscopeR3fPreviewLazy";
 
 export const writingMeta = {
-  id: 'kaleidoscope-symmetry-shaders',
+  id: "kaleidoscope-symmetry-shaders",
   order: -5,
-  title: 'Kaleidoscope symmetry in shaders',
-  date: '2025-07-17',
-  category: 'Creative code',
+  title: "Kaleidoscope symmetry in shaders",
+  date: "2025-07-17",
+  category: "Creative code",
   excerpt:
-    'N-fold kaleidoscopes are dihedral symmetry: fold the plane into a wedge, mirror its edges, and repeat. In fragment space that is a few lines of polar re-mapping before your usual distance or colour functions.',
-  titleLines: ['Kaleidoscope', 'symmetry in shaders'],
+    "N-fold kaleidoscopes are dihedral symmetry: fold the plane into a wedge, mirror its edges, and repeat. In fragment space that is a few lines of polar re-mapping before your usual distance or colour functions.",
+  titleLines: ["Kaleidoscope", "symmetry in shaders"],
   asideParagraphs: [
-    'Odd versus even fold counts change whether you need an explicit mirror step or can rely on angle wrapping alone; test both with a solid colour wedge first.',
-    'Animating the symmetry axis is a 2D rotation on UV before folding; keep aspect ratio in mind or circles become ellipses at the fold.',
+    "Odd versus even fold counts change whether you need an explicit mirror step or can rely on angle wrapping alone; test both with a solid colour wedge first.",
+    "Animating the symmetry axis is a 2D rotation on UV before folding; keep aspect ratio in mind or circles become ellipses at the fold.",
   ],
-  coverSrc: 'https://picsum.photos/seed/kaleidoscope-symmetry-shaders/960/640',
-}
+  coverSrc: "https://picsum.photos/seed/kaleidoscope-symmetry-shaders/960/640",
+};
 
 A digital kaleidoscope imposes **finite symmetry** on whatever pattern you would have drawn in the plane. The dihedral group **D_N** captures **N rotations** and **N reflections**; the shader-friendly view is: map every point into one canonical **sector** of angle `2π / N`, optionally mirror within that sector, then evaluate your motif once.
 
