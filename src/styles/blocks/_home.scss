@@ -78,15 +78,17 @@
   isolation: isolate;
   overflow: hidden;
 
-  &::before {
-    content: '';
+  .home-section__banner-img {
+    margin-top: -7.5%;
+    height: 115%;
     position: absolute;
     inset: 0;
     z-index: 0;
-    background-image: var(--home-section-banner);
-    background-size: cover;
-    background-position: center;
-    background-repeat: no-repeat;
+    width: 100%;
+    object-fit: cover;
+    object-position: center;
+    pointer-events: none;
+    user-select: none;
   }
 
   &::after {
