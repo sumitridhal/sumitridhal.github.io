@@ -1,20 +1,20 @@
-import { WritingPerlinNoiseBarsPreviewLazy } from '@/components/writings/WritingPerlinNoiseBarsPreviewLazy'
+import { WritingPerlinNoiseBarsPreviewLazy } from "@/components/writings/WritingPerlinNoiseBarsPreviewLazy";
 
 export const writingMeta = {
-  id: 'perlin-noise-vertical-bars',
+  id: "perlin-noise-vertical-bars",
   order: 0,
-  title: 'Perlin noise as a field of vertical bars',
-  date: '2025-05-14',
-  category: 'Creative code',
+  title: "Perlin noise as a field of vertical bars",
+  date: "2025-05-14",
+  category: "Creative code",
   excerpt:
-    'Treat each grid cell as a sample of a smooth scalar field: 2D Perlin gives correlated widths so thick bars cluster instead of flickering independently. A compact CPU canvas recipe with a link back to the broader noise notes.',
-  titleLines: ['Perlin noise as a', 'field of vertical bars'],
+    "Treat each grid cell as a sample of a smooth scalar field: 2D Perlin gives correlated widths so thick bars cluster instead of flickering independently. A compact CPU canvas recipe with a link back to the broader noise notes.",
+  titleLines: ["Perlin noise as a", "field of vertical bars"],
   asideParagraphs: [
-    'Bar width is one degree of freedom; hue, opacity, or corner radius are the same map from (x, y) with different remaps.',
-    'On the GPU you often reach for Simplex or value noise with FBM; the sampling idea is unchanged—only the primitive and the space you evaluate in.',
+    "Bar width is one degree of freedom; hue, opacity, or corner radius are the same map from (x, y) with different remaps.",
+    "On the GPU you often reach for Simplex or value noise with FBM; the sampling idea is unchanged—only the primitive and the space you evaluate in.",
   ],
-  coverSrc: '/media/writings/perlin-noise-vertical-bars.png',
-}
+  coverSrc: "/media/writings/perlin-noise-vertical-bars.png",
+};
 
 A **scalar field** on a grid is enough to suggest organic structure: pick coordinates `(x, y)`, evaluate noise once per cell, then map the result to something visible. Here that something is **only the width** of a vertical bar; colour stays flat so the eye reads correlation across neighbours.
 
@@ -29,11 +29,11 @@ The broader picture—value versus gradient noise, fractal Brownian motion, and 
 3. Map `n` linearly from a **minimum** bar width to a **maximum** width in pixels, then **centre** the rectangle in the cell so thin bars do not drift to one edge.
 
 ```ts
-import { perlin2Normalized } from '@/lib/perlin2d'
+import { perlin2Normalized } from "@/lib/perlin2d";
 
-const n = perlin2Normalized(col * sx + time, row * sy)
-const barW = minPx + n * (maxPx - minPx)
-const x = cellCentreX - barW * 0.5
+const n = perlin2Normalized(col * sx + time, row * sy);
+const barW = minPx + n * (maxPx - minPx);
+const x = cellCentreX - barW * 0.5;
 ```
 
 Because Perlin is **continuous**, nearby cells get similar values: you see blobs of thick bars instead of white noise. Push `sx` / `sy` down for larger blobs; raise them for tighter ripples.
