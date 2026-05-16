@@ -937,8 +937,8 @@
   padding: 0;
   border-radius: 2px;
   border: 1px solid var(--writing-edge);
-  background: rgba(4, 5, 7, 0.94);
-  box-shadow: inset 0 1px 0 rgba(255, 255, 255, 0.04);
+  background: rgba(248, 249, 252, 0.98);
+  box-shadow: inset 0 1px 0 rgba(255, 255, 255, 0.85);
   overflow: hidden;
 }
 
@@ -963,7 +963,7 @@
 .writing-page__body .writing-organic-wave__stage {
   display: grid;
   gap: 0.55rem;
-  min-height: clamp(13rem, 36vh, 21rem);
+  min-height: clamp(14rem, 40vh, 23rem);
   grid-template-columns: 1fr 1fr;
   grid-template-rows: minmax(0, 1fr);
   grid-template-areas: 'left right';
@@ -976,8 +976,8 @@
   min-height: 0;
   min-width: 0;
   border-radius: 2px;
-  border: 1px solid rgba(233, 184, 88, 0.14);
-  background: rgba(8, 10, 14, 0.98);
+  border: 1px solid rgba(233, 184, 88, 0.22);
+  background: #{color.mix(#ffffff, $color-writing-forest, 94%)};
 }
 
 .writing-page__body .writing-organic-wave__rail--left {
@@ -1000,17 +1000,20 @@
 
 .writing-page__body .writing-organic-wave__copy {
   margin: 0;
-  padding: 0.55rem 0.6rem 0.65rem;
+  padding: 0.75rem 0.85rem 0.85rem;
 }
 
 .writing-page__body .writing-organic-wave__rail .writing-organic-wave__copy p {
-  margin: 0 0 0.55rem;
+  margin: 0 0 0.7rem;
   font-family: $font-writing-serif;
-  font-size: 0.88rem;
-  line-height: 1.5;
-  color: rgba(210, 218, 230, 0.92);
+  font-size: clamp(1rem, 1.5vw, 1.125rem);
+  font-weight: 400;
+  line-height: 1.58;
+  letter-spacing: 0.012em;
+  color: #{color.mix($color-writing-forest-deep, #0a0c08, 12%)};
   text-align: justify;
   hyphens: auto;
+  text-wrap: pretty;
   will-change: transform;
 }
 
@@ -1021,8 +1024,9 @@
 .writing-page__body .writing-organic-wave__hint {
   margin: 0;
   font-family: $font-writing-mono;
-  font-size: 0.8rem;
-  color: rgba(160, 172, 190, 0.75);
+  font-size: clamp(0.78rem, 1.2vw, 0.86rem);
+  line-height: 1.5;
+  color: rgba(32, 42, 28, 0.62);
 }
 
 .writing-page__body .writing-organic-wave--skeleton .writing-organic-wave__caption {
@@ -1040,12 +1044,12 @@
 
 .writing-page__body .writing-organic-wave__skeleton-cell {
   border-radius: 2px;
-  border: 1px dashed rgba(233, 184, 88, 0.2);
+  border: 1px dashed rgba(233, 184, 88, 0.28);
   background: linear-gradient(
     105deg,
-    rgba(18, 22, 30, 0.95) 0%,
-    rgba(28, 34, 46, 0.9) 40%,
-    rgba(18, 22, 30, 0.95) 80%
+    #{color.mix(#ffffff, $color-writing-forest, 94%)} 0%,
+    #{color.mix(#f5f7f3, $color-writing-forest, 18%)} 45%,
+    #{color.mix(#ffffff, $color-writing-forest, 94%)} 90%
   );
   background-size: 200% 100%;
   animation: writing-infinite-canvas-skeleton-shimmer 1.1s ease-in-out infinite;
@@ -1070,7 +1074,7 @@
 
   .writing-page__body .writing-organic-wave__skeleton-cell {
     animation: none;
-    background: rgba(18, 22, 30, 0.95);
+    background: #{color.mix(#ffffff, $color-writing-forest, 94%)};
   }
 }
 
