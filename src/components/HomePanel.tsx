@@ -1,4 +1,4 @@
-import type { CSSProperties, ReactNode } from 'react'
+import type { ReactNode } from 'react'
 
 import type { HomeThemeId } from '@/utils/homeTheme'
 
@@ -25,21 +25,25 @@ export function HomePanel({
 }: HomePanelProps) {
   const hasBanner = Boolean(backgroundImage)
 
-  const style = hasBanner
-    ? ({
-      '--home-section-banner': `url("${backgroundImage}")`,
-    } as CSSProperties)
-    : undefined
-
   return (
     <section
       id={id}
       data-home-panel
       data-home-theme={theme}
       className={`home-section${hero ? ' home-section--hero' : ''}${hasBanner ? ' home-section--banner' : ''}${className ? ` ${className}` : ''}`}
-      style={style}
       aria-labelledby={ariaLabelledby}
     >
+      {hasBanner ? (
+        <img
+          className="home-section__banner-img"
+          src={backgroundImage}
+          alt=""
+          loading="lazy"
+          decoding="async"
+          draggable={false}
+          aria-hidden
+        />
+      ) : null}
       <div className="home-section__inner">{children}</div>
     </section>
   )
