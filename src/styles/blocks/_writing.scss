@@ -701,6 +701,7 @@
   border-bottom: 1px solid rgba(255, 255, 255, 0.06);
 }
 
+.writing-page__body .writing-invader-fractal-preview__shuffle,
 .writing-page__body .writing-invader-fractal-preview__random {
   font-family: $font-writing-mono;
   font-size: 0.72rem;
@@ -715,11 +716,28 @@
   cursor: pointer;
 }
 
+.writing-page__body .writing-invader-fractal-preview__shuffle:hover,
+.writing-page__body .writing-invader-fractal-preview__shuffle:focus-visible,
 .writing-page__body .writing-invader-fractal-preview__random:hover,
 .writing-page__body .writing-invader-fractal-preview__random:focus-visible {
   color: var(--writing-hero);
   border-color: rgba(233, 184, 88, 0.48);
   outline: none;
+}
+
+.writing-page__body .writing-invader-fractal-preview__fractal-wrap {
+  position: relative;
+  width: min(220px, 100%);
+  margin-inline: auto;
+  aspect-ratio: 1;
+  background: #000;
+  border-bottom: 1px solid rgba(255, 255, 255, 0.06);
+}
+
+.writing-page__body .writing-invader-fractal-preview__fractal-canvas {
+  display: block;
+  width: 100%;
+  height: 100%;
 }
 
 .writing-page__body .writing-invader-fractal-preview__body {
@@ -768,6 +786,17 @@
   width: clamp(12px, 3.2vw, 22px);
 }
 
+.writing-page__body .writing-invader-fractal-preview__grid--colour {
+  gap: 2px;
+  padding: 6px;
+  border-color: rgba(255, 255, 255, 0.12);
+  background: #000;
+}
+
+.writing-page__body .writing-invader-fractal-preview__grid--colour span {
+  box-shadow: none;
+}
+
 .writing-page__body .writing-invader-fractal-preview__mini span.is-on,
 .writing-page__body .writing-invader-fractal-preview__grid span.is-on {
   background: rgba(12, 14, 18, 0.98);
@@ -791,8 +820,10 @@
 }
 
 .writing-page__body .writing-invader-fractal-preview__skeleton-bar {
-  height: 7rem;
-  margin: 0.5rem 1rem 1rem;
+  aspect-ratio: 1;
+  width: min(220px, calc(100% - 2rem));
+  height: auto;
+  margin: 0.5rem auto 1rem;
   border-radius: 2px;
   border: 1px dashed rgba(233, 184, 88, 0.22);
   background: linear-gradient(
