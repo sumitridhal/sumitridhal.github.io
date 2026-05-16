@@ -11,12 +11,12 @@ export const writingMeta = {
   date: "2026-05-14",
   category: "UI",
   excerpt:
-    "Five self-contained embeds from the Object & Archive storefront: CSS curtain keyframes, a GSAP scale ladder, Locomotive/Lenis + ScrollTrigger driving a CSS variable, a hover GSAP swap timeline, and a fixed-slot resource preview with instant DOM updates.",
+    "Five self-contained embeds from the Object & Archive storefront: CSS curtain keyframes, a GSAP scale ladder, viewport Lenis + ScrollTrigger scrubbed parallax on `/sections` (hero, obsessions strip, panel backgrounds), an alternate nested-shell `--oa-cover-p` scroll demo, a hover GSAP swap timeline, and a fixed-slot resource preview with instant DOM updates.",
   coverSrc: "/media/writings/object-and-archive-hero-reference.png",
   titleLines: ["Object & Archive", "Five motion recipes"],
 };
 
-These notes pick apart motion from [Object & Archive](https://objectandarchive.com/) as **five standalone recipes**—each maps to one live preview below. Together they cover **CSS `@keyframes`**, **GSAP timelines**, **ScrollTrigger**, **Locomotive Scroll (Lenis)** wired into **GSAP’s ticker**, and a **layout-only** hover pattern with **no image tweening**. This article is complete as-is; there is no “Part 6” appendix.
+These notes pick apart motion from [Object & Archive](https://objectandarchive.com/) as **five standalone recipes**—each maps to one live preview below (Part 3 mirrors the **`/sections`** scroll stack in code). Together they cover **CSS `@keyframes`**, **GSAP timelines**, **ScrollTrigger** with **Lenis** on the document scroller, and **nested Locomotive Scroll** for embed-local smoothing plus **CSS variables**, plus a **layout-only** hover pattern with **no image tweening**. This article is complete as-is; there is no “Part 6” appendix.
 
 ## How to read a recipe
 
@@ -84,11 +84,116 @@ imgs.forEach((img, j) => {
 
 ---
 
-## Part 3 — Composite: static Part 1 hero + “Current obsessions” scroll strip
+## Part 3 — Composite: viewport Lenis + scrubbed section motion (`/sections`)
 
-**Target:** CSS variable **`--oa-cover-p`** in `0…1` over one viewport of vertical travel; obsessions block **`translateY`** and intro **`padding-top`** follow it. **Driver:** wheel on the shell (smooth path) or native scroll (reduced). **Runtime:** either **Locomotive’s `scrollCallback`** + **`gsap.ticker`**, or **`ScrollTrigger`** on the track with **`scrub: 0`**.
+**Target:** Several layers pick up **`transform`** from **`gsap.fromTo`** with **`scrub: true`**: hero **`#section-1`** (**`yPercent` `0 → 20`**), obsessions wrapper **`.obsessions__scroll-shift`** (**`y` `120 → 0`**), and full-bleed panel **`<img>`** backgrounds in sections **3, 5, and 7** (**`translate(0%, 25%)`** via **`yPercent: 25`**). **Driver:** vertical scroll (smooth Lenis path or native when reduced). **Runtime:** **Lenis** stepped from **GSAP’s ticker**, **`ScrollTrigger.scrollerProxy(document.documentElement)`** so scrubbed progress matches what Lenis shows, wrapped in **`gsap.context`** for clean teardown.
 
-Reduced motion — `ScrollTrigger` writes progress from native `scrollTop`:
+Live stack: **[`/sections`](/sections)** — [`SectionsPage.tsx`](src/pages/SectionsPage.tsx) + [`useSectionsScrollExperience.ts`](src/hooks/useSectionsScrollExperience.ts).
+
+### Lenis and ScrollTrigger on the document scroller
+
+[`LenisProvider`](src/providers/LenisProvider.tsx) builds Lenis with **`autoRaf: false`**; [`lenisService`](src/services/lenisService.ts) calls **`lenis.raf`** from **`gsap.ticker`**. [`useLenisScrollTrigger`](src/hooks/useLenisScrollTrigger.ts) keeps **`ScrollTrigger`** aligned with smooth scroll: on each Lenis **`scroll`** event it calls **`ScrollTrigger.update()`**, and a **`document.documentElement`** proxy maps programmatic **`scrollTop`** reads/writes to **`lenis.scroll`** / **`lenis.scrollTo`**:
+
+```ts
+// useLenisScrollTrigger.ts (trimmed)
+lenis.on('scroll', () => ScrollTrigger.update())
+
+ScrollTrigger.scrollerProxy(document.documentElement, {
+  scrollTop(value) {
+    if (typeof value === 'number') {
+      lenis.scrollTo(value, { immediate: true })
+    }
+    return lenis.scroll
+  },
+  getBoundingClientRect() {
+    return {
+      top: 0,
+      left: 0,
+      width: window.innerWidth,
+      height: window.innerHeight,
+    }
+  },
+  pinType: 'fixed',
+})
+```
+
+### Hero parallax: section 1 driven by section 2
+
+The hero scrubs **`yPercent`** from **`0`** to **`20`** (positive = downward in GSAP) while **`#section-2`** moves from entering the viewport until **its top reaches the viewport top**—motion **stops** once that range completes (matching the hook comment on **`useSectionsScrollExperience`**).
+
+```ts
+// useSectionsScrollExperience.ts (trimmed)
+gsap.fromTo(
+  section1,
+  { x: 0, yPercent: 0 },
+  {
+    x: 0,
+    yPercent: 20,
+    ease: 'none',
+    scrollTrigger: {
+      trigger: section2,
+      start: 'top bottom',
+      end: 'top top',
+      scrub: true,
+    },
+  },
+)
+```
+
+### Obsessions wrapper lift
+
+**`.obsessions__scroll-shift`** wraps the obsessions column and scrubs from **`translate(0, 120px)`** toward **`0`** while section 2 is approaching the top edge:
+
+```ts
+gsap.fromTo(
+  obsShift,
+  { x: 0, y: 120 },
+  {
+    x: 0,
+    y: 0,
+    ease: 'none',
+    scrollTrigger: {
+      trigger: section2,
+      start: 'top bottom',
+      end: 'top 30%',
+      scrub: true,
+    },
+  },
+)
+```
+
+### Panel background `<img>` parallax (sections 3, 5, 7)
+
+Panels use an absolutely positioned cover **`<img>`** under scrims/copy. The same helper binds **`start: 'top bottom'`** → **`end: 'bottom top'`** so art drifts while the section crosses the viewport:
+
+```ts
+const bindPanelBgParallax = (sectionEl: HTMLElement | null, imgEl: HTMLElement | null) => {
+  if (!sectionEl || !imgEl) return
+  gsap.fromTo(
+    imgEl,
+    { x: 0, y: 0 },
+    {
+      xPercent: 0,
+      yPercent: 25,
+      ease: 'none',
+      scrollTrigger: {
+        trigger: sectionEl,
+        start: 'top bottom',
+        end: 'bottom top',
+        scrub: true,
+      },
+    },
+  )
+}
+```
+
+### Reduced motion
+
+When **`prefers-reduced-motion`** is set, **`useSectionsScrollExperience`** returns before creating tweens: **`gsap.set(sections, { clearProps: 'opacity,transform' })`**, then **`clearProps: 'transform'`** on **`.obsessions__scroll-shift`** and each mood/niche/newsletter **`img`**, so pinned/scrubbed transforms do not fight native scrolling.
+
+### Alternate recipe: nested shell + `--oa-cover-p`
+
+The preview below is **deliberately different**: a **fixed-height embed** owns its own scroll container. Reduced motion uses **`ScrollTrigger`** with **`scroller: shell`** to drive **`--oa-cover-p`**; the smooth path uses **Locomotive Scroll v5** (Lenis-backed) with **`scrollCallback`** and **GSAP’s ticker** as in [`WritingObjectArchiveScrollPreview.tsx`](src/components/writings/WritingObjectArchiveScrollPreview.tsx). The shell uses **`data-lenis-prevent`** so **site** Lenis does not swallow wheel events inside the demo.
 
 ```ts
 ScrollTrigger.create({
@@ -103,40 +208,6 @@ ScrollTrigger.create({
   },
 })
 ```
-
-Default path — Lenis scroll value mapped to the same variable; Locomotive’s RAF is hooked to **GSAP’s ticker** so it lines up with other GSAP work:
-
-```ts
-const setCoverFromScroll = (scroll: number) => {
-  const h = Math.max(32, shell.clientHeight)
-  const p = Math.min(1, Math.max(0, scroll / h))
-  shell.style.setProperty('--oa-cover-p', String(p))
-}
-
-const loco = new LocomotiveScroll({
-  lenisOptions: {
-    wrapper: shell,
-    content: track,
-    eventsTarget: shell,
-    orientation: 'vertical',
-    smoothWheel: true,
-    lerp: 0.09,
-    allowNestedScroll: true,
-    autoResize: true,
-  },
-  scrollCallback: ({ scroll }) => {
-    setCoverFromScroll(scroll)
-  },
-  initCustomTicker: (render) => {
-    gsap.ticker.add(render)
-  },
-  destroyCustomTicker: (render) => {
-    gsap.ticker.remove(render)
-  },
-})
-```
-
-The horizontal strip stays **`overflow-x: auto`**; the shell carries **`data-lenis-prevent`** so the site Lenis instance does not eat wheel events inside this embed.
 
 <WritingObjectArchiveScrollPreviewLazy />
 
