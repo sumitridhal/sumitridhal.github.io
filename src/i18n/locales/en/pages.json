@@ -4,7 +4,6 @@
     "experimentsLead": "Small motion studies and visual notes — shaders, layouts, and interface experiments.",
     "experimentsEmpty": "Add entries in src/data/experimentsData.ts to show them here.",
     "experimentsGridAria": "Experiments catalog grid",
-    "experimentsStripNote": "Scroll timeline starts here—then selected projects and bookshelf.",
     "aboutHeading": "About",
     "aboutLead": "Engineer and writer exploring ideas through software, notes, and experiments.",
     "heroName": "Sumit Ridhal",
