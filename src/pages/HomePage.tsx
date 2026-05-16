@@ -4,7 +4,7 @@ import { Link, useLocation } from 'react-router-dom'
 import { HeroAtmosphere } from '@/components/HeroAtmosphere'
 import { HomeBookshelfSection } from '@/components/HomeBookshelfSection'
 import { HomeExperimentsSection } from '@/components/HomeExperimentsSection'
-import { HOME_BANNER_URLS, HOME_SECTION_BANNERS } from '@/data/homeSectionBanners'
+import { HOME_SECTION_BANNERS } from '@/data/homeSectionBanners'
 import { HomePanel } from '@/components/HomePanel'
 import { HomeSlideLayout } from '@/components/HomeSlideLayout'
 import { HomeWorkSection } from '@/components/HomeWorkSection'
@@ -74,10 +74,7 @@ export function HomePage() {
   })
 
   useEffect(() => {
-    const images = [
-      ...homeExperiments.map((e) => e.mediaSrc).filter(Boolean),
-      ...HOME_BANNER_URLS,
-    ]
+    const images = homeExperiments.map((e) => e.mediaSrc).filter(Boolean)
     if (images.length) void preloadImages(images)
   }, [])
 
