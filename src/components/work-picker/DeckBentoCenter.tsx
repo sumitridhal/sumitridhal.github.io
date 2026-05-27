@@ -2,8 +2,8 @@ import type { BentoTile, Project } from '@/data/projectsData'
 
 type DeckBentoCenterProps = {
   project: Project
-  frontIndex: number
-  onFrontSelect: (index: number) => void
+  centerIndex: number
+  onCenterSelect: (index: number) => void
 }
 
 function BentoTileContent({ tile }: { tile: BentoTile }) {
@@ -49,7 +49,7 @@ function BentoTileContent({ tile }: { tile: BentoTile }) {
   }
 }
 
-export function DeckBentoCenter({ project, frontIndex, onFrontSelect }: DeckBentoCenterProps) {
+export function DeckBentoCenter({ project, centerIndex, onCenterSelect }: DeckBentoCenterProps) {
   const tiles = project.bentoTiles ?? []
 
   return (
@@ -61,7 +61,7 @@ export function DeckBentoCenter({ project, frontIndex, onFrontSelect }: DeckBent
       </div>
       <ul className="deck-bento__nav" role="listbox" aria-label={`${project.title} layers`}>
         {project.deckCards.map((card, index) => {
-          const isActive = index === frontIndex
+          const isActive = index === centerIndex
           return (
             <li key={card.id} role="presentation">
               <button
@@ -72,7 +72,7 @@ export function DeckBentoCenter({ project, frontIndex, onFrontSelect }: DeckBent
                 data-active={isActive ? 'true' : undefined}
                 onClick={(event) => {
                   event.stopPropagation()
-                  onFrontSelect(index)
+                  onCenterSelect(index)
                 }}
               >
                 {card.title}
