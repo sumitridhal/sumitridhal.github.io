@@ -1,4 +1,4 @@
-import { useRef, useState, type CSSProperties, type FocusEvent, type KeyboardEvent } from 'react'
+import { useState, type CSSProperties, type FocusEvent, type KeyboardEvent } from 'react'
 
 import { projects, type Project } from '@/data/projectsData'
 import { usePrefersReducedMotion } from '@/hooks/usePrefersReducedMotion'
@@ -151,8 +151,6 @@ function ProjectDeck({
     setIsExpanded(false)
   }
 
-  const fanActive = scrollActive || isExpanded
-
   return (
     <div
       className="work-picker__column"
@@ -170,7 +168,7 @@ function ProjectDeck({
     >
       <div
         className={`work-picker__deck${reducedMotion ? ' work-picker__deck--reduced' : ''}`}
-        data-expanded={fanActive ? 'true' : undefined}
+        data-expanded={isExpanded ? 'true' : undefined}
         data-scroll-active={scrollActive ? 'true' : undefined}
         data-center-index={centerIndex}
         role="group"
@@ -247,11 +245,8 @@ export function HomeWorkPicker() {
   const reducedMotion = usePrefersReducedMotion()
   const [centerIndex, setCenterIndex] = useState(DEFAULT_CENTER_INDEX)
   const [scrollActive, setScrollActive] = useState(false)
-  const stageRef = useRef<HTMLDivElement>(null)
-
   useWorkDeckScrollScrub({
     enabled: !reducedMotion && projects.length > 0,
-    rootRef: stageRef,
     onScrollActiveChange: setScrollActive,
   })
 
@@ -261,12 +256,7 @@ export function HomeWorkPicker() {
 
   return (
     <div className="work-picker">
-      <div
-        ref={stageRef}
-        className="work-picker__stage"
-        role="group"
-        aria-label="Selected projects"
-      >
+      <div className="work-picker__stage" role="group" aria-label="Selected projects">
         {projects.map((project, index) => (
           <ProjectDeck
             key={project.id}
