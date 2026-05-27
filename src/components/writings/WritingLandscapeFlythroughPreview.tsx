@@ -1,7 +1,7 @@
 import gsap from 'gsap'
 import { ScrollTrigger } from 'gsap/ScrollTrigger'
 import 'locomotive-scroll/locomotive-scroll.css'
-import { useLayoutEffect, useRef } from 'react'
+import { useCallback, useEffect, useLayoutEffect, useRef, useState } from 'react'
 
 import { WritingLandscapeFlythroughSvg } from '@/components/writings/landscape/WritingLandscapeFlythroughSvg'
 import { useWritingPreviewReducedMotion } from '@/components/writings/useWritingPreviewReducedMotion'
@@ -44,15 +44,82 @@ function queryLayers(svg: SVGSVGElement | null): (SVGElement | null)[] {
   return LAYER_IDS.map((id) => svg.querySelector<SVGElement>(`#${id}`))
 }
 
+function IconExpand() {
+  return (
+    <svg width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" aria-hidden>
+      <path strokeLinecap="round" strokeLinejoin="round" d="M8 4H4v4M16 4h4v4M16 20h4v-4M8 20H4v-4" />
+    </svg>
+  )
+}
+
+function IconCollapse() {
+  return (
+    <svg width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" aria-hidden>
+      <path strokeLinecap="round" strokeLinejoin="round" d="M4 14h6v6M14 4h6v6M14 20h6v-6M4 10h6V4" />
+    </svg>
+  )
+}
+
 export function WritingLandscapeFlythroughPreview({
   caption = 'Scroll inside the stage: Locomotive smooths the shell; ScrollTrigger scrubs differential layer scale for a 2.5D fly-through.',
   className = '',
 }: WritingLandscapeFlythroughPreviewProps) {
   const reduced = useWritingPreviewReducedMotion()
   const pageLenis = useLenis()
+  const [isExpanded, setIsExpanded] = useState(false)
   const shellRef = useRef<HTMLDivElement>(null)
   const trackRef = useRef<HTMLDivElement>(null)
   const svgRef = useRef<SVGSVGElement>(null)
+  const expandBtnRef = useRef<HTMLButtonElement>(null)
+
+  const closeExpanded = useCallback(() => {
+    setIsExpanded(false)
+  }, [])
+
+  const openExpanded = useCallback(() => {
+    setIsExpanded(true)
+  }, [])
+
+  const handleExpandControlClick = useCallback(
+    (event: React.MouseEvent<HTMLButtonElement>) => {
+      event.preventDefault()
+      event.stopPropagation()
+      if (isExpanded) {
+        closeExpanded()
+      } else {
+        openExpanded()
+      }
+    },
+    [isExpanded, closeExpanded, openExpanded],
+  )
+
+  useEffect(() => {
+    if (!isExpanded) return
+
+    pageLenis?.stop()
+    const prevOverflow = document.body.style.overflow
+    document.body.style.overflow = 'hidden'
+
+    const onKeyDown = (event: KeyboardEvent) => {
+      if (event.key === 'Escape') closeExpanded()
+    }
+    window.addEventListener('keydown', onKeyDown)
+
+    requestAnimationFrame(() => {
+      shellRef.current?.focus()
+      ScrollTrigger.refresh()
+    })
+
+    return () => {
+      window.removeEventListener('keydown', onKeyDown)
+      document.body.style.overflow = prevOverflow
+      pageLenis?.start()
+      requestAnimationFrame(() => {
+        ScrollTrigger.refresh()
+        expandBtnRef.current?.focus()
+      })
+    }
+  }, [isExpanded, pageLenis, closeExpanded])
 
   const scrollReady = useLocomotiveScrollTriggerEmbed({
     shellRef,
@@ -61,6 +128,14 @@ export function WritingLandscapeFlythroughPreview({
     smoothClassName: 'writing-landscape-flythrough__shell--smooth',
     pageLenis,
   })
+
+  useEffect(() => {
+    if (!scrollReady) return
+    const id = window.requestAnimationFrame(() => {
+      ScrollTrigger.refresh()
+    })
+    return () => window.cancelAnimationFrame(id)
+  }, [isExpanded, scrollReady])
 
   useLayoutEffect(() => {
     if (!scrollReady) return
@@ -122,7 +197,7 @@ export function WritingLandscapeFlythroughPreview({
     return () => {
       ctx.revert()
     }
-  }, [scrollReady, reduced])
+  }, [scrollReady, reduced, isExpanded])
 
   const rootClass = ['writing-landscape-flythrough', className.trim()].filter(Boolean).join(' ')
 
@@ -130,7 +205,33 @@ export function WritingLandscapeFlythroughPreview({
     <figure className={rootClass} aria-label="SVG landscape fly-through parallax scroll demo">
       {caption ? <figcaption className="writing-landscape-flythrough__caption">{caption}</figcaption> : null}
 
-      <div className="writing-landscape-flythrough__embed" data-lenis-prevent>
+      <div
+        className="writing-landscape-flythrough__embed"
+        data-lenis-prevent
+        data-expanded={isExpanded ? 'true' : 'false'}
+      >
+        {isExpanded ? (
+          <button
+            type="button"
+            className="writing-landscape-flythrough__backdrop"
+            onClick={(event) => {
+              event.preventDefault()
+              event.stopPropagation()
+              closeExpanded()
+            }}
+            aria-label="Exit full-screen preview"
+          />
+        ) : null}
+        <button
+          ref={expandBtnRef}
+          type="button"
+          className="writing-landscape-flythrough__expand"
+          onClick={handleExpandControlClick}
+          aria-expanded={isExpanded}
+          aria-label={isExpanded ? 'Exit full-screen preview' : 'Open full-screen preview'}
+        >
+          {isExpanded ? <IconCollapse /> : <IconExpand />}
+        </button>
         <div
           id="smooth-wrapper"
           ref={shellRef}
