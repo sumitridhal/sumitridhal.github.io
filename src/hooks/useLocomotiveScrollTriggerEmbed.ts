@@ -3,9 +3,9 @@ import { ScrollTrigger } from 'gsap/ScrollTrigger'
 import LocomotiveScroll from 'locomotive-scroll'
 import { useLayoutEffect, useState, type RefObject } from 'react'
 
-gsap.registerPlugin(ScrollTrigger)
+import type Lenis from 'lenis'
 
-type PageLenisLike = { stop: () => void; start: () => void } | null
+gsap.registerPlugin(ScrollTrigger)
 
 export type UseLocomotiveScrollTriggerEmbedOptions = {
   shellRef: RefObject<HTMLElement | null>
@@ -13,7 +13,8 @@ export type UseLocomotiveScrollTriggerEmbedOptions = {
   reducedMotion: boolean
   enabled?: boolean
   smoothClassName?: string
-  pageLenis?: PageLenisLike
+  /** Site Lenis instance — paused while the embed shell is hovered/focused. */
+  pageLenis?: Lenis | null
 }
 
 /**
@@ -129,7 +130,15 @@ export function useLocomotiveScrollTriggerEmbed({
         return lenis.scroll
       },
       getBoundingClientRect() {
-        return shell.getBoundingClientRect()
+        return {
+          top: 0,
+          left: 0,
+          width: shell.clientWidth,
+          height: shell.clientHeight,
+        }
+      },
+      scrollHeight() {
+        return track.scrollHeight
       },
       pinType: 'transform',
     })
@@ -148,8 +157,10 @@ export function useLocomotiveScrollTriggerEmbed({
 
     requestAnimationFrame(() => {
       loco?.resize()
-      ScrollTrigger.refresh()
-      setScrollReady(true)
+      requestAnimationFrame(() => {
+        ScrollTrigger.refresh()
+        setScrollReady(true)
+      })
     })
 
     return () => {
