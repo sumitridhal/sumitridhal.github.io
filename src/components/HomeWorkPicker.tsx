@@ -10,8 +10,6 @@ import { usePrefersReducedMotion } from '@/hooks/usePrefersReducedMotion'
 
 const DEFAULT_TOP_INDEX = 2
 
-type DeckCardSlot = 'left' | 'right'
-
 function deckThemeStyle(project: Project): CSSProperties {
   return {
     '--deck-bg': project.theme.bg,
