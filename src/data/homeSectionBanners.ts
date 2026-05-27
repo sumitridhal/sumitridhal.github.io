@@ -1,12 +1,12 @@
 import type { HomeThemeId } from '@/utils/homeTheme'
 
+const EXPERIMENTS_SECTION_BANNER =
+  'https://objectandarchive.com/cdn/shop/files/firmament-banner.png?v=1775309298&width=1800'
+
 export const HOME_SECTION_BANNERS = {
-  experiments:
-    'https://objectandarchive.com/cdn/shop/files/firmament-banner.png?v=1775309298&width=1800',
-  writings:
-    'https://objectandarchive.com/cdn/shop/files/bottom-banner2.jpg?v=1774725463&width=2000',
-  books:
-    'https://objectandarchive.com/cdn/shop/files/unexpected_red_theory_banner.png?v=1775310704&width=1800',
+  experiments: EXPERIMENTS_SECTION_BANNER,
+  writings: EXPERIMENTS_SECTION_BANNER,
+  books: EXPERIMENTS_SECTION_BANNER,
 } as const
 
 export type HomeBannerSectionId = keyof typeof HOME_SECTION_BANNERS
