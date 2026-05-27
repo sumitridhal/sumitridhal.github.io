@@ -10,7 +10,7 @@ import { usePrefersReducedMotion } from '@/hooks/usePrefersReducedMotion'
 
 const DEFAULT_TOP_INDEX = 2
 
-type DeckCardSlot = 'left' | 'center' | 'right'
+type DeckCardSlot = 'left' | 'right'
 
 function deckThemeStyle(project: Project): CSSProperties {
   return {
@@ -22,12 +22,12 @@ function deckThemeStyle(project: Project): CSSProperties {
   } as CSSProperties
 }
 
-function getCardSlot(cardIndex: number, topIndex: number): DeckCardSlot {
-  if (cardIndex === topIndex) return 'center'
-
-  const other = [0, 1, 2].filter((index) => index !== topIndex)
-  const leftIndex = other[0] ?? 0
-  return cardIndex === leftIndex ? 'left' : 'right'
+function getSideSlots(topIndex: number): { leftIndex: number; rightIndex: number } {
+  const sideIndices = [0, 1, 2].filter((index) => index !== topIndex)
+  return {
+    leftIndex: sideIndices[0] ?? 0,
+    rightIndex: sideIndices[1] ?? 1,
+  }
 }
 
 function DeckPreviewScene({ scene, label }: { scene: ProjectPreviewScene; label: string }) {
@@ -168,36 +168,52 @@ function ProjectDeck({ project, columnIndex }: ProjectDeckProps) {
         role="group"
         aria-label={project.title}
       >
-        {project.deckCards.map((card, layerIndex) => {
-          const slot = getCardSlot(layerIndex, topIndex)
+        <div
+          className="work-picker__deck-card work-picker__deck-card--list"
+          data-slot="center"
+          data-layer={topIndex}
+        >
+          <DeckPickerList project={project} topIndex={topIndex} onSelect={setTopIndex} />
+        </div>
 
-          if (slot === 'center') {
-            return (
-              <div
-                key={card.id}
-                className="work-picker__deck-card work-picker__deck-card--list"
-                data-slot={slot}
-                data-layer={layerIndex}
-              >
-                <DeckPickerList project={project} topIndex={topIndex} onSelect={setTopIndex} />
-              </div>
-            )
-          }
+        {(() => {
+          const { leftIndex, rightIndex } = getSideSlots(topIndex)
 
           return (
-            <button
-              key={card.id}
-              type="button"
-              className="work-picker__deck-card"
-              data-slot={slot}
-              data-layer={layerIndex}
-              aria-label={`Bring ${card.title} to front`}
-              onClick={() => setTopIndex(layerIndex)}
-            >
-              <DeckSidePanel card={card} side={slot} scene={project.previewScene} />
-            </button>
+            <>
+              <button
+                key={project.deckCards[leftIndex].id}
+                type="button"
+                className="work-picker__deck-card"
+                data-slot="left"
+                data-layer={leftIndex}
+                aria-label={`Select ${project.deckCards[leftIndex].title}`}
+                onClick={() => setTopIndex(leftIndex)}
+              >
+                <DeckSidePanel
+                  card={project.deckCards[leftIndex]}
+                  side="left"
+                  scene={project.previewScene}
+                />
+              </button>
+              <button
+                key={project.deckCards[rightIndex].id}
+                type="button"
+                className="work-picker__deck-card"
+                data-slot="right"
+                data-layer={rightIndex}
+                aria-label={`Select ${project.deckCards[rightIndex].title}`}
+                onClick={() => setTopIndex(rightIndex)}
+              >
+                <DeckSidePanel
+                  card={project.deckCards[rightIndex]}
+                  side="right"
+                  scene={project.previewScene}
+                />
+              </button>
+            </>
           )
-        })}
+        })()}
       </div>
     </div>
   )
