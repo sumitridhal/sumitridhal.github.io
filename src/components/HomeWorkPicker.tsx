@@ -1,13 +1,27 @@
-import { useState, type CSSProperties, type FocusEvent, type KeyboardEvent } from 'react'
+import { useRef, useState, type CSSProperties, type FocusEvent, type KeyboardEvent } from 'react'
 
 import { projects, type Project } from '@/data/projectsData'
 import { usePrefersReducedMotion } from '@/hooks/usePrefersReducedMotion'
+import { useWorkDeckScrollScrub } from '@/hooks/useWorkDeckScrollScrub'
 
 import { DeckBentoCenter } from '@/components/work-picker/DeckBentoCenter'
 import { DeckCardLayout } from '@/components/work-picker/DeckCardLayout'
 import { DeckLocaleFloat } from '@/components/work-picker/DeckLocaleFloat'
 
-const DEFAULT_FRONT_INDEX = 2
+const DEFAULT_CENTER_INDEX = 2
+
+type DeckSlot = 'left' | 'center' | 'right'
+
+/** Maps each card index to a fan slot for a given center card. */
+const DECK_SLOT_BY_CENTER: Record<number, Record<number, DeckSlot>> = {
+  0: { 0: 'center', 1: 'right', 2: 'left' },
+  1: { 0: 'left', 1: 'center', 2: 'right' },
+  2: { 0: 'left', 1: 'right', 2: 'center' },
+}
+
+function getDeckSlot(cardIndex: number, centerIndex: number): DeckSlot {
+  return DECK_SLOT_BY_CENTER[centerIndex][cardIndex]
+}
 
 function deckThemeStyle(project: Project): CSSProperties {
   return {
@@ -19,44 +33,77 @@ function deckThemeStyle(project: Project): CSSProperties {
   } as CSSProperties
 }
 
-type DeckPickerListProps = {
+type DeckNameListProps = {
   project: Project
-  frontIndex: number
-  onFrontSelect: (index: number) => void
+  centerIndex: number
+  onCenterSelect: (index: number) => void
+  showSubtitle?: boolean
+  className?: string
+  ariaLabel?: string
 }
 
-function DeckPickerList({ project, frontIndex, onFrontSelect }: DeckPickerListProps) {
+function DeckNameList({
+  project,
+  centerIndex,
+  onCenterSelect,
+  showSubtitle = false,
+  className,
+  ariaLabel,
+}: DeckNameListProps) {
+  const listClassName = ['work-picker__name-list', className].filter(Boolean).join(' ')
+
+  return (
+    <ul
+      className={listClassName}
+      role="listbox"
+      aria-label={ariaLabel ?? `${project.title} views`}
+    >
+      {project.deckCards.map((card, index) => {
+        const isActive = index === centerIndex
+
+        return (
+          <li key={card.id} className="work-picker__name-item" role="presentation">
+            <button
+              type="button"
+              className="work-picker__name-row"
+              role="option"
+              aria-selected={isActive}
+              data-active={isActive ? 'true' : undefined}
+              onClick={(event) => {
+                event.stopPropagation()
+                onCenterSelect(index)
+              }}
+            >
+              <span className="work-picker__name-row-inner">
+                {isActive ? <span className="work-picker__arrow" aria-hidden>→</span> : null}
+                <span className="work-picker__name-text">{card.title}</span>
+              </span>
+              {showSubtitle && isActive ? (
+                <span className="work-picker__name-subtitle">{project.listSubtitle}</span>
+              ) : null}
+            </button>
+          </li>
+        )
+      })}
+    </ul>
+  )
+}
+
+type DeckPickerListProps = {
+  project: Project
+  centerIndex: number
+  onCenterSelect: (index: number) => void
+}
+
+function DeckPickerList({ project, centerIndex, onCenterSelect }: DeckPickerListProps) {
   return (
     <div className="work-picker__list-panel">
-      <ul className="work-picker__name-list" role="listbox" aria-label={`${project.title} views`}>
-        {project.deckCards.map((card, index) => {
-          const isActive = index === frontIndex
-
-          return (
-            <li key={card.id} className="work-picker__name-item" role="presentation">
-              <button
-                type="button"
-                className="work-picker__name-row"
-                role="option"
-                aria-selected={isActive}
-                data-active={isActive ? 'true' : undefined}
-                onClick={(event) => {
-                  event.stopPropagation()
-                  onFrontSelect(index)
-                }}
-              >
-                <span className="work-picker__name-row-inner">
-                  {isActive ? <span className="work-picker__arrow" aria-hidden>→</span> : null}
-                  <span className="work-picker__name-text">{card.title}</span>
-                </span>
-                {isActive ? (
-                  <span className="work-picker__name-subtitle">{project.listSubtitle}</span>
-                ) : null}
-              </button>
-            </li>
-          )
-        })}
-      </ul>
+      <DeckNameList
+        project={project}
+        centerIndex={centerIndex}
+        onCenterSelect={onCenterSelect}
+        showSubtitle
+      />
       {project.localeFloat ? <DeckLocaleFloat data={project.localeFloat} /> : null}
     </div>
   )
@@ -65,15 +112,38 @@ function DeckPickerList({ project, frontIndex, onFrontSelect }: DeckPickerListPr
 type ProjectDeckProps = {
   project: Project
   columnIndex: number
+  centerIndex: number
+  onCenterSelect: (index: number) => void
+  scrollActive: boolean
 }
 
-function ProjectDeck({ project, columnIndex }: ProjectDeckProps) {
+function ProjectDeck({
+  project,
+  columnIndex,
+  centerIndex,
+  onCenterSelect,
+  scrollActive,
+}: ProjectDeckProps) {
   const reducedMotion = usePrefersReducedMotion()
-  const [frontIndex, setFrontIndex] = useState(DEFAULT_FRONT_INDEX)
   const [isExpanded, setIsExpanded] = useState(false)
+  const deckCount = project.deckCards.length
 
-  const leftCard = project.deckCards[0]
-  const rightCard = project.deckCards[1]
+  const handleCenterKeyDown = (event: KeyboardEvent<HTMLDivElement>) => {
+    if (event.key === 'ArrowDown' || event.key === 'PageDown') {
+      event.preventDefault()
+      onCenterSelect(Math.min(deckCount - 1, centerIndex + 1))
+      return
+    }
+    if (event.key === 'ArrowUp' || event.key === 'PageUp') {
+      event.preventDefault()
+      onCenterSelect(Math.max(0, centerIndex - 1))
+      return
+    }
+    if (event.key === 'Enter' || event.key === ' ') {
+      event.preventDefault()
+      onCenterSelect(DEFAULT_CENTER_INDEX)
+    }
+  }
 
   const handleDeckBlur = (event: FocusEvent<HTMLDivElement>) => {
     const next = event.relatedTarget
@@ -81,14 +151,7 @@ function ProjectDeck({ project, columnIndex }: ProjectDeckProps) {
     setIsExpanded(false)
   }
 
-  const bringCenterToFront = () => setFrontIndex(2)
-
-  const handleCenterKeyDown = (event: KeyboardEvent<HTMLDivElement>) => {
-    if (event.key === 'Enter' || event.key === ' ') {
-      event.preventDefault()
-      bringCenterToFront()
-    }
-  }
+  const fanActive = scrollActive || isExpanded
 
   return (
     <div
@@ -96,79 +159,123 @@ function ProjectDeck({ project, columnIndex }: ProjectDeckProps) {
       data-column={columnIndex}
       data-home-reveal
       style={deckThemeStyle(project)}
+      tabIndex={0}
+      onKeyDown={handleCenterKeyDown}
+      onMouseEnter={() => setIsExpanded(true)}
+      onMouseLeave={() => setIsExpanded(false)}
+      onFocusCapture={() => setIsExpanded(true)}
+      onBlurCapture={handleDeckBlur}
+      aria-roledescription="carousel"
+      aria-label={`${project.title}, scroll or use arrow keys to change view`}
     >
       <div
         className={`work-picker__deck${reducedMotion ? ' work-picker__deck--reduced' : ''}`}
-        data-expanded={isExpanded ? 'true' : undefined}
-        data-front-index={frontIndex}
-        onMouseEnter={() => setIsExpanded(true)}
-        onMouseLeave={() => setIsExpanded(false)}
-        onFocusCapture={() => setIsExpanded(true)}
-        onBlurCapture={handleDeckBlur}
+        data-expanded={fanActive ? 'true' : undefined}
+        data-scroll-active={scrollActive ? 'true' : undefined}
+        data-center-index={centerIndex}
         role="group"
         aria-label={project.title}
       >
-        <div
-          className={`work-picker__deck-card work-picker__deck-card--center work-picker__deck-card--${project.centerVariant}`}
-          data-slot="center"
-          data-card-index={2}
-          tabIndex={0}
-          onClick={bringCenterToFront}
-          onKeyDown={handleCenterKeyDown}
-        >
-          {project.centerVariant === 'bento' ? (
-            <DeckBentoCenter
-              project={project}
-              frontIndex={frontIndex}
-              onFrontSelect={setFrontIndex}
-            />
-          ) : (
-            <DeckPickerList
-              project={project}
-              frontIndex={frontIndex}
-              onFrontSelect={setFrontIndex}
-            />
-          )}
-        </div>
+        {project.deckCards.map((card, index) => {
+          const slot = getDeckSlot(index, centerIndex)
+          const isCenter = slot === 'center'
+          const isListCenter =
+            isCenter && index === DEFAULT_CENTER_INDEX && project.centerVariant === 'list-picker'
+          const isBentoCenter =
+            isCenter && index === DEFAULT_CENTER_INDEX && project.centerVariant === 'bento'
 
-        <button
-          type="button"
-          className="work-picker__deck-card work-picker__deck-card--layout"
-          data-slot="left"
-          data-card-index={0}
-          data-layout={leftCard.layout}
-          aria-label={`Bring ${leftCard.title} to front`}
-          onClick={() => setFrontIndex(0)}
-        >
-          <DeckCardLayout card={leftCard} cardAccent={project.theme.accent} />
-        </button>
+          const className = [
+            'work-picker__deck-card',
+            isCenter ? 'work-picker__deck-card--center' : 'work-picker__deck-card--layout',
+            isListCenter ? 'work-picker__deck-card--list-picker' : '',
+            isBentoCenter ? 'work-picker__deck-card--bento' : '',
+          ]
+            .filter(Boolean)
+            .join(' ')
 
-        <button
-          type="button"
-          className="work-picker__deck-card work-picker__deck-card--layout"
-          data-slot="right"
-          data-card-index={1}
-          data-layout={rightCard.layout}
-          aria-label={`Bring ${rightCard.title} to front`}
-          onClick={() => setFrontIndex(1)}
-        >
-          <DeckCardLayout card={rightCard} cardAccent={project.theme.accent} />
-        </button>
+          const sharedProps = {
+            'data-slot': slot,
+            'data-card-index': index,
+            'data-layout': card.layout,
+          }
+
+          if (isListCenter || isBentoCenter) {
+            return (
+              <div key={card.id} className={className} {...sharedProps}>
+                {isBentoCenter ? (
+                  <DeckBentoCenter
+                    project={project}
+                    centerIndex={centerIndex}
+                    onCenterSelect={onCenterSelect}
+                  />
+                ) : (
+                  <DeckPickerList
+                    project={project}
+                    centerIndex={centerIndex}
+                    onCenterSelect={onCenterSelect}
+                  />
+                )}
+              </div>
+            )
+          }
+
+          return (
+            <button
+              key={card.id}
+              type="button"
+              className={className}
+              {...sharedProps}
+              aria-label={
+                isCenter ? `${card.title}, centered` : `Bring ${card.title} to center`
+              }
+              onClick={() => onCenterSelect(index)}
+            >
+              <DeckCardLayout card={card} cardAccent={project.theme.accent} />
+            </button>
+          )
+        })}
+      </div>
+
+      <div className="work-picker__deck-footer">
+        <p className="work-picker__project-title">{project.title}</p>
       </div>
     </div>
   )
 }
 
 export function HomeWorkPicker() {
+  const reducedMotion = usePrefersReducedMotion()
+  const [centerIndex, setCenterIndex] = useState(DEFAULT_CENTER_INDEX)
+  const [scrollActive, setScrollActive] = useState(false)
+  const stageRef = useRef<HTMLDivElement>(null)
+
+  useWorkDeckScrollScrub({
+    enabled: !reducedMotion && projects.length > 0,
+    rootRef: stageRef,
+    onScrollActiveChange: setScrollActive,
+  })
+
   if (!projects.length) {
     return <p className="work-picker__empty">Projects are coming soon.</p>
   }
 
   return (
     <div className="work-picker">
-      <div className="work-picker__stage" role="group" aria-label="Selected projects">
+      <div
+        ref={stageRef}
+        className="work-picker__stage"
+        role="group"
+        aria-label="Selected projects"
+      >
         {projects.map((project, index) => (
-          <ProjectDeck key={project.id} project={project} columnIndex={index} />
+          <ProjectDeck
+            key={project.id}
+            project={project}
+            columnIndex={index}
+            centerIndex={centerIndex}
+            onCenterSelect={setCenterIndex}
+            scrollActive={scrollActive}
+          />
         ))}
       </div>
     </div>
