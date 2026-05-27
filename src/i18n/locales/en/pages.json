@@ -10,14 +10,14 @@
     "heroLead": "Engineer and writer exploring ideas through software, notes, and experiments. This site collects selected work and occasional long-form notes.",
     "heroAtmosphere": {
       "rows": {
-        "1": "ENGINEER",
-        "2": "CREATIVE&DEVELOPER",
-        "3": "MENTOR"
+        "1": "DESIGNER",
+        "2": "CREATIVE DEVELOPER",
+        "3": "ENGINEER"
       },
       "kinetic": {
-        "engineer": "engineer",
-        "systems": "systems",
-        "mentor": "mentor"
+        "designer": "designer",
+        "developer": "developer",
+        "engineer": "engineer"
       },
       "floaters": {
         "principal": {
