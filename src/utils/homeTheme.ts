@@ -13,46 +13,46 @@ export type HomeThemeTokens = {
 
 export const HOME_THEMES: Record<HomeThemeId, HomeThemeTokens> = {
   hero: {
-    bgSolid: '#033220',
-    fg: '#e7f5eb',
-    fgMuted: 'rgba(214, 235, 224, 0.82)',
-    accent: '#74c2a0',
-    border: 'rgba(226, 243, 231, 0.24)',
+    bgSolid: '#fdf7f3',
+    fg: '#2a2330',
+    fgMuted: 'rgba(42, 35, 48, 0.72)',
+    accent: '#8d7399',
+    border: 'rgba(42, 35, 48, 0.14)',
   },
   experiments: {
-    bgSolid: '#d6ebe1',
-    fg: '#0f0e0c',
-    fgMuted: 'rgba(20, 18, 16, 0.72)',
-    accent: '#2a7a5c',
-    border: 'rgba(20, 18, 16, 0.12)',
+    bgSolid: '#f5f9ff',
+    fg: '#1f2a3a',
+    fgMuted: 'rgba(31, 42, 58, 0.72)',
+    accent: '#5f8bb2',
+    border: 'rgba(31, 42, 58, 0.14)',
   },
   work: {
-    bgSolid: '#ebe5da',
-    fg: '#141210',
-    fgMuted: 'rgba(20, 18, 16, 0.65)',
-    accent: '#1f6b4a',
-    border: 'rgba(20, 18, 16, 0.14)',
+    bgSolid: '#f8f6ff',
+    fg: '#29233d',
+    fgMuted: 'rgba(41, 35, 61, 0.72)',
+    accent: '#7c70b3',
+    border: 'rgba(41, 35, 61, 0.14)',
   },
   writings: {
-    bgSolid: '#0d3020',
-    fg: '#e8ecf4',
-    fgMuted: 'rgba(232, 236, 244, 0.78)',
-    accent: '#5bc0be',
-    border: 'rgba(232, 236, 244, 0.24)',
+    bgSolid: '#fef7f1',
+    fg: '#342722',
+    fgMuted: 'rgba(52, 39, 34, 0.72)',
+    accent: '#b57d63',
+    border: 'rgba(52, 39, 34, 0.14)',
   },
   talks: {
-    bgSolid: '#0f3624',
-    fg: '#e8ecf4',
-    fgMuted: 'rgba(232, 236, 244, 0.78)',
-    accent: '#5bc0be',
-    border: 'rgba(232, 236, 244, 0.24)',
+    bgSolid: '#f4fbf7',
+    fg: '#1d352f',
+    fgMuted: 'rgba(29, 53, 47, 0.72)',
+    accent: '#4c9a8d',
+    border: 'rgba(29, 53, 47, 0.14)',
   },
   books: {
-    bgSolid: '#243528',
-    fg: '#e8ecf4',
-    fgMuted: 'rgba(232, 236, 244, 0.78)',
-    accent: '#e9b858',
-    border: 'rgba(232, 236, 244, 0.2)',
+    bgSolid: '#fff9ef',
+    fg: '#3a2f1f',
+    fgMuted: 'rgba(58, 47, 31, 0.72)',
+    accent: '#b9934b',
+    border: 'rgba(58, 47, 31, 0.14)',
   },
 }
 
@@ -82,15 +82,16 @@ export function blendHomeThemeTokens(
   progress: number,
 ) {
   const t = gsap.utils.clamp(0, 1, progress)
+  const easedT = gsap.parseEase('sine.inOut')(t)
   const from = HOME_THEMES[fromId]
   const to = HOME_THEMES[toId]
 
-  if (fromId === toId || t <= 0) {
+  if (fromId === toId || easedT <= 0) {
     applyHomeThemeTokens(root, fromId)
     return
   }
 
-  if (t >= 1) {
+  if (easedT >= 1) {
     applyHomeThemeTokens(root, toId)
     return
   }
@@ -99,11 +100,11 @@ export function blendHomeThemeTokens(
   setHomeThemeVars(
     root,
     {
-      bgSolid: mix(from.bgSolid, to.bgSolid)(t),
-      fg: mix(from.fg, to.fg)(t),
-      fgMuted: mix(from.fgMuted, to.fgMuted)(t),
-      accent: mix(from.accent, to.accent)(t),
-      border: mix(from.border, to.border)(t),
+      bgSolid: mix(from.bgSolid, to.bgSolid)(easedT),
+      fg: mix(from.fg, to.fg)(easedT),
+      fgMuted: mix(from.fgMuted, to.fgMuted)(easedT),
+      accent: mix(from.accent, to.accent)(easedT),
+      border: mix(from.border, to.border)(easedT),
     },
     `${fromId}+${toId}`,
   )

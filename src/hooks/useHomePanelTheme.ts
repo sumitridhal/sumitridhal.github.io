@@ -17,10 +17,10 @@ type UseHomePanelThemeOptions = {
   reducedMotion: boolean
 }
 
-const THEME_BLEND_SCRUB = 0.65
-const THEME_ENTER_END = 'top 34%'
-const THEME_HOLD_START = 'top 34%'
-const THEME_HOLD_END = 'bottom 66%'
+const THEME_BLEND_SCRUB = 1.1
+const THEME_ENTER_END = 'top 26%'
+const THEME_HOLD_START = 'top 30%'
+const THEME_HOLD_END = 'bottom 70%'
 
 export function useHomePanelTheme({ rootRef, reducedMotion }: UseHomePanelThemeOptions) {
   useLenisScrollTrigger()
