@@ -39,8 +39,6 @@ export function HomePage() {
   const panelsRef = useRef<HTMLDivElement>(null)
   const experimentsTrackRef = useRef<HTMLDivElement>(null)
   const experimentsStripRef = useRef<HTMLUListElement>(null)
-  const workTrackRef = useRef<HTMLDivElement>(null)
-  const workStripRef = useRef<HTMLUListElement>(null)
   const booksTrackRef = useRef<HTMLDivElement>(null)
   const booksStripRef = useRef<HTMLDivElement>(null)
   const reducedMotion = usePrefersReducedMotion()
@@ -51,8 +49,6 @@ export function HomePage() {
     rootRef: panelsRef,
     experimentsTrackRef,
     experimentsStripRef,
-    workTrackRef,
-    workStripRef,
     booksTrackRef,
     booksStripRef,
     enabled: linkedHorizontalGallery,
@@ -119,11 +115,7 @@ export function HomePage() {
       />
 
       <HomePanel id="work" theme="work" className="work-panel" aria-labelledby="work-heading">
-        <HomeWorkSection
-          trackRef={workTrackRef}
-          stripRef={workStripRef}
-          scrubHorizontal={linkedHorizontalGallery}
-        />
+        <HomeWorkSection />
       </HomePanel>
 
       <HomePanel
