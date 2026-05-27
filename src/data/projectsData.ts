@@ -68,20 +68,22 @@ export const projects: Project[] = [
       {
         id: 'wu-ds-meta',
         pill: 'Design system',
-        title: 'Western Union design system',
+        title: 'Program',
         body: 'Program foundations for global money-movement surfaces.',
         chips: ['Tokens', 'Components', 'Governance'],
+        previewLabel: 'Governance',
       },
       {
         id: 'wu-ds-features',
         pill: 'Building blocks',
-        title: 'Shared language',
+        title: 'Components',
         body: 'Primitives and patterns teams compose without fragmenting the experience.',
         chips: ['Semantic color', 'Motion'],
         miniCards: [
           { label: 'Token library', meta: 'Color · type · spacing' },
           { label: 'Component tiers', meta: 'Primitives → patterns' },
         ],
+        previewLabel: 'Token library',
       },
       {
         id: 'wu-ds-hero',
@@ -115,20 +117,22 @@ export const projects: Project[] = [
       {
         id: 'wu-kiosk-meta',
         pill: 'Retail product',
-        title: 'Western Union retail kiosk',
+        title: 'In-store',
         body: 'In-store cash send under glare, gloves, and intermittent connectivity.',
         chips: ['Cash flow', 'Hardware', 'Recovery'],
+        previewLabel: 'Bill reader',
       },
       {
         id: 'wu-kiosk-features',
         pill: 'In-store flow',
-        title: 'Hardware-aware UX',
+        title: 'Cash flow',
         body: 'Linear steps with confirmation at every cash boundary.',
         chips: ['Bill reader', 'Localization'],
         miniCards: [
           { label: 'Insert bills', meta: 'Validator sync' },
           { label: 'Agent takeover', meta: 'Jam · partial · timeout' },
         ],
+        previewLabel: 'Insert bills',
       },
       {
         id: 'wu-kiosk-hero',
