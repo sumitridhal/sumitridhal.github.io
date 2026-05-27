@@ -7,12 +7,12 @@ export const writingMeta = {
   date: '2026-05-27',
   category: 'UI',
   excerpt:
-    'Fifteen absolutely positioned plates, a Playfair headline sandwiched in z-space, GSAP load + breathe tweens, and size-weighted pointer parallax — placeholder nebula tiles until you wire real assets.',
+    'Fifteen scattered plates with scroll-driven zoom inside the embed, vacuum drift, and size-weighted pointer parallax — placeholder nebula tiles until you wire real assets.',
   coverSrc: '/media/writings/cosmos-floating-gallery-parallax.png',
   titleLines: ['Deep space floating gallery', 'load, drift, cursor parallax'],
 }
 
-Collage heroes like the Puma “Welcome to Our World” reference scatter photography at different scales and **z-indexes** so type sits in the middle of the stack — some frames behind the headline, some in front. The motion recipe is three layers: a **load** entrance, a slow **vacuum drift** loop, and **cursor parallax** with depth tied to plate size.
+Collage heroes like the Puma “Welcome to Our World” reference scatter photography at different scales and **z-indexes** so type sits in the middle of the stack — some frames behind the headline, some in front. The motion recipe is four layers: a **load** entrance, **scroll zoom** inside the embed, a slow **vacuum drift** loop, and **cursor parallax** with depth tied to effective plate size.
 
 Palette for this note: midnight cosmic blue `#0B0C10` and starlight gold `#F5A623`, with **Playfair Display** for the cinematic title.
 
@@ -22,9 +22,11 @@ The live embed uses **bundled GSAP** in React (same as the rest of this site). P
 
 ## Layout
 
-1. **Stage** — `position: relative`, `width: 100%`, `overflow: hidden`, tall `min-height` (article-safe, not literal `100vw` chrome).
-2. **Title** — centered with `position: absolute; inset: 0`, `z-index: 5`, `pointer-events: none`.
-3. **Plates** — `position: absolute` with `%` `left` / `top`, varying `width` (100–350px) and `z-index` `1` (behind) or `10` (in front).
+1. **Viewport** — fixed height, `overflow-y: auto`, `data-lenis-prevent` so wheel events stay inside the demo.
+2. **Track** — tall runway (`min-height: 240%`) so there is scroll range to scrub.
+3. **Stage** — `position: sticky; top: 0`, fills the viewport; plates and title live here.
+4. **Title** — centered with `position: absolute; inset: 0`, `z-index: 5`, `pointer-events: none` (no scroll scale on type).
+5. **Plates** — `position: absolute` with `%` `left` / `top`, varying `width` (100–350px) and `z-index` `1` (behind) or `10` (in front).
 
 Split **parallax** and **float** across two nodes so transforms do not fight:
 
@@ -48,6 +50,26 @@ intro.to(drifts, { x: 0, y: 0, duration: 0.85, stagger: 0.04 }, 0.15)
 intro.call(() => startFloatLoops())
 ```
 
+## Scroll zoom
+
+Scroll **forward** inside the viewport (increasing `scrollTop`) and plates **scale up**; scroll back and they shrink. A sticky stage keeps the collage in view while the track moves. **ScrollTrigger** scrubs `scale` on each `.plate` from about `0.82` at the top to `1.38` at the bottom:
+
+```ts
+ScrollTrigger.create({
+  trigger: track,
+  scroller: viewport,
+  start: 'top top',
+  end: 'bottom bottom',
+  scrub: 0.35,
+  onUpdate(self) {
+    const scale = gsap.utils.mapRange(0, 1, 0.82, 1.38, self.progress)
+    plates.forEach((plate) => gsap.set(plate, { scale, transformOrigin: '50% 50%' }))
+  },
+})
+```
+
+Parallax depth uses `item.width * currentScale` so cursor drift stays believable after zoom.
+
 ## Continuous float
 
 Per drift layer, pick duration between **3–7s** (fixed per plate in config), `ease: 'sine.inOut'`, `yoyo: true`, `repeat: -1`, and small `x` / `y` deltas — a slow breathe in zero gravity.
@@ -68,7 +90,7 @@ gsap.to(drift, {
 Normalize the pointer against the stage center to `offsetX` / `offsetY` in roughly `[-1, 1]`. Derive depth from width — larger plates move more:
 
 ```ts
-const depth = gsap.utils.mapRange(100, 350, 0.2, 1, item.width)
+const depth = gsap.utils.mapRange(100, 350, 0.2, 1, item.width * scrollScale)
 const quickX = gsap.quickTo(plate, 'x', { duration: 0.5, ease: 'power3.out' })
 quickX(offsetX * 48 * depth)
 ```
@@ -77,7 +99,7 @@ Reset to `0` on `pointerleave`. `quickTo` keeps many plates smooth without resta
 
 ## Reduced motion
 
-When `prefers-reduced-motion: reduce` is set, skip float and parallax listeners; show the static collage at full opacity — same pattern as other writing embeds via `useWritingPreviewReducedMotion`.
+When `prefers-reduced-motion: reduce` is set, the viewport remains scrollable but scroll zoom, float, and parallax are disabled; plates stay at `scale: 1` and full opacity.
 
 ## Standalone HTML (GSAP CDN)
 
@@ -91,6 +113,7 @@ Use the same DOM split (plate vs drift), the same depth mapping, and `window.add
 
 ## What to steal first
 
-- **Two transform layers** — never parallax and float on the same element.
-- **Depth from size** — one `mapRange` call beats hand-tuned per-id multipliers when art direction changes.
+- **Two transform layers** — never parallax and float on the same element; keep scroll `scale` on the plate, not the drift child.
+- **Sticky stage + tall track** — isolates scroll zoom from the article’s document scroll.
+- **Depth from effective size** — multiply base width by current scroll scale for parallax.
 - **Intro before loop** — sequence the breathe tweens after the entrance timeline completes.
