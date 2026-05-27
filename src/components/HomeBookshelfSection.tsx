@@ -28,7 +28,7 @@ type HomeBookshelfSectionProps = {
   books: BookItem[]
   trackRef?: RefObject<HTMLDivElement | null>
   stripRef?: RefObject<HTMLDivElement | null>
-  /** Transform-driven strip (linked scroll timeline). Otherwise native horizontal scroll. */
+  /** Transform-driven strip (section scroll timeline). Otherwise native horizontal scroll. */
   scrubHorizontal?: boolean
 }
 
@@ -49,41 +49,43 @@ export function HomeBookshelfSection({
       aria-labelledby="books-heading"
     >
       <HomeSlideLayout titleId="books-heading" title="Bookshelf">
-        <div
-          ref={trackRef}
-          className={`bookshelf__track${scrubHorizontal ? ' bookshelf__track--scrub' : ''}`}
-        >
+        <div className="bookshelf__scroll-shift">
           <div
-            ref={stripRef}
-            className="bookshelf__grid"
-            role="list"
-            tabIndex={nativeHorizontalScroll ? 0 : -1}
-            aria-labelledby="books-heading"
+            ref={trackRef}
+            className={`bookshelf__track${scrubHorizontal ? ' bookshelf__track--scrub' : ''}`}
           >
-          {books.map((book) => (
-            <article
-              key={book.id}
-              className="bookshelf__book"
-              data-home-reveal
-              role="listitem"
-              aria-label={`${book.title}, ${book.author}, ${book.pages} pages`}
-              style={
-                {
-                  '--book-width': spineWidthFromPages(book.pages),
-                  '--book-spine-color': book.spineColor,
-                  '--book-text-color': book.textColor,
-                } as CSSProperties
-              }
+            <div
+              ref={stripRef}
+              className="bookshelf__grid"
+              role="list"
+              tabIndex={nativeHorizontalScroll ? 0 : -1}
+              aria-labelledby="books-heading"
             >
-              <span className="bookshelf__badge" aria-hidden="true">
-                {book.author}
-              </span>
-              <div className="bookshelf__spine">
-                <p className="bookshelf__title">{book.title}</p>
-                <p className="bookshelf__author">{book.author}</p>
-              </div>
-            </article>
-          ))}
+              {books.map((book) => (
+                <article
+                  key={book.id}
+                  className="bookshelf__book"
+                  data-home-reveal
+                  role="listitem"
+                  aria-label={`${book.title}, ${book.author}, ${book.pages} pages`}
+                  style={
+                    {
+                      '--book-width': spineWidthFromPages(book.pages),
+                      '--book-spine-color': book.spineColor,
+                      '--book-text-color': book.textColor,
+                    } as CSSProperties
+                  }
+                >
+                  <span className="bookshelf__badge" aria-hidden="true">
+                    {book.author}
+                  </span>
+                  <div className="bookshelf__spine">
+                    <p className="bookshelf__title">{book.title}</p>
+                    <p className="bookshelf__author">{book.author}</p>
+                  </div>
+                </article>
+              ))}
+            </div>
           </div>
         </div>
       </HomeSlideLayout>
