@@ -17,7 +17,7 @@ function PreviewSkeleton({ caption }: { caption?: string }) {
       {caption ? (
         <figcaption className="writing-cosmos-float__caption">{caption}</figcaption>
       ) : null}
-      <div className="writing-cosmos-float__stage writing-cosmos-float__stage--skeleton" />
+      <div className="writing-cosmos-float__viewport writing-cosmos-float__viewport--skeleton" />
     </figure>
   )
 }
