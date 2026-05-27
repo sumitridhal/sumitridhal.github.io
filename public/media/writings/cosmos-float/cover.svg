@@ -1,0 +1,32 @@
+<svg xmlns="http://www.w3.org/2000/svg" width="960" height="640" viewBox="0 0 960 640">
+  <defs>
+    <radialGradient id="c" cx="50%" cy="45%" r="65%">
+      <stop offset="0%" stop-color="#2a1f4e" />
+      <stop offset="55%" stop-color="#121528" />
+      <stop offset="100%" stop-color="#0b0c10" />
+    </radialGradient>
+  </defs>
+  <rect width="960" height="640" fill="url(#c)" />
+  <text
+    x="480"
+    y="310"
+    text-anchor="middle"
+    font-family="Georgia, serif"
+    font-size="72"
+    font-weight="700"
+    fill="#f5a623"
+  >
+    Explore
+  </text>
+  <text
+    x="480"
+    y="390"
+    text-anchor="middle"
+    font-family="Georgia, serif"
+    font-size="72"
+    font-weight="700"
+    fill="#f5a623"
+  >
+    The Cosmos
+  </text>
+</svg>
