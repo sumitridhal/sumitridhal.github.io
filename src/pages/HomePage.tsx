@@ -23,7 +23,7 @@ import { lenisService } from '@/services/lenisService'
 import { formatWritingDate } from '@/utils/formatWritingDate'
 import { preloadImages } from '@/utils/imagePreloadCache'
 
-const HOME_WRITINGS_PREVIEW_COUNT = 4
+const HOME_WRITINGS_PREVIEW_COUNT = 8
 
 const HASH_SECTION_IDS: Record<string, string> = {
   '#work': 'work',
@@ -43,7 +43,8 @@ export function HomePage() {
   const booksStripRef = useRef<HTMLDivElement>(null)
   const reducedMotion = usePrefersReducedMotion()
   const location = useLocation()
-  const linkedHorizontalGallery = !reducedMotion && homeExperiments.length > 0
+  const experimentsScrubHorizontal = !reducedMotion && homeExperiments.length > 0
+  const booksScrubHorizontal = !reducedMotion && bookshelf.length > 0
 
   useHomeStripScroll({
     rootRef: panelsRef,
@@ -51,7 +52,9 @@ export function HomePage() {
     experimentsStripRef,
     booksTrackRef,
     booksStripRef,
-    enabled: linkedHorizontalGallery,
+    enabled: experimentsScrubHorizontal || booksScrubHorizontal,
+    experimentsEnabled: experimentsScrubHorizontal,
+    booksEnabled: booksScrubHorizontal,
   })
 
   useHomePanelTheme({
@@ -111,7 +114,7 @@ export function HomePage() {
       <HomeExperimentsSection
         trackRef={experimentsTrackRef}
         stripRef={experimentsStripRef}
-        scrubHorizontal={linkedHorizontalGallery}
+        scrubHorizontal={experimentsScrubHorizontal}
       />
 
       <HomePanel id="work" theme="work" className="work-panel" aria-labelledby="work-heading">
@@ -173,7 +176,7 @@ export function HomePage() {
         books={bookshelf}
         trackRef={booksTrackRef}
         stripRef={booksStripRef}
-        scrubHorizontal={linkedHorizontalGallery}
+        scrubHorizontal={booksScrubHorizontal}
       />
     </div>
   )
