@@ -2,7 +2,13 @@ import { ScrollTrigger } from 'gsap/ScrollTrigger'
 import { useLayoutEffect, type RefObject } from 'react'
 
 import { useLenisScrollTrigger } from '@/hooks/useLenisScrollTrigger'
-import { playPanelReveal, resetPanelReveal } from '@/utils/homePanelReveal'
+import {
+  killPanelReveal,
+  playPanelReveal,
+  resetPanelReveal,
+  reversePanelReveal,
+  showPanelRevealed,
+} from '@/utils/homePanelReveal'
 
 type UseHomePanelRevealOptions = {
   rootRef: RefObject<HTMLElement | null>
@@ -10,7 +16,8 @@ type UseHomePanelRevealOptions = {
 }
 
 /**
- * Media + content enter animations when a home section scrolls into view.
+ * Media + content enter animations when a home section scrolls into view (down only).
+ * Scroll up reverses the reveal back to hidden states.
  */
 export function useHomePanelReveal({ rootRef, reducedMotion }: UseHomePanelRevealOptions) {
   useLenisScrollTrigger()
@@ -39,25 +46,27 @@ export function useHomePanelReveal({ rootRef, reducedMotion }: UseHomePanelRevea
     }
 
     const triggers: ScrollTrigger[] = []
+    const animatedPanels: HTMLElement[] = []
 
     panels.forEach((panel) => {
       if (panel.id === 'hero') return
 
+      animatedPanels.push(panel)
       resetPanelReveal(panel)
 
       const st = ScrollTrigger.create({
         trigger: panel,
         start: 'top 82%',
         onEnter: () => playPanelReveal(panel),
-        onEnterBack: () => playPanelReveal(panel),
-        onLeave: () => resetPanelReveal(panel),
-        onLeaveBack: () => resetPanelReveal(panel),
+        onLeaveBack: () => reversePanelReveal(panel),
+        onEnterBack: () => showPanelRevealed(panel),
       })
       triggers.push(st)
     })
 
     return () => {
       triggers.forEach((st) => st.kill())
+      animatedPanels.forEach((panel) => killPanelReveal(panel))
     }
   }, [rootRef, reducedMotion])
 }
