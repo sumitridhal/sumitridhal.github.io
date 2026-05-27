@@ -34,11 +34,14 @@ export function useHomeScrollParallax({ rootRef, reducedMotion }: UseHomeScrollP
     const expShift = root.querySelector<HTMLElement>(
       '#experiments .home-experiments__scroll-shift',
     )
+    const books = root.querySelector<HTMLElement>('#books')
+    const booksShift = root.querySelector<HTMLElement>('#books .bookshelf__scroll-shift')
 
     if (reducedMotion) {
       if (hero) gsap.set(hero, { clearProps: 'transform' })
       bannerImgs.forEach((img) => gsap.set(img, { clearProps: 'transform' }))
       if (expShift) gsap.set(expShift, { clearProps: 'transform' })
+      if (booksShift) gsap.set(booksShift, { clearProps: 'transform' })
       return
     }
 
@@ -71,6 +74,24 @@ export function useHomeScrollParallax({ rootRef, reducedMotion }: UseHomeScrollP
             ease: 'none',
             scrollTrigger: {
               trigger: experiments,
+              start: 'top bottom',
+              end: 'top 30%',
+              scrub: true,
+            },
+          },
+        )
+      }
+
+      if (booksShift && books) {
+        gsap.fromTo(
+          booksShift,
+          { x: 0, y: 120 },
+          {
+            x: 0,
+            y: 0,
+            ease: 'none',
+            scrollTrigger: {
+              trigger: books,
               start: 'top bottom',
               end: 'top 30%',
               scrub: true,
