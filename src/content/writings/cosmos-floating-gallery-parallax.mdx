@@ -1,0 +1,96 @@
+import { WritingCosmosFloatPreviewLazy } from '@/components/writings/WritingCosmosFloatPreviewLazy'
+
+export const writingMeta = {
+  id: 'cosmos-floating-gallery-parallax',
+  order: -2.5,
+  title: 'Deep space floating gallery: load, drift, and cursor parallax',
+  date: '2026-05-27',
+  category: 'UI',
+  excerpt:
+    'Fifteen absolutely positioned plates, a Playfair headline sandwiched in z-space, GSAP load + breathe tweens, and size-weighted pointer parallax — placeholder nebula tiles until you wire real assets.',
+  coverSrc: '/media/writings/cosmos-floating-gallery-parallax.png',
+  titleLines: ['Deep space floating gallery', 'load, drift, cursor parallax'],
+}
+
+Collage heroes like the Puma “Welcome to Our World” reference scatter photography at different scales and **z-indexes** so type sits in the middle of the stack — some frames behind the headline, some in front. The motion recipe is three layers: a **load** entrance, a slow **vacuum drift** loop, and **cursor parallax** with depth tied to plate size.
+
+Palette for this note: midnight cosmic blue `#0B0C10` and starlight gold `#F5A623`, with **Playfair Display** for the cinematic title.
+
+<WritingCosmosFloatPreviewLazy />
+
+The live embed uses **bundled GSAP** in React (same as the rest of this site). Placeholder SVG tiles stand in for [pdimagearchive.org](https://pdimagearchive.org/galleries/all/random/desc)-style random stills; swap each `src` in [`cosmosFloatItems.ts`](src/components/writings/cosmosFloatItems.ts) when your nebula assets are ready.
+
+## Layout
+
+1. **Stage** — `position: relative`, `width: 100%`, `overflow: hidden`, tall `min-height` (article-safe, not literal `100vw` chrome).
+2. **Title** — centered with `position: absolute; inset: 0`, `z-index: 5`, `pointer-events: none`.
+3. **Plates** — `position: absolute` with `%` `left` / `top`, varying `width` (100–350px) and `z-index` `1` (behind) or `10` (in front).
+
+Split **parallax** and **float** across two nodes so transforms do not fight:
+
+```html
+<div class="plate" style="z-index: 10"><!-- quickTo x/y for parallax -->
+  <div class="drift"><!-- sine.inOut yoyo float -->
+    <img alt="Deep space nebula…" />
+  </div>
+</div>
+```
+
+## Load animation
+
+On mount, scale the title from `0.8` → `1` with a fade; fade plates in and ease the drift wrappers from a small offset into place. Start the infinite float **after** that intro timeline finishes so entrance and breathe do not share the same properties.
+
+```ts
+const intro = gsap.timeline({ defaults: { ease: 'power2.out' } })
+intro.to(title, { scale: 1, opacity: 1, duration: 1.1 }, 0)
+intro.to(plates, { opacity: 1, duration: 0.85, stagger: 0.04 }, 0.15)
+intro.to(drifts, { x: 0, y: 0, duration: 0.85, stagger: 0.04 }, 0.15)
+intro.call(() => startFloatLoops())
+```
+
+## Continuous float
+
+Per drift layer, pick duration between **3–7s** (fixed per plate in config), `ease: 'sine.inOut'`, `yoyo: true`, `repeat: -1`, and small `x` / `y` deltas — a slow breathe in zero gravity.
+
+```ts
+gsap.to(drift, {
+  x: `+=${xAmp}`,
+  y: `+=${yAmp}`,
+  duration: 5.2,
+  ease: 'sine.inOut',
+  yoyo: true,
+  repeat: -1,
+})
+```
+
+## Mouse parallax and depth
+
+Normalize the pointer against the stage center to `offsetX` / `offsetY` in roughly `[-1, 1]`. Derive depth from width — larger plates move more:
+
+```ts
+const depth = gsap.utils.mapRange(100, 350, 0.2, 1, item.width)
+const quickX = gsap.quickTo(plate, 'x', { duration: 0.5, ease: 'power3.out' })
+quickX(offsetX * 48 * depth)
+```
+
+Reset to `0` on `pointerleave`. `quickTo` keeps many plates smooth without restarting competing tweens every frame.
+
+## Reduced motion
+
+When `prefers-reduced-motion: reduce` is set, skip float and parallax listeners; show the static collage at full opacity — same pattern as other writing embeds via `useWritingPreviewReducedMotion`.
+
+## Standalone HTML (GSAP CDN)
+
+Outside this React app, load GSAP from the CDN and scope selectors to a full-viewport stage:
+
+```html
+<script src="https://cdn.jsdelivr.net/npm/gsap@3.12.5/dist/gsap.min.js"></script>
+```
+
+Use the same DOM split (plate vs drift), the same depth mapping, and `window.addEventListener('mousemove', …)` instead of `pointermove` on the stage. Import Playfair from Google Fonts in your `<head>`.
+
+## What to steal first
+
+- **Two transform layers** — never parallax and float on the same element.
+- **Depth from size** — one `mapRange` call beats hand-tuned per-id multipliers when art direction changes.
+- **Intro before loop** — sequence the breathe tweens after the entrance timeline completes.
