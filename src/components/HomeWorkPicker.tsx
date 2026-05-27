@@ -1,12 +1,11 @@
 import { useState, type CSSProperties, type FocusEvent } from 'react'
 
-import {
-  projects,
-  type Project,
-  type ProjectDeckCard,
-  type ProjectPreviewScene,
-} from '@/data/projectsData'
+import { projects, type Project } from '@/data/projectsData'
 import { usePrefersReducedMotion } from '@/hooks/usePrefersReducedMotion'
+
+import { DeckBentoCenter } from '@/components/work-picker/DeckBentoCenter'
+import { DeckCardLayout } from '@/components/work-picker/DeckCardLayout'
+import { DeckLocaleFloat } from '@/components/work-picker/DeckLocaleFloat'
 
 const DEFAULT_TOP_INDEX = 2
 
@@ -28,68 +27,6 @@ function getSideSlots(topIndex: number): { leftIndex: number; rightIndex: number
   }
 }
 
-function DeckPreviewScene({ scene, label }: { scene: ProjectPreviewScene; label: string }) {
-  if (scene === 'kiosk') {
-    return (
-      <div className="work-picker__scene work-picker__scene--kiosk" aria-hidden>
-        <div className="work-picker__scene-kiosk-header">Transfer Money</div>
-        <div className="work-picker__scene-kiosk-body">
-          <span className="work-picker__scene-kiosk-amount">$1,250.00</span>
-          <span className="work-picker__scene-kiosk-caption">{label}</span>
-        </div>
-      </div>
-    )
-  }
-
-  return (
-    <div className="work-picker__scene work-picker__scene--tokens" aria-hidden>
-      <div className="work-picker__scene-tokens-row">
-        <span />
-        <span />
-        <span />
-        <span />
-      </div>
-      <div className="work-picker__scene-tokens-blocks">
-        <span />
-        <span />
-      </div>
-      <span className="work-picker__scene-tokens-caption">{label}</span>
-    </div>
-  )
-}
-
-function DeckUiPreviewCard({ scene, label }: { scene: ProjectPreviewScene; label: string }) {
-  return (
-    <div className="work-picker__ui-preview" aria-hidden>
-      <DeckPreviewScene scene={scene} label={label} />
-    </div>
-  )
-}
-
-type DeckSidePanelProps = {
-  card: ProjectDeckCard
-  side: 'left' | 'right'
-  scene: ProjectPreviewScene
-}
-
-function DeckSidePanel({ card, side, scene }: DeckSidePanelProps) {
-  return (
-    <>
-      <header className="work-picker__side-header">
-        {side === 'left' ? (
-          <span className="work-picker__side-mark">HERO</span>
-        ) : (
-          <span className="work-picker__side-menu" aria-hidden />
-        )}
-      </header>
-      <h3 className="work-picker__side-title">{card.title}</h3>
-      <p className="work-picker__side-category">{card.pill}</p>
-      <p className="work-picker__side-copy">{card.body}</p>
-      <DeckUiPreviewCard scene={scene} label={card.previewLabel ?? card.pill} />
-    </>
-  )
-}
-
 type DeckPickerListProps = {
   project: Project
   topIndex: number
@@ -97,8 +34,6 @@ type DeckPickerListProps = {
 }
 
 function DeckPickerList({ project, topIndex, onSelect }: DeckPickerListProps) {
-  const activeCard = project.deckCards[topIndex]
-
   return (
     <div className="work-picker__list-panel">
       <ul className="work-picker__name-list" role="listbox" aria-label={`${project.title} views`}>
@@ -127,12 +62,7 @@ function DeckPickerList({ project, topIndex, onSelect }: DeckPickerListProps) {
           )
         })}
       </ul>
-      <div className="work-picker__float-card">
-        <DeckPreviewScene
-          scene={project.previewScene}
-          label={activeCard.previewLabel ?? activeCard.pill}
-        />
-      </div>
+      {project.localeFloat ? <DeckLocaleFloat data={project.localeFloat} /> : null}
     </div>
   )
 }
@@ -153,6 +83,10 @@ function ProjectDeck({ project, columnIndex }: ProjectDeckProps) {
     setIsExpanded(false)
   }
 
+  const { leftIndex, rightIndex } = getSideSlots(topIndex)
+  const leftCard = project.deckCards[leftIndex]
+  const rightCard = project.deckCards[rightIndex]
+
   return (
     <div className="work-picker__column" data-column={columnIndex} style={deckThemeStyle(project)}>
       <div
@@ -167,51 +101,40 @@ function ProjectDeck({ project, columnIndex }: ProjectDeckProps) {
         aria-label={project.title}
       >
         <div
-          className="work-picker__deck-card work-picker__deck-card--list"
+          className={`work-picker__deck-card work-picker__deck-card--center work-picker__deck-card--${project.centerVariant}`}
           data-slot="center"
           data-layer={topIndex}
         >
-          <DeckPickerList project={project} topIndex={topIndex} onSelect={setTopIndex} />
+          {project.centerVariant === 'bento' ? (
+            <DeckBentoCenter project={project} topIndex={topIndex} onSelect={setTopIndex} />
+          ) : (
+            <DeckPickerList project={project} topIndex={topIndex} onSelect={setTopIndex} />
+          )}
         </div>
 
-        {(() => {
-          const { leftIndex, rightIndex } = getSideSlots(topIndex)
+        <button
+          type="button"
+          className="work-picker__deck-card work-picker__deck-card--layout"
+          data-slot="left"
+          data-layer={leftIndex}
+          data-layout={leftCard.layout}
+          aria-label={`Select ${leftCard.title}`}
+          onClick={() => setTopIndex(leftIndex)}
+        >
+          <DeckCardLayout card={leftCard} cardAccent={project.theme.accent} />
+        </button>
 
-          return (
-            <>
-              <button
-                key={project.deckCards[leftIndex].id}
-                type="button"
-                className="work-picker__deck-card"
-                data-slot="left"
-                data-layer={leftIndex}
-                aria-label={`Select ${project.deckCards[leftIndex].title}`}
-                onClick={() => setTopIndex(leftIndex)}
-              >
-                <DeckSidePanel
-                  card={project.deckCards[leftIndex]}
-                  side="left"
-                  scene={project.previewScene}
-                />
-              </button>
-              <button
-                key={project.deckCards[rightIndex].id}
-                type="button"
-                className="work-picker__deck-card"
-                data-slot="right"
-                data-layer={rightIndex}
-                aria-label={`Select ${project.deckCards[rightIndex].title}`}
-                onClick={() => setTopIndex(rightIndex)}
-              >
-                <DeckSidePanel
-                  card={project.deckCards[rightIndex]}
-                  side="right"
-                  scene={project.previewScene}
-                />
-              </button>
-            </>
-          )
-        })()}
+        <button
+          type="button"
+          className="work-picker__deck-card work-picker__deck-card--layout"
+          data-slot="right"
+          data-layer={rightIndex}
+          data-layout={rightCard.layout}
+          aria-label={`Select ${rightCard.title}`}
+          onClick={() => setTopIndex(rightIndex)}
+        >
+          <DeckCardLayout card={rightCard} cardAccent={project.theme.accent} />
+        </button>
       </div>
     </div>
   )
