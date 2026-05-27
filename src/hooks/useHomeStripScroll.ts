@@ -14,28 +14,58 @@ export type HomeStripScrollRefs = {
   booksStripRef: RefObject<HTMLElement | null>
 }
 
-/**
- * Relative vertical-scroll “cost” per strip vs baseline `1`.
- * Lower → that strip finishes its horizontal range with less page scroll (feels faster).
- */
-export const HOME_STRIP_WEIGHTS = {
-  experiments: 0.62,
-  work: 1.05,
-  books: 0.68,
-} as const
+type StripBinding = {
+  section: HTMLElement
+  wrap: HTMLElement
+  strip: HTMLElement
+}
 
-export type HomeStripWeights = typeof HOME_STRIP_WEIGHTS
+function bindSectionHorizontalStrip({ section, wrap, strip }: StripBinding) {
+  let max = 0
 
-function verticalBudgetPx(maxPx: number, weight: number) {
-  if (maxPx <= 0) return 0
-  return Math.max(maxPx * weight, 1)
+  const measure = () => {
+    max = Math.max(0, strip.scrollWidth - wrap.clientWidth)
+  }
+
+  measure()
+  if (max <= 0) return () => {}
+
+  const tween = gsap.to(strip, {
+    x: () => -max,
+    ease: 'none',
+    scrollTrigger: {
+      trigger: section,
+      start: 'top bottom',
+      end: 'bottom top',
+      scrub: true,
+      invalidateOnRefresh: true,
+    },
+  })
+
+  const onRefreshInit = () => measure()
+  ScrollTrigger.addEventListener('refreshInit', onRefreshInit)
+
+  const ro = new ResizeObserver(() => {
+    measure()
+    ScrollTrigger.refresh()
+  })
+  ro.observe(strip)
+  ro.observe(wrap)
+
+  requestAnimationFrame(() => ScrollTrigger.refresh())
+
+  return () => {
+    ScrollTrigger.removeEventListener('refreshInit', onRefreshInit)
+    ro.disconnect()
+    tween.scrollTrigger?.kill()
+    tween.kill()
+    gsap.set(strip, { clearProps: 'x' })
+  }
 }
 
 /**
- * Scroll-scrubbed timeline: experiments → work → bookshelf translateX, driven by one
- * ScrollTrigger from `#experiments` through `#books`.
- *
- * @see https://gsap.com/docs/v3/GSAP/Timeline/
+ * Scroll-scrubbed horizontal strips — each section scrubs while that panel
+ * crosses the viewport (same feel as Experiments).
  */
 export function useHomeStripScroll({
   rootRef,
@@ -46,16 +76,19 @@ export function useHomeStripScroll({
   booksTrackRef,
   booksStripRef,
   enabled,
-  weights: weightsOverride,
+  experimentsEnabled = true,
+  booksEnabled = true,
 }: HomeStripScrollRefs & {
   enabled: boolean
-  weights?: Partial<HomeStripWeights>
+  experimentsEnabled?: boolean
+  booksEnabled?: boolean
 }) {
   useLayoutEffect(() => {
     if (!enabled) return
 
     const root = rootRef.current
     const experimentsSection = root?.querySelector<HTMLElement>('#experiments')
+    const workSection = root?.querySelector<HTMLElement>('#work')
     const booksSection = root?.querySelector<HTMLElement>('#books')
     const expWrap = experimentsTrackRef.current
     const expStrip = experimentsStripRef.current
@@ -64,84 +97,42 @@ export function useHomeStripScroll({
     const bookWrap = booksTrackRef.current
     const bookStrip = booksStripRef.current
 
-    if (!experimentsSection || !booksSection || !expWrap || !expStrip || !bookWrap || !bookStrip) {
-      return
-    }
+    const cleanups: Array<() => void> = []
 
-    const max = { exp: 0, work: 0, book: 0 }
-
-    const measure = () => {
-      max.exp = Math.max(0, expStrip.scrollWidth - expWrap.clientWidth)
-      max.work = workWrap && workStrip ? Math.max(0, workStrip.scrollWidth - workWrap.clientWidth) : 0
-      max.book = Math.max(0, bookStrip.scrollWidth - bookWrap.clientWidth)
-    }
-
-    measure()
-
-    if (max.exp + max.work + max.book <= 0) return
-
-    const w: HomeStripWeights = { ...HOME_STRIP_WEIGHTS, ...weightsOverride }
-
-    const tl = gsap.timeline({
-      defaults: { ease: 'none' },
-      scrollTrigger: {
-        trigger: experimentsSection,
-        start: 'top bottom',
-        endTrigger: booksSection,
-        end: 'bottom top',
-        scrub: true,
-        invalidateOnRefresh: true,
-      },
-    })
-
-    if (max.exp > 0) {
-      tl.to(expStrip, {
-        x: () => -max.exp,
-        duration: () => verticalBudgetPx(max.exp, w.experiments),
+    if (experimentsEnabled && experimentsSection && expWrap && expStrip) {
+      const cleanup = bindSectionHorizontalStrip({
+        section: experimentsSection,
+        wrap: expWrap,
+        strip: expStrip,
       })
+      cleanups.push(cleanup)
     }
-    if (workStrip && max.work > 0) {
-      tl.to(workStrip, {
-        x: () => -max.work,
-        duration: () => verticalBudgetPx(max.work, w.work),
+
+    if (workSection && workWrap && workStrip) {
+      const cleanup = bindSectionHorizontalStrip({
+        section: workSection,
+        wrap: workWrap,
+        strip: workStrip,
       })
+      cleanups.push(cleanup)
     }
-    if (max.book > 0) {
-      tl.to(bookStrip, {
-        x: () => -max.book,
-        duration: () => verticalBudgetPx(max.book, w.books),
+
+    if (booksEnabled && booksSection && bookWrap && bookStrip) {
+      const cleanup = bindSectionHorizontalStrip({
+        section: booksSection,
+        wrap: bookWrap,
+        strip: bookStrip,
       })
+      cleanups.push(cleanup)
     }
-
-    const onRefreshInit = () => measure()
-    ScrollTrigger.addEventListener('refreshInit', onRefreshInit)
-
-    const ro = new ResizeObserver(() => {
-      measure()
-      ScrollTrigger.refresh()
-    })
-
-    ro.observe(expStrip)
-    ro.observe(expWrap)
-    if (workStrip && workWrap) {
-      ro.observe(workStrip)
-      ro.observe(workWrap)
-    }
-    ro.observe(bookStrip)
-    ro.observe(bookWrap)
-
-    requestAnimationFrame(() => ScrollTrigger.refresh())
 
     return () => {
-      ScrollTrigger.removeEventListener('refreshInit', onRefreshInit)
-      ro.disconnect()
-      tl.kill()
-      const strips = [expStrip, bookStrip]
-      if (workStrip) strips.push(workStrip)
-      gsap.set(strips, { clearProps: 'x' })
+      cleanups.forEach((fn) => fn())
     }
   }, [
     enabled,
+    experimentsEnabled,
+    booksEnabled,
     rootRef,
     experimentsTrackRef,
     experimentsStripRef,
@@ -149,6 +140,5 @@ export function useHomeStripScroll({
     workStripRef,
     booksTrackRef,
     booksStripRef,
-    weightsOverride,
   ])
 }

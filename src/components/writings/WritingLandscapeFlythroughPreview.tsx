@@ -59,7 +59,7 @@ export function WritingLandscapeFlythroughPreview({
     trackRef,
     reducedMotion: reduced,
     smoothClassName: 'writing-landscape-flythrough__shell--smooth',
-    pageLenis: pageLenis ? { stop: () => pageLenis.stop(), start: () => pageLenis.start() } : null,
+    pageLenis,
   })
 
   useLayoutEffect(() => {
@@ -74,6 +74,8 @@ export function WritingLandscapeFlythroughPreview({
     if (layers.some((el) => !el)) return
 
     const endState = reduced ? REDUCED_MOTION_END : FLYTHROUGH_END
+    const scrollDistance = () =>
+      Math.max(1, track.scrollHeight - shell.clientHeight)
 
     const ctx = gsap.context(() => {
       layers.forEach((el) => {
@@ -90,7 +92,7 @@ export function WritingLandscapeFlythroughPreview({
           trigger: track,
           scroller: shell,
           start: 'top top',
-          end: 'bottom bottom',
+          end: () => `+=${scrollDistance()}`,
           scrub: 0,
           invalidateOnRefresh: true,
         })
@@ -102,7 +104,7 @@ export function WritingLandscapeFlythroughPreview({
           trigger: track,
           scroller: shell,
           start: 'top top',
-          end: 'bottom bottom',
+          end: () => `+=${scrollDistance()}`,
           scrub: true,
           invalidateOnRefresh: true,
         },
@@ -128,12 +130,11 @@ export function WritingLandscapeFlythroughPreview({
     <figure className={rootClass} aria-label="SVG landscape fly-through parallax scroll demo">
       {caption ? <figcaption className="writing-landscape-flythrough__caption">{caption}</figcaption> : null}
 
-      <div className="writing-landscape-flythrough__embed">
+      <div className="writing-landscape-flythrough__embed" data-lenis-prevent>
         <div
           id="smooth-wrapper"
           ref={shellRef}
           className="writing-landscape-flythrough__shell"
-          data-lenis-prevent
           tabIndex={0}
         >
           <div id="smooth-content" ref={trackRef} className="writing-landscape-flythrough__track">
@@ -143,6 +144,7 @@ export function WritingLandscapeFlythroughPreview({
                 className="writing-landscape-flythrough__svg"
               />
             </div>
+            <div className="writing-landscape-flythrough__spacer" aria-hidden="true" />
           </div>
         </div>
       </div>
