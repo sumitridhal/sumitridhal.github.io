@@ -1,5 +1,6 @@
 import { useGSAP } from '@gsap/react'
 import gsap from 'gsap'
+import { ScrollTrigger } from 'gsap/ScrollTrigger'
 import { useRef } from 'react'
 
 import {
@@ -8,7 +9,7 @@ import {
 } from '@/components/writings/cosmosFloatItems'
 import { useWritingPreviewReducedMotion } from '@/components/writings/useWritingPreviewReducedMotion'
 
-gsap.registerPlugin(useGSAP)
+gsap.registerPlugin(useGSAP, ScrollTrigger)
 
 const DEPTH_MIN = 0.2
 const DEPTH_MAX = 1
@@ -16,6 +17,8 @@ const WIDTH_MIN = 100
 const WIDTH_MAX = 350
 const PARALLAX_X = 48
 const PARALLAX_Y = 32
+const SCALE_MIN = 0.82
+const SCALE_MAX = 1.38
 
 export type WritingCosmosFloatPreviewProps = {
   caption?: string
@@ -26,28 +29,54 @@ function depthForWidth(width: number): number {
   return gsap.utils.mapRange(WIDTH_MIN, WIDTH_MAX, DEPTH_MIN, DEPTH_MAX, width)
 }
 
+function applyScrollScale(plates: HTMLDivElement[], progress: number): number {
+  const scale = gsap.utils.mapRange(0, 1, SCALE_MIN, SCALE_MAX, progress)
+  plates.forEach((plate) => {
+    gsap.set(plate, { scale, transformOrigin: '50% 50%', force3D: true })
+  })
+  return scale
+}
+
 export function WritingCosmosFloatPreview({
-  caption = 'Move the pointer: larger plates drift more (closer depth). Placeholder tiles — swap src per item when real nebula photos are ready.',
+  caption = 'Scroll inside the frame to zoom the plates in or out; move the pointer for depth parallax. Placeholder tiles until real nebula photos are wired.',
   className = '',
 }: WritingCosmosFloatPreviewProps) {
   const reduced = useWritingPreviewReducedMotion()
+  const viewportRef = useRef<HTMLDivElement>(null)
+  const trackRef = useRef<HTMLDivElement>(null)
   const stageRef = useRef<HTMLDivElement>(null)
   const titleRef = useRef<HTMLHeadingElement>(null)
   const plateRefs = useRef<(HTMLDivElement | null)[]>([])
   const driftRefs = useRef<(HTMLDivElement | null)[]>([])
+  const scrollScaleRef = useRef(SCALE_MIN)
 
   useGSAP(
     () => {
+      const viewport = viewportRef.current
+      const track = trackRef.current
       const stage = stageRef.current
       const title = titleRef.current
       const plates = plateRefs.current.filter(Boolean) as HTMLDivElement[]
       const drifts = driftRefs.current.filter(Boolean) as HTMLDivElement[]
-      if (!stage || !title || plates.length !== COSMOS_FLOAT_ITEMS.length) return
+      if (
+        !viewport ||
+        !track ||
+        !stage ||
+        !title ||
+        plates.length !== COSMOS_FLOAT_ITEMS.length
+      ) {
+        return
+      }
+
+      plates.forEach((plate) => {
+        gsap.set(plate, { transformOrigin: '50% 50%', force3D: true })
+      })
 
       if (reduced) {
         gsap.set(title, { scale: 1, opacity: 1 })
-        gsap.set(plates, { x: 0, y: 0, opacity: 1 })
+        gsap.set(plates, { x: 0, y: 0, opacity: 1, scale: 1 })
         gsap.set(drifts, { x: 0, y: 0 })
+        scrollScaleRef.current = 1
         return
       }
 
@@ -59,8 +88,21 @@ export function WritingCosmosFloatPreview({
       )
 
       gsap.set(title, { scale: 0.8, opacity: 0 })
-      gsap.set(plates, { opacity: 0, x: 0, y: 0 })
+      gsap.set(plates, { opacity: 0, x: 0, y: 0, scale: SCALE_MIN })
       gsap.set(drifts, { x: 16, y: 24 })
+      scrollScaleRef.current = SCALE_MIN
+
+      const scrollSt = ScrollTrigger.create({
+        trigger: track,
+        scroller: viewport,
+        start: 'top top',
+        end: 'bottom bottom',
+        scrub: 0.35,
+        invalidateOnRefresh: true,
+        onUpdate(self) {
+          scrollScaleRef.current = applyScrollScale(plates, self.progress)
+        },
+      })
 
       const intro = gsap.timeline({ defaults: { ease: 'power2.out' } })
       intro.to(title, { scale: 1, opacity: 1, duration: 1.1 }, 0)
@@ -98,7 +140,8 @@ export function WritingCosmosFloatPreview({
         const offsetY = (e.clientY - centerY) / (rect.height / 2)
 
         COSMOS_FLOAT_ITEMS.forEach((item, i) => {
-          const depth = depthForWidth(item.width)
+          const effectiveWidth = item.width * scrollScaleRef.current
+          const depth = depthForWidth(effectiveWidth)
           quickX[i]?.(offsetX * PARALLAX_X * depth)
           quickY[i]?.(offsetY * PARALLAX_Y * depth)
         })
@@ -114,12 +157,28 @@ export function WritingCosmosFloatPreview({
       stage.addEventListener('pointermove', onMove)
       stage.addEventListener('pointerleave', onLeave)
 
+      const ro = new ResizeObserver(() => {
+        ScrollTrigger.refresh()
+      })
+      ro.observe(viewport)
+      ro.observe(track)
+
+      requestAnimationFrame(() => {
+        ScrollTrigger.refresh()
+        scrollScaleRef.current = applyScrollScale(
+          plates,
+          scrollSt.progress ?? 0,
+        )
+      })
+
       return () => {
         stage.removeEventListener('pointermove', onMove)
         stage.removeEventListener('pointerleave', onLeave)
+        ro.disconnect()
+        scrollSt.kill()
       }
     },
-    { scope: stageRef, dependencies: [reduced], revertOnUpdate: true },
+    { scope: viewportRef, dependencies: [reduced], revertOnUpdate: true },
   )
 
   const rootClass = ['writing-cosmos-float', className.trim()].filter(Boolean).join(' ')
@@ -129,44 +188,53 @@ export function WritingCosmosFloatPreview({
       {caption ? (
         <figcaption className="writing-cosmos-float__caption">{caption}</figcaption>
       ) : null}
-      <div ref={stageRef} className="writing-cosmos-float__stage" tabIndex={0}>
-        {COSMOS_FLOAT_ITEMS.map((item, index) => (
-          <div
-            key={item.id}
-            ref={(el) => {
-              plateRefs.current[index] = el
-            }}
-            className="writing-cosmos-float__plate"
-            style={{
-              left: `${item.left}%`,
-              top: `${item.top}%`,
-              zIndex: item.zIndex,
-              width: item.width,
-            }}
-          >
-            <div
-              ref={(el) => {
-                driftRefs.current[index] = el
-              }}
-              className="writing-cosmos-float__drift"
-            >
-              <img
-                className="writing-cosmos-float__img"
-                src={COSMOS_FLOAT_PLACEHOLDER_SRC}
-                alt={item.alt}
-                width={item.width}
-                height={Math.round(item.width * 0.75)}
-                loading="lazy"
-                decoding="async"
-                style={{ filter: `hue-rotate(${item.hueRotate}deg)` }}
-              />
-            </div>
+      <div
+        ref={viewportRef}
+        className="writing-cosmos-float__viewport"
+        data-lenis-prevent
+        tabIndex={0}
+      >
+        <div ref={trackRef} className="writing-cosmos-float__track">
+          <div ref={stageRef} className="writing-cosmos-float__stage">
+            {COSMOS_FLOAT_ITEMS.map((item, index) => (
+              <div
+                key={item.id}
+                ref={(el) => {
+                  plateRefs.current[index] = el
+                }}
+                className="writing-cosmos-float__plate"
+                style={{
+                  left: `${item.left}%`,
+                  top: `${item.top}%`,
+                  zIndex: item.zIndex,
+                  width: item.width,
+                }}
+              >
+                <div
+                  ref={(el) => {
+                    driftRefs.current[index] = el
+                  }}
+                  className="writing-cosmos-float__drift"
+                >
+                  <img
+                    className="writing-cosmos-float__img"
+                    src={COSMOS_FLOAT_PLACEHOLDER_SRC}
+                    alt={item.alt}
+                    width={item.width}
+                    height={Math.round(item.width * 0.75)}
+                    loading="lazy"
+                    decoding="async"
+                    style={{ filter: `hue-rotate(${item.hueRotate}deg)` }}
+                  />
+                </div>
+              </div>
+            ))}
+            <h2 ref={titleRef} className="writing-cosmos-float__title">
+              <span className="writing-cosmos-float__title-line">Explore</span>
+              <span className="writing-cosmos-float__title-line">The Cosmos</span>
+            </h2>
           </div>
-        ))}
-        <h2 ref={titleRef} className="writing-cosmos-float__title">
-          <span className="writing-cosmos-float__title-line">Explore</span>
-          <span className="writing-cosmos-float__title-line">The Cosmos</span>
-        </h2>
+        </div>
       </div>
     </figure>
   )
