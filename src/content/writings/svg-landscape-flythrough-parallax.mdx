@@ -1,0 +1,73 @@
+import { WritingLandscapeFlythroughPreviewLazy } from '@/components/writings/WritingLandscapeFlythroughPreviewLazy'
+
+export const writingMeta = {
+  id: 'svg-landscape-flythrough-parallax',
+  order: -2,
+  title: '2.5D SVG fly-through: Locomotive Scroll + GSAP ScrollTrigger',
+  date: '2026-05-27',
+  category: 'UI',
+  excerpt:
+    'A fixed camera viewport and five inline SVG depth groups scrub on one timeline: Locomotive Scroll v5 smooths the embed while ScrollTrigger.scrollerProxy keeps GSAP in sync—foreground scales past the frame, sky barely moves.',
+  titleLines: ['SVG fly-through parallax', 'Locomotive + ScrollTrigger'],
+}
+
+Scroll a flat illustration and it feels like a poster. Give each depth plane its own scale curve on one scrubbed timeline and the same art reads as **moving forward through space**—a 2.5D fly-through without a WebGL stage.
+
+This note wires that pattern for a writing embed: **Locomotive Scroll v5** on `#smooth-wrapper` / `#smooth-content`, **GSAP ScrollTrigger** with **`scrollerProxy`**, and an **inline SVG** whose groups are named for depth.
+
+<WritingLandscapeFlythroughPreviewLazy />
+
+Scroll **inside** the stage above (roughly four viewport heights of travel). The article body around it still uses the site’s page-level Lenis instance.
+
+## Architecture
+
+Three scroll contexts stay separate on purpose:
+
+1. **Document** — Lenis + `ScrollTrigger.scrollerProxy(document.documentElement)` (see [Driving Lenis from GSAP’s ticker](/writing/lenis-gsap-scroll-loop)).
+2. **Embed shell** — `#smooth-wrapper` is the Locomotive wrapper; `#smooth-content` is the tall track (`4 ×` shell height ≈ 400vh of scrub range inside the box).
+3. **Camera** — a sticky full-shell viewport holds the SVG while the track scrolls behind it.
+
+```text
+#smooth-wrapper  ← Locomotive + scrollerProxy target
+  #smooth-content  ← 4× shell height
+    .camera (sticky 100% shell)
+      <svg>
+        #layer-sky … #layer-foreground
+```
+
+Locomotive’s Lenis instance owns `scrollTop` for the shell. **`ScrollTrigger.scrollerProxy(shell, …)`** proxies getters/setters to that instance, and **`ScrollTrigger.update()`** runs on every Lenis scroll tick (plus Locomotive’s `scrollCallback`). Without the proxy, scrubbed progress would read native `scrollTop` and drift from what you see.
+
+The implementation lives in [`useLocomotiveScrollTriggerEmbed`](../../hooks/useLocomotiveScrollTriggerEmbed.ts) and [`WritingLandscapeFlythroughPreview`](../../components/writings/WritingLandscapeFlythroughPreview.tsx).
+
+## Parallax math (one timeline, position 0)
+
+All layers share a single scrubbed timeline. Depth is **differential scale** (and a little `yPercent` so the focal point stays in the trees, not the geometric center of the SVG):
+
+| Group | End scale | End `yPercent` | Role |
+| ----- | --------- | -------------- | ---- |
+| `#layer-sky` | 1.1 | 2 | distant sky |
+| `#layer-mountains` | 1.5 | 8 | far ridges |
+| `#layer-trees` | 4 | 18 | mid trees |
+| `#layer-ground` | 4 | 22 | hills + water |
+| `#layer-foreground` | 10 | 35 | grass flies past the lens |
+
+`transformOrigin: 50% 50%` on every group. Tune `yPercent` after you swap art so the “into the meadow” point matches your composition.
+
+## SVG prep checklist
+
+1. In vector software, group shapes into **Sky**, **Mountains**, **Trees**, **Ground**, **Foreground** (foreground = blades/fronds at the bottom edge).
+2. Name layers so export ids match: `layer-sky`, `layer-mountains`, `layer-trees`, `layer-ground`, `layer-foreground`.
+3. Export SVG, open in a text editor, copy from `<svg>` through `</svg>`.
+4. Paste into [`WritingLandscapeFlythroughSvg.tsx`](../../components/writings/landscape/WritingLandscapeFlythroughSvg.tsx) (replace the placeholder paths, keep the ids).
+
+The bundled placeholder is vector-only so the demo runs before your export lands; swap it when your layered file is ready.
+
+## Reduced motion
+
+When `prefers-reduced-motion: reduce` is set, Locomotive is skipped, the shell scrolls natively, and layers **`gsap.set`** to a single mid fly-through pose (~60% of full scale) so the depth read remains without scrub choreography.
+
+## References
+
+- [GSAP ScrollTrigger.scrollerProxy](https://gsap.com/docs/v3/Plugins/ScrollTrigger/static.scrollerProxy/)
+- [Locomotive Scroll v5](https://github.com/locomotivemtl/locomotive-scroll)
+- [ScrollTrigger scrub](https://gsap.com/docs/v3/Plugins/ScrollTrigger/#scrub)
