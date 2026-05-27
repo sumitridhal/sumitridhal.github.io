@@ -111,23 +111,23 @@ const HERO_FLOATER_IDS: FloaterId[] = Array.from(
 )
 
 const KINETIC_LINE_KINDS = [
+  'designer',
+  'developer',
   'engineer',
-  'systems',
-  'mentor',
+  'designer',
+  'developer',
   'engineer',
-  'systems',
+  'designer',
+  'developer',
   'engineer',
-  'engineer',
-  'systems',
-  'mentor',
-  'engineer',
-  'systems',
+  'designer',
+  'developer',
   'engineer',
 ] as const
 
 const CHAR_STAGGER = 0.04
-const REST_INNER_X = -1
-const EXPANDED_INNER_X = -55
+const REST_INNER_X = 0
+const EXPANDED_INNER_X = -48
 
 export function HeroAtmosphere({
   sectionRef,
@@ -168,9 +168,9 @@ export function HeroAtmosphere({
       (id) => ({ id, label: t(`pages.home.heroAtmosphere.rows.${id}`) }),
     )
     const kineticWords = {
+      designer: t('pages.home.heroAtmosphere.kinetic.designer').toLowerCase(),
+      developer: t('pages.home.heroAtmosphere.kinetic.developer').toLowerCase(),
       engineer: t('pages.home.heroAtmosphere.kinetic.engineer').toLowerCase(),
-      systems: t('pages.home.heroAtmosphere.kinetic.systems').toLowerCase(),
-      mentor: t('pages.home.heroAtmosphere.kinetic.mentor').toLowerCase(),
     }
     const lines = KINETIC_LINE_KINDS.map((kind) => {
       const w = kineticWords[kind]
