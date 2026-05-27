@@ -8,8 +8,8 @@ export type HomeStripScrollRefs = {
   rootRef: RefObject<HTMLElement | null>
   experimentsTrackRef: RefObject<HTMLElement | null>
   experimentsStripRef: RefObject<HTMLElement | null>
-  workTrackRef: RefObject<HTMLElement | null>
-  workStripRef: RefObject<HTMLElement | null>
+  workTrackRef?: RefObject<HTMLElement | null>
+  workStripRef?: RefObject<HTMLElement | null>
   booksTrackRef: RefObject<HTMLElement | null>
   booksStripRef: RefObject<HTMLElement | null>
 }
@@ -59,21 +59,12 @@ export function useHomeStripScroll({
     const booksSection = root?.querySelector<HTMLElement>('#books')
     const expWrap = experimentsTrackRef.current
     const expStrip = experimentsStripRef.current
-    const workWrap = workTrackRef.current
-    const workStrip = workStripRef.current
+    const workWrap = workTrackRef?.current ?? null
+    const workStrip = workStripRef?.current ?? null
     const bookWrap = booksTrackRef.current
     const bookStrip = booksStripRef.current
 
-    if (
-      !experimentsSection ||
-      !booksSection ||
-      !expWrap ||
-      !expStrip ||
-      !workWrap ||
-      !workStrip ||
-      !bookWrap ||
-      !bookStrip
-    ) {
+    if (!experimentsSection || !booksSection || !expWrap || !expStrip || !bookWrap || !bookStrip) {
       return
     }
 
@@ -81,7 +72,7 @@ export function useHomeStripScroll({
 
     const measure = () => {
       max.exp = Math.max(0, expStrip.scrollWidth - expWrap.clientWidth)
-      max.work = Math.max(0, workStrip.scrollWidth - workWrap.clientWidth)
+      max.work = workWrap && workStrip ? Math.max(0, workStrip.scrollWidth - workWrap.clientWidth) : 0
       max.book = Math.max(0, bookStrip.scrollWidth - bookWrap.clientWidth)
     }
 
@@ -109,7 +100,7 @@ export function useHomeStripScroll({
         duration: () => verticalBudgetPx(max.exp, w.experiments),
       })
     }
-    if (max.work > 0) {
+    if (workStrip && max.work > 0) {
       tl.to(workStrip, {
         x: () => -max.work,
         duration: () => verticalBudgetPx(max.work, w.work),
@@ -132,8 +123,10 @@ export function useHomeStripScroll({
 
     ro.observe(expStrip)
     ro.observe(expWrap)
-    ro.observe(workStrip)
-    ro.observe(workWrap)
+    if (workStrip && workWrap) {
+      ro.observe(workStrip)
+      ro.observe(workWrap)
+    }
     ro.observe(bookStrip)
     ro.observe(bookWrap)
 
@@ -143,7 +136,9 @@ export function useHomeStripScroll({
       ScrollTrigger.removeEventListener('refreshInit', onRefreshInit)
       ro.disconnect()
       tl.kill()
-      gsap.set([expStrip, workStrip, bookStrip], { clearProps: 'x' })
+      const strips = [expStrip, bookStrip]
+      if (workStrip) strips.push(workStrip)
+      gsap.set(strips, { clearProps: 'x' })
     }
   }, [
     enabled,
