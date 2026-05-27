@@ -65,9 +65,12 @@
 
 .work-picker__deck:hover,
 .work-picker__deck:focus-within,
-.work-picker__deck[data-expanded='true'],
-.work-picker__deck[data-scroll-active='true'] {
+.work-picker__deck[data-expanded='true'] {
   min-width: min(100%, 28rem);
+}
+
+.work-picker__deck[data-scroll-active='true']:not([data-expanded='true']) {
+  min-width: min(100%, var(--deck-scroll-min-width, 22rem));
 }
 
 .work-picker__deck-card {
@@ -156,19 +159,23 @@
 
 .work-picker__deck[data-scroll-active='true']:not([data-expanded='true'])
   .work-picker__deck-card[data-slot='center'] {
-  transform: translate(-50%, -10px) rotate(0deg);
+  transform: translate(-50%, var(--deck-scroll-center-y, -8px)) rotate(0deg);
 }
 
 .work-picker__deck[data-scroll-active='true']:not([data-expanded='true'])
   .work-picker__deck-card[data-slot='left'] {
-  transform: translate(calc(-50% + var(--deck-scroll-left-x, 5%)), 4px)
-    rotate(var(--deck-scroll-left-rot, -5deg));
+  opacity: calc(0.55 + 0.45 * var(--deck-scroll-fan, 0.5));
+  transform: translate(calc(-50% - var(--deck-scroll-left-x, 5%)), var(--deck-scroll-y, 4px))
+    rotate(var(--deck-scroll-left-rot, -5deg))
+    scale(calc(0.96 + 0.04 * var(--deck-scroll-fan, 0.5)));
 }
 
 .work-picker__deck[data-scroll-active='true']:not([data-expanded='true'])
   .work-picker__deck-card[data-slot='right'] {
-  transform: translate(calc(-50% + var(--deck-scroll-right-x, -5%)), 4px)
-    rotate(var(--deck-scroll-right-rot, 5deg));
+  opacity: calc(0.55 + 0.45 * var(--deck-scroll-fan, 0.5));
+  transform: translate(calc(-50% + var(--deck-scroll-right-x, 5%)), var(--deck-scroll-y, 4px))
+    rotate(var(--deck-scroll-right-rot, 5deg))
+    scale(calc(0.96 + 0.04 * var(--deck-scroll-fan, 0.5)));
 }
 
 .work-picker__deck-card--list-picker:focus-visible,
@@ -289,9 +296,12 @@
 
   .work-picker__deck:hover,
   .work-picker__deck:focus-within,
-  .work-picker__deck[data-expanded='true'],
-  .work-picker__deck[data-scroll-active='true'] {
+  .work-picker__deck[data-expanded='true'] {
     min-width: min(100%, 24rem);
+  }
+
+  .work-picker__deck[data-scroll-active='true']:not([data-expanded='true']) {
+    min-width: min(100%, min(var(--deck-scroll-min-width, 20rem), 24rem));
   }
 
   .work-picker__deck-card[data-slot='left'] {
