@@ -8,6 +8,7 @@ export const writingMeta = {
   category: 'UI',
   excerpt:
     'A fixed camera viewport and five inline SVG depth groups scrub on one timeline: Locomotive Scroll v5 smooths the embed while ScrollTrigger.scrollerProxy keeps GSAP in sync—foreground scales past the frame, sky barely moves.',
+  coverSrc: '/media/writings/landscape-flythrough/reference.png',
   titleLines: ['SVG fly-through parallax', 'Locomotive + ScrollTrigger'],
 }
 
@@ -46,21 +47,21 @@ All layers share a single scrubbed timeline. Depth is **differential scale** (an
 | Group | End scale | End `yPercent` | Role |
 | ----- | --------- | -------------- | ---- |
 | `#layer-sky` | 1.1 | 2 | distant sky |
-| `#layer-mountains` | 1.5 | 8 | far ridges |
-| `#layer-trees` | 4 | 18 | mid trees |
-| `#layer-ground` | 4 | 22 | hills + water |
-| `#layer-foreground` | 10 | 35 | grass flies past the lens |
+| `#layer-mountains` | 1.5 | 8 | far lake + ridges |
+| `#layer-trees` | 4 | 18 | mid pines + hills |
+| `#layer-ground` | 4 | 22 | lake band + shoreline |
+| `#layer-foreground` | 7.5 | 30 | grass flies past the lens |
 
-`transformOrigin: 50% 50%` on every group. Tune `yPercent` after you swap art so the “into the meadow” point matches your composition.
+`transformOrigin: 50% 65%` on every group so the fly-through focal point sits on the green hills rather than the geometric center of the square artboard. Tune `yPercent` if your composition’s vanishing point shifts.
 
 ## SVG prep checklist
 
-1. In vector software, group shapes into **Sky**, **Mountains**, **Trees**, **Ground**, **Foreground** (foreground = blades/fronds at the bottom edge).
-2. Name layers so export ids match: `layer-sky`, `layer-mountains`, `layer-trees`, `layer-ground`, `layer-foreground`.
-3. Export SVG, open in a text editor, copy from `<svg>` through `</svg>`.
-4. Paste into [`WritingLandscapeFlythroughSvg.tsx`](../../components/writings/landscape/WritingLandscapeFlythroughSvg.tsx) (replace the placeholder paths, keep the ids).
+The live demo uses a **896×896** inline export in [`WritingLandscapeFlythroughSvg.tsx`](../../components/writings/landscape/WritingLandscapeFlythroughSvg.tsx). The embed viewport stays **16:10**; `preserveAspectRatio="xMidYMid slice"` crops the top and bottom of the square art so the lake and meadow fill the stage width.
 
-The bundled placeholder is vector-only so the demo runs before your export lands; swap it when your layered file is ready.
+1. In vector software, group shapes into **Sky**, **Mountains**, **Ground**, **Trees**, **Foreground** (foreground = blades/fronds at the bottom edge).
+2. Name layers so export ids match: `layer-sky`, `layer-mountains`, `layer-ground`, `layer-trees`, `layer-foreground`.
+3. Export SVG (square artboard is fine), open in a text editor, copy paths into the five `<g>` wrappers.
+4. Keep `viewBox="0 0 896 896"` (or your artboard size) and the five ids — GSAP queries them by name.
 
 ## Reduced motion
 
