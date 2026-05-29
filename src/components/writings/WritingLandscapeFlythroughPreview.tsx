@@ -18,12 +18,14 @@ const LAYER_IDS = [
   'layer-foreground',
 ] as const
 
+const LAYER_TRANSFORM_ORIGIN = '50% 65%'
+
 const FLYTHROUGH_END = {
   'layer-sky': { scale: 1.1, yPercent: 2 },
   'layer-mountains': { scale: 1.5, yPercent: 8 },
   'layer-trees': { scale: 4, yPercent: 18 },
   'layer-ground': { scale: 4, yPercent: 22 },
-  'layer-foreground': { scale: 10, yPercent: 35 },
+  'layer-foreground': { scale: 7.5, yPercent: 30 },
 } as const
 
 const REDUCED_MOTION_END = {
@@ -31,7 +33,7 @@ const REDUCED_MOTION_END = {
   'layer-mountains': { scale: 1.28, yPercent: 5 },
   'layer-trees': { scale: 2.2, yPercent: 10 },
   'layer-ground': { scale: 2.2, yPercent: 12 },
-  'layer-foreground': { scale: 4.5, yPercent: 18 },
+  'layer-foreground': { scale: 3.2, yPercent: 16 },
 } as const
 
 export type WritingLandscapeFlythroughPreviewProps = {
@@ -154,7 +156,7 @@ export function WritingLandscapeFlythroughPreview({
 
     const ctx = gsap.context(() => {
       layers.forEach((el) => {
-        if (el) gsap.set(el, { transformOrigin: '50% 50%', force3D: true, scale: 1, yPercent: 0 })
+        if (el) gsap.set(el, { transformOrigin: LAYER_TRANSFORM_ORIGIN, force3D: true, scale: 1, yPercent: 0 })
       })
 
       if (reduced) {
