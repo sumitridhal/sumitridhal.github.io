@@ -25,4 +25,7 @@ dist-ssr
 
 # Astro
 .astro
+
+# Skills
 .cursor
+skills-lock.json
