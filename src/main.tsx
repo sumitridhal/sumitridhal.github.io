@@ -9,6 +9,7 @@ import { LenisProvider } from '@/providers/LenisProvider'
 
 import App from '@/App.tsx'
 
+import '@/styles/tailwind.css'
 import '@/styles/globals.scss'
 
 export function AppRoot() {
