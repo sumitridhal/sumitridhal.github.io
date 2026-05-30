@@ -1,0 +1,111 @@
+export const writingMeta = {
+  id: 'invisible-assists-and-promotion-packets',
+  order: 0,
+  title: 'Invisible assists: when helping your team does not show up in your promotion packet',
+  date: '2025-02-04',
+  category: 'Essay',
+  excerpt:
+    'Reading a Hacker News thread about Michael Lynch leaving Google, I recognized my own career in the comments—pipeline fixes, design-system glue, the engineer who unblocks everyone else. Assist metrics will not fix misaligned incentives. What might is choosing what you optimize for, and leaving receipts.',
+  titleLines: ['Invisible assists', 'When helping your team does not count'],
+  asideParagraphs: [
+    'I have spent more than one quarter making other people’s launches possible while my own ticket column looked suspiciously empty. That is not a failure of effort. It is a failure of how we tell the story.',
+    'The thread’s best insight was not “add assist points.” It was that help and promotion often pull in opposite directions—and pretending otherwise burns people out.',
+  ],
+}
+
+<aside className="writing-tldr" aria-label="Summary">
+  <p>
+    <strong>TL;DR</strong> — A long{' '}
+    <a href="https://news.ycombinator.com/item?id=16483241">HN thread</a> under Michael Lynch’s “Why I Quit
+    Google” post crystallized something I have felt for years: teams run on invisible work, and most performance systems only reward what fits a promo template. I do not think assist scores fix that—Goodhart’s law arrives too fast. What helps is being honest about the tradeoff, making unblock culture a management job, and documenting impact so the next reviewer can see what you actually moved.
+  </p>
+</aside>
+
+This essay responds to [the Hacker News discussion](https://news.ycombinator.com/item?id=16483241) under Michael Lynch’s [Why I Quit Google to Work for Myself](https://mtlynch.io/why-i-quit-google/) (Feb 2018)—especially the comment thread about **assist metrics** and the invisible work of unblocking teammates.
+
+I read that post and its replies the way you read a group chat you were accidentally cc’d on—every message slightly too personal to be about you, and somehow all of them were anyway.
+
+Someone proposed an **assist metric**, basketball-style: each engineer gets a quota of points to distribute to the people who helped them most. Honest idea. For several jobs in a row, they had watched helpful work go unrewarded while individual achievement dominated promotion conversations.
+
+I did not need the rest of the thread to know how the argument would go. I have lived inside that argument for more than a decade.
+
+## I have been the assist
+
+At Western Union I worked on a design system when “design system” still sounded like a side quest. The win was other teams shipping features faster. My Jira board did not always reflect that. A kiosk screen that loaded in half the time because we shared primitives and patterns was a team outcome; my quarterly review wanted *my* outcomes.
+
+At Red Hat, a meaningful slice of my work has looked like Lynch’s pipeline story from the outside: CI/CD reliability, schema platforms, the unglamorous layer that keeps ten thousand enterprise users from tripping over the same broken step twice. When Tekton or GitHub Actions stops failing silently, nobody sends a company-wide thank-you. They just stop noticing the pipeline—which is the point, and also the problem when promotion season asks what **you** shipped.
+
+Lately, leading agentic workflow and AI UX work, I see the same shape again. The demo that lands in a keynote is visible. The guardrails, eval harnesses, and failure modes you wire so the demo does not lie in production are not. If I optimized purely for what photographs well in a committee packet, I would ship fewer assists and more theatre. The product would be worse. My calendar would look great.
+
+That is the trap the thread kept circling: **the work that makes everyone else faster is structurally hard to credit**, because credit systems were built for scorers, not passers.
+
+## What the thread got right—and what it argued past
+
+The stories stacked up fast. Remote developers blocked for days on a README that lied. Windows experts doing two-hour “house calls” while their velocity flatlined. Maintainers who fixed data pipelines and wrote tests, then heard “not quantifiable” from a promotion committee that never ran their code.
+
+I believe those stories. I also think the thread split into two camps that were both half correct.
+
+**Camp one:** If you are blocked, own the unblock—name someone, DM them, escalate, read the error, fix the doc, stay in motion. I mostly agree. “Somebody call 911” fails for the same reason in Slack as on a sidewalk: diffusion of responsibility. Specificity works.
+
+**Camp two:** When someone says they are blocked in standup three days running, that is a management failure, not a etiquette quiz. Also agree. Standups that treat blockers as weather reports—acknowledged and ignored—are performative agile. In hybrid teams, proximity bias is real: the person ten meters away gets the whiteboard; the person in Bangalore gets the read receipt.
+
+My own take sits in the uncomfortable middle, where most senior work actually lives.
+
+Yes, you should escalate with names and evidence. **And** if you are the senior person in the room, you should treat “I’m blocked” as expensive whether or not the phrasing is polished. Waiting for perfect communication while a teammate burns a sprint is how organizations save face and lose people. I have been the person who stopped what I was doing to sit on a call until `npm install` stopped lying. I have also been the person who wished someone had tried the README before paging me. Both can be true in the same week.
+
+## Why I am skeptical of assist points—and what I would try instead
+
+The assist-metric idea is seductive because it names real harm. I still would not implement it on my team.
+
+Not because recognition is unimportant. Because **the moment you mandate gratitude, you change what gratitude means**. Commenters had already seen the sequel:
+
+- Bug bonuses that turned one fix into four tickets.
+- Kudos walls that rewarded lunch proximity, not impact.
+- Peer reviews where friends rank friends and juniors cannot judge senior help anyway.
+
+Goodhart’s law is not a footnote. It is the main plot. Shopify reportedly tried assist-style scoring and dropped it when points flowed to friends. Even sports knows single stats lie: hockey counts secondary assists; basketball talks about gravity—the player who bends the defense without touching the ball. Software has the engineer who wrote the test two years ago that prevented tonight’s outage. You can widen the stat sheet until social life becomes a spreadsheet, and people will still optimize the spreadsheet.
+
+If I wanted assist-like thinking without the game show, I would push on four things I actually control:
+
+1. **Team outcomes over hero charts.** Broken builds, incident counts, time-to-recover—numbers that move when you help another squad, not only when you close your own tickets.
+2. **Managers who assign help.** Not “who wants to pair?” in a channel—a named person, a time box, a follow-up. Unblock culture is leadership work.
+3. **Narrative in reviews, not just counts.** Who did you make faster? What would have shipped late without you? Write it down while it is fresh; do not make your manager archaeology it from memory.
+4. **Artifacts as receipts.** README diffs, public Slack threads, postmortems. I fix pipelines *and* commit the fix where the next hire will fall. That is an assist to future me and evidence for anyone paying attention.
+
+None of that requires pretending every helpful hour converts to a integer. It requires **not treating invisible work as invisible forever**.
+
+## The opinion I kept coming back to
+
+The deepest comment in the thread was not about tacos or quadratic voting. It was this: **retention should not ride on promotion alone**. Pay people fairly at the level they already operate. Let interesting problems be the reward. Stop forcing everyone up a ladder whose rungs only fit launch announcements.
+
+I think big companies—and I say this as someone at a large org, not as an outsider throwing stones—often get this backwards on purpose. Promo committees optimize against false positives so aggressively that false negatives become policy. You do senior-level glue work at mid-level title because the system prefers under-titled competence to over-titled risk. Then they act surprised when the competent leave.
+
+[Lynch’s line](https://mtlynch.io/why-i-quit-google/) stuck with me: you are not Google. You provide a service in exchange for money. I would go one step further for my own career: **you also owe yourself an honest accounting of what game you are playing**.
+
+If the committee will not credit glue work, you have three moves—not morally ranked, just real:
+
+- **Optimize for the packet.** Shiny launches, measurable deltas, peer quotes that fit the template. Valid strategy. Know you are trading some craft for visibility.
+- **Accept the trade.** Keep fixing things because the code and the people matter more than the title. Also valid. Know you are subsidizing the org’s incoherence with your energy.
+- **Change the venue.** Different team, different company, your own product. Lynch chose door three. Plenty of people in the thread wished they had earlier.
+
+I have not quit my day job to chase indie projects full time. I write essays and build experiments on the side precisely because I like having a foot in both worlds—the enterprise problems that only exist at scale, and the small surfaces where *you* decide what counts as impact. That balance is personal. The thread made me articulate why I bother with both.
+
+## What I am doing differently after reading five hundred comments
+
+I am not waiting for HR to invent the perfect assist column.
+
+When I unblock someone, I leave a trail: the merged doc change, the thread in a public channel, the note in a retro. Not performatively—because **promotion packets and performance reviews are narrative contests**, and narratives need sources.
+
+When I am stuck, I escalate with names, errors, and timestamps. I extend the same courtesy I want back.
+
+When I lead, I treat “blocked” as a budget line item. Stopped work is not free just because nobody put it in a spreadsheet yet.
+
+And when I feel the old resentment rise—the design-system quarter, the pipeline quarter, the quarter my board looked empty while the org got faster—I try to ask a sharper question than “why don’t they see me?” **Am I optimizing for being seen, or for the system actually working?** Sometimes the answer is both, and I need to negotiate that explicitly with my manager instead of hoping a committee will infer it from diff noise.
+
+Basketball assists work because the league decided passing matters. Most engineering orgs still behave as if only the shot counts—as long as the shot has a graph attached.
+
+Until that changes, the best engineers will keep racking up invisible assists. Some will get promoted anyway. Many will write posts about leaving. A few will propose a new metric, and five hundred comments will explain, again, that counting is easier than fixing the incentive.
+
+I am not betting on the metric. I am betting on **leaving enough receipts that the next person who cares to look can tell who kept the team moving**—and on being clear-eyed about what I am trading when I choose to be that person.
+
+The assist was never the hard part. Noticing who stopped the bleeding was. Choosing to notice, before you burn out or rage-quit, is the part that is still mine to do.
