@@ -33,7 +33,13 @@ const entries = loadEntries()
 
 export const writingEntries: WritingEntry[] = entries
 
-export const writings: WritingMeta[] = entries.map((e) => e.meta)
+export function isWritingDraft(meta: WritingMeta): boolean {
+  return meta.keywords?.includes('draft') ?? false
+}
+
+export const writings: WritingMeta[] = entries
+  .filter((e) => !isWritingDraft(e.meta))
+  .map((e) => e.meta)
 
 const bySlug = new Map(entries.map((e) => [e.meta.id, e]))
 

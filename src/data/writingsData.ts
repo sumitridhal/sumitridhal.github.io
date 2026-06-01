@@ -6,7 +6,12 @@ export type { WritingFigureVariant, WritingMeta } from '@/data/writingTypes'
 /** @deprecated Use `WritingMeta`; kept for gradual refactors. */
 export type WritingItem = WritingMeta
 
-export { writings, getWritingEntryBySlug, type WritingEntry } from '@/data/writingsRegistry'
+export {
+  writings,
+  getWritingEntryBySlug,
+  isWritingDraft,
+  type WritingEntry,
+} from '@/data/writingsRegistry'
 
 export function getWritingBySlug(slug: string | undefined): WritingMeta | undefined {
   return getWritingEntryBySlug(slug)?.meta
