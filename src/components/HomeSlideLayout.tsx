@@ -8,7 +8,9 @@ type HomeSlideLayoutProps = {
   title: ReactNode
   titleId?: string
   lead?: ReactNode
-  children: ReactNode
+  /** Page hero uses h1; section panels use h2 (default). */
+  headingLevel?: 'h1' | 'h2'
+  children?: ReactNode
   className?: string
 }
 
@@ -19,9 +21,11 @@ export function HomeSlideLayout({
   title,
   titleId,
   lead,
+  headingLevel = 'h2',
   children,
   className = '',
 }: HomeSlideLayoutProps) {
+  const Heading = headingLevel
   const stack = !media
   const rootClass = [
     'home-slide',
@@ -46,15 +50,15 @@ export function HomeSlideLayout({
       <div className="home-slide__content">
         <header className="home-slide__header" data-home-reveal-content>
           {titleId ? (
-            <h2 id={titleId} className="home-slide__title">
+            <Heading id={titleId} className="home-slide__title">
               {title}
-            </h2>
+            </Heading>
           ) : (
-            <h2 className="home-slide__title">{title}</h2>
+            <Heading className="home-slide__title">{title}</Heading>
           )}
           {lead ? <p className="home-slide__lead">{lead}</p> : null}
         </header>
-        <div className="home-slide__body">{children}</div>
+        {children != null ? <div className="home-slide__body">{children}</div> : null}
       </div>
     </div>
   )
