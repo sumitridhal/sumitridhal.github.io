@@ -1,7 +1,6 @@
 import { useEffect, useRef } from 'react'
 import { Link, useLocation } from 'react-router-dom'
 
-import { HeroAtmosphere } from '@/components/HeroAtmosphere'
 import { HomeBookshelfSection } from '@/components/HomeBookshelfSection'
 import { HomeExperimentsSection } from '@/components/HomeExperimentsSection'
 import { HOME_SECTION_BANNERS } from '@/data/homeSectionBanners'
@@ -35,7 +34,6 @@ const HASH_SECTION_IDS: Record<string, string> = {
 
 export function HomePage() {
   const { t } = useI18n()
-  const heroSectionRef = useRef<HTMLElement>(null)
   const panelsRef = useRef<HTMLDivElement>(null)
   const experimentsTrackRef = useRef<HTMLDivElement>(null)
   const experimentsStripRef = useRef<HTMLUListElement>(null)
@@ -91,25 +89,14 @@ export function HomePage() {
 
   return (
     <div ref={panelsRef} className="home-panels">
-      <section
-        ref={heroSectionRef}
-        id="hero"
-        data-home-panel
-        data-home-theme="hero"
-        className={`home-section home-section--hero zoom-hero zoom-hero--kinetic${reducedMotion ? ' zoom-hero--reduced' : ''}`}
-        aria-labelledby="hero-heading"
-      >
-        <div className="home-section__inner zoom-hero__shell">
-          <div className="zoom-hero__panel-bg">
-            <HeroAtmosphere sectionRef={heroSectionRef} reducedMotion={reducedMotion}>
-              <h1 id="hero-heading" className="zoom-hero__heading-sr-only">
-                Sumit Ridhal
-              </h1>
-            </HeroAtmosphere>
-            <div className="zoom-hero__veil" aria-hidden />
-          </div>
-        </div>
-      </section>
+      <HomePanel id="hero" theme="hero" hero aria-labelledby="hero-heading">
+        <HomeSlideLayout
+          titleId="hero-heading"
+          title={t('pages.home.heroName')}
+          lead={t('pages.home.heroLead')}
+          headingLevel="h1"
+        />
+      </HomePanel>
 
       <HomeExperimentsSection
         trackRef={experimentsTrackRef}
