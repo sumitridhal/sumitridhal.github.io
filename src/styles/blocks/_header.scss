@@ -16,7 +16,7 @@
 
 .site-header--home {
   mix-blend-mode: normal;
-  color: #e9f7ec;
+  color: var(--home-fg, #2a2330);
   height: 64px;
   padding-inline: clamp(0.8rem, 2.4vw, 1.4rem);
 }
