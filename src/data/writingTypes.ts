@@ -25,6 +25,8 @@ export type WritingMeta = {
   footerCoverSrc?: string;
   /** Prefer this post in the site footer “latest” slot over sort order. */
   pinInFooter?: boolean;
+  /** Tags for filtering; include `'draft'` to hide from gallery, home, and footer lists. */
+  keywords?: string[];
   titleLines?: string[];
   asideParagraphs?: string[];
   figureRows?: WritingFigureVariant[][];
