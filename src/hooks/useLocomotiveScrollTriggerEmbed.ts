@@ -33,14 +33,12 @@ export function useLocomotiveScrollTriggerEmbed({
 
   useLayoutEffect(() => {
     if (!enabled) {
-      setScrollReady(false)
       return
     }
 
     const shell = shellRef.current
     const track = trackRef.current
     if (!shell || !track) {
-      setScrollReady(false)
       return
     }
 
@@ -180,5 +178,5 @@ export function useLocomotiveScrollTriggerEmbed({
     }
   }, [shellRef, trackRef, reducedMotion, enabled, smoothClassName, pageLenis])
 
-  return scrollReady
+  return enabled && scrollReady
 }

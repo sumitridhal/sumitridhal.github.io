@@ -1,6 +1,6 @@
 import gsap from 'gsap'
 import { ScrollTrigger } from 'gsap/ScrollTrigger'
-import { useLayoutEffect, useRef } from 'react'
+import { useEffect, useLayoutEffect, useRef } from 'react'
 
 import { useLenisScrollTrigger } from '@/hooks/useLenisScrollTrigger'
 import { useLenis } from '@/providers/LenisProvider'
@@ -93,7 +93,10 @@ export function useWorkDeckScrollScrub({
   useLenisScrollTrigger()
 
   const onScrollActiveChangeRef = useRef(onScrollActiveChange)
-  onScrollActiveChangeRef.current = onScrollActiveChange
+
+  useEffect(() => {
+    onScrollActiveChangeRef.current = onScrollActiveChange
+  }, [onScrollActiveChange])
 
   useLayoutEffect(() => {
     if (!enabled || !lenis) return

@@ -48,7 +48,12 @@ export function HomeBookshelfSection({
       backgroundImage={HOME_SECTION_BANNERS.books}
       aria-labelledby="books-heading"
     >
-      <HomeSlideLayout titleId="books-heading" title="Bookshelf">
+      <HomeSlideLayout
+        titleId="books-heading"
+        eyebrow="Reading shelf"
+        title="Books that keep the practice honest"
+        lead="A horizontal shelf of references for systems thinking, product taste, engineering judgment, and the long memory behind better software."
+      >
         <div className="bookshelf__scroll-shift">
           <div
             ref={trackRef}

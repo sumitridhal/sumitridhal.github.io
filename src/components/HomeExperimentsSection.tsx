@@ -31,6 +31,7 @@ export function HomeExperimentsSection({
     >
       <HomeSlideLayout
         titleId="experiments-heading"
+        eyebrow={t('pages.home.experimentsEyebrow')}
         title={t('pages.home.experimentsHeading')}
         lead={t('pages.home.experimentsLead')}
       >

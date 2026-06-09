@@ -10,6 +10,7 @@ import { HomeWorkSection } from '@/components/HomeWorkSection'
 import { useI18n } from '@/contexts/I18nContext'
 import { bookshelf } from '@/data/bookshelfData'
 import { homeExperiments } from '@/data/experimentsData'
+import { projects } from '@/data/projectsData'
 import { talks } from '@/data/talksData'
 import { writings } from '@/data/writingsData'
 import { useHomeStripScroll } from '@/hooks/useHomeStripScroll'
@@ -23,6 +24,12 @@ import { formatWritingDate } from '@/utils/formatWritingDate'
 import { preloadImages } from '@/utils/imagePreloadCache'
 
 const HOME_WRITINGS_PREVIEW_COUNT = 8
+
+const HERO_FOCUS_AREAS = [
+  'Design systems',
+  'Resilient interfaces',
+  'AI-assisted workflows',
+] as const
 
 const HASH_SECTION_IDS: Record<string, string> = {
   '#work': 'work',
@@ -43,6 +50,11 @@ export function HomePage() {
   const location = useLocation()
   const experimentsScrubHorizontal = !reducedMotion && homeExperiments.length > 0
   const booksScrubHorizontal = !reducedMotion && bookshelf.length > 0
+  const heroStats = [
+    { value: `${projects.length}`, label: t('pages.home.heroStats.projects') },
+    { value: `${homeExperiments.length}`, label: t('pages.home.heroStats.experiments') },
+    { value: `${writings.length}`, label: t('pages.home.heroStats.writings') },
+  ]
 
   useHomeStripScroll({
     rootRef: panelsRef,
@@ -89,13 +101,50 @@ export function HomePage() {
 
   return (
     <div ref={panelsRef} className="home-panels">
-      <HomePanel id="hero" theme="hero" hero aria-labelledby="hero-heading">
-        <HomeSlideLayout
-          titleId="hero-heading"
-          title={t('pages.home.heroName')}
-          lead={t('pages.home.heroLead')}
-          headingLevel="h1"
-        />
+      <HomePanel
+        id="hero"
+        theme="hero"
+        className="home-editorial-hero"
+        hero
+        aria-labelledby="hero-heading"
+      >
+        <div className="home-hero-editorial">
+          <div className="home-hero-editorial__masthead" data-home-reveal-content>
+            <p className="home-hero-editorial__kicker">{t('pages.home.heroKicker')}</p>
+            <h1 id="hero-heading" className="home-hero-editorial__title">
+              <span>{t('pages.home.heroName')}</span>
+              <span>{t('pages.home.heroTitleLine')}</span>
+            </h1>
+            <p className="home-hero-editorial__lead">{t('pages.home.heroLead')}</p>
+            <div className="home-hero-editorial__actions" aria-label={t('pages.home.heroActionsAria')}>
+              <Link className="home-hero-editorial__button home-hero-editorial__button--primary" to="/#work">
+                {t('pages.home.heroPrimaryCta')}
+              </Link>
+              <Link className="home-hero-editorial__button" to={hrefWritings}>
+                {t('pages.home.heroSecondaryCta')}
+              </Link>
+            </div>
+          </div>
+
+          <aside className="home-hero-editorial__folio" aria-label={t('pages.home.heroFolioAria')}>
+            <div className="home-hero-editorial__folio-card" data-home-reveal>
+              <p className="home-hero-editorial__folio-label">{t('pages.home.heroFocusLabel')}</p>
+              <ul className="home-hero-editorial__focus-list" role="list">
+                {HERO_FOCUS_AREAS.map((item) => (
+                  <li key={item}>{item}</li>
+                ))}
+              </ul>
+            </div>
+            <div className="home-hero-editorial__stats" data-home-reveal>
+              {heroStats.map((item) => (
+                <div key={item.label} className="home-hero-editorial__stat">
+                  <strong>{item.value}</strong>
+                  <span>{item.label}</span>
+                </div>
+              ))}
+            </div>
+          </aside>
+        </div>
       </HomePanel>
 
       <HomeExperimentsSection
@@ -115,7 +164,12 @@ export function HomePage() {
         backgroundImage={HOME_SECTION_BANNERS.writings}
         aria-labelledby="writings-heading"
       >
-        <HomeSlideLayout titleId="writings-heading" title="Writings">
+        <HomeSlideLayout
+          titleId="writings-heading"
+          eyebrow="Field notes"
+          title="Long-form notes from the edge of building"
+          lead="Essays and technical sketches on engineering practice, creative tools, and the habits that make software feel considered."
+        >
           <div className="home-listing__rows" role="list">
             {writings.slice(0, HOME_WRITINGS_PREVIEW_COUNT).map((item) => (
               <Link
@@ -138,7 +192,12 @@ export function HomePage() {
       </HomePanel>
 
       <HomePanel id="talks" theme="talks" className="home-listing" aria-labelledby="talks-heading">
-        <HomeSlideLayout titleId="talks-heading" title="Talks">
+        <HomeSlideLayout
+          titleId="talks-heading"
+          eyebrow="Speaking"
+          title="Ideas made portable"
+          lead="Talks and public notes shaped for teams, meetups, and builders who care about durable craft."
+        >
           <div className="home-listing__rows" role="list">
             {talks.map((item) => (
               <a

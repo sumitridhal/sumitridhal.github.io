@@ -5,6 +5,7 @@ type HomeSlideLayoutProps = {
   media?: ReactNode
   /** When true, media column is hidden from assistive tech (decorative only). */
   mediaDecorative?: boolean
+  eyebrow?: ReactNode
   title: ReactNode
   titleId?: string
   lead?: ReactNode
@@ -18,6 +19,7 @@ export function HomeSlideLayout({
   reverse = false,
   media,
   mediaDecorative = false,
+  eyebrow,
   title,
   titleId,
   lead,
@@ -49,6 +51,7 @@ export function HomeSlideLayout({
       ) : null}
       <div className="home-slide__content">
         <header className="home-slide__header" data-home-reveal-content>
+          {eyebrow ? <p className="home-slide__eyebrow">{eyebrow}</p> : null}
           {titleId ? (
             <Heading id={titleId} className="home-slide__title">
               {title}
