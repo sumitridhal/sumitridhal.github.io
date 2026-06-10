@@ -1,3 +1,5 @@
+import { useGSAP } from '@gsap/react'
+import gsap from 'gsap'
 import { useEffect, useRef } from 'react'
 import { Link, useLocation } from 'react-router-dom'
 
@@ -31,6 +33,8 @@ const HERO_FOCUS_AREAS = [
   'AI-assisted workflows',
 ] as const
 
+gsap.registerPlugin(useGSAP)
+
 const HASH_SECTION_IDS: Record<string, string> = {
   '#work': 'work',
   '#experiments': 'experiments',
@@ -42,6 +46,7 @@ const HASH_SECTION_IDS: Record<string, string> = {
 export function HomePage() {
   const { t } = useI18n()
   const panelsRef = useRef<HTMLDivElement>(null)
+  const heroRef = useRef<HTMLDivElement>(null)
   const experimentsTrackRef = useRef<HTMLDivElement>(null)
   const experimentsStripRef = useRef<HTMLUListElement>(null)
   const booksTrackRef = useRef<HTMLDivElement>(null)
@@ -82,6 +87,66 @@ export function HomePage() {
     reducedMotion,
   })
 
+  useGSAP(
+    () => {
+      const hero = heroRef.current
+      if (!hero) return
+
+      const targets = hero.querySelectorAll<HTMLElement>('[data-home-hero-animate]')
+      if (!targets.length) return
+
+      if (reducedMotion) {
+        gsap.set(targets, {
+          autoAlpha: 1,
+          y: 0,
+          filter: 'blur(0px)',
+          clearProps: 'transform,visibility',
+        })
+        return
+      }
+
+      gsap.set(targets, {
+        autoAlpha: 0,
+        y: 22,
+        filter: 'blur(10px)',
+      })
+
+      gsap.to(targets, {
+        autoAlpha: 1,
+        y: 0,
+        filter: 'blur(0px)',
+        duration: 0.9,
+        ease: 'power3.out',
+        stagger: 0.075,
+        delay: 0.18,
+      })
+    },
+    { scope: heroRef, dependencies: [reducedMotion], revertOnUpdate: true },
+  )
+
+  useGSAP(
+    () => {
+      const hero = heroRef.current
+      if (!hero || reducedMotion) return
+
+      const focusCard = hero.querySelector<HTMLElement>('[data-home-focus-card]')
+      if (!focusCard) return
+
+      const handleCardPointerMove = (event: PointerEvent) => {
+        const rect = focusCard.getBoundingClientRect()
+        focusCard.style.setProperty('--focus-glow-x', `${event.clientX - rect.left}px`)
+        focusCard.style.setProperty('--focus-glow-y', `${event.clientY - rect.top}px`)
+      }
+
+      focusCard.addEventListener('pointermove', handleCardPointerMove)
+
+      return () => {
+        focusCard.removeEventListener('pointermove', handleCardPointerMove)
+      }
+    },
+    { scope: panelsRef, dependencies: [reducedMotion], revertOnUpdate: true },
+  )
+
   useEffect(() => {
     const images = homeExperiments.map((e) => e.mediaSrc).filter(Boolean)
     if (images.length) void preloadImages(images)
@@ -108,26 +173,39 @@ export function HomePage() {
         hero
         aria-labelledby="hero-heading"
       >
-        <div className="home-hero-editorial">
+        <div ref={heroRef} className="home-hero-editorial">
           <div className="home-hero-editorial__masthead" data-home-reveal-content>
-            <p className="home-hero-editorial__kicker">{t('pages.home.heroKicker')}</p>
+            <p className="home-hero-editorial__kicker" data-home-hero-animate>
+              {t('pages.home.heroKicker')}
+            </p>
             <h1 id="hero-heading" className="home-hero-editorial__title">
-              <span>{t('pages.home.heroName')}</span>
-              <span>{t('pages.home.heroTitleLine')}</span>
+              <span data-home-hero-animate>{t('pages.home.heroName')}</span>
+              <span data-home-hero-animate>{t('pages.home.heroTitleLine')}</span>
             </h1>
-            <p className="home-hero-editorial__lead">{t('pages.home.heroLead')}</p>
+            <p className="home-hero-editorial__lead" data-home-hero-animate>
+              {t('pages.home.heroLead')}
+            </p>
             <div className="home-hero-editorial__actions" aria-label={t('pages.home.heroActionsAria')}>
-              <Link className="home-hero-editorial__button home-hero-editorial__button--primary" to="/#work">
+              <Link
+                className="home-hero-editorial__button home-hero-editorial__button--primary"
+                to="/#work"
+                data-home-hero-animate
+              >
                 {t('pages.home.heroPrimaryCta')}
               </Link>
-              <Link className="home-hero-editorial__button" to={hrefWritings}>
+              <Link className="home-hero-editorial__button" to={hrefWritings} data-home-hero-animate>
                 {t('pages.home.heroSecondaryCta')}
               </Link>
             </div>
           </div>
 
           <aside className="home-hero-editorial__folio" aria-label={t('pages.home.heroFolioAria')}>
-            <div className="home-hero-editorial__folio-card" data-home-reveal>
+            <div
+              className="home-hero-editorial__folio-card"
+              data-home-reveal
+              data-home-hero-animate
+              data-home-focus-card
+            >
               <p className="home-hero-editorial__folio-label">{t('pages.home.heroFocusLabel')}</p>
               <ul className="home-hero-editorial__focus-list" role="list">
                 {HERO_FOCUS_AREAS.map((item) => (
@@ -135,7 +213,7 @@ export function HomePage() {
                 ))}
               </ul>
             </div>
-            <div className="home-hero-editorial__stats" data-home-reveal>
+            <div className="home-hero-editorial__stats" data-home-reveal data-home-hero-animate>
               {heroStats.map((item) => (
                 <div key={item.label} className="home-hero-editorial__stat">
                   <strong>{item.value}</strong>

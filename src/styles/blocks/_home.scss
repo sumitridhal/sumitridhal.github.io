@@ -201,6 +201,23 @@
   color: var(--home-fg);
 }
 
+.home-hero-editorial [data-home-hero-animate] {
+  will-change: transform, opacity, filter;
+}
+
+.home-hero-editorial__title span {
+  transition:
+    color 0.35s $ease-out,
+    text-shadow 0.35s $ease-out;
+}
+
+.home-hero-editorial__title:hover span:first-child {
+  color: #fff7df;
+  text-shadow:
+    0 0 1px rgba(233, 184, 88, 0.42),
+    0 0 26px rgba(233, 184, 88, 0.16);
+}
+
 .home-hero-editorial__title span:last-child {
   max-width: 12ch;
   margin-top: 0.18em;
@@ -284,6 +301,11 @@
 }
 
 .home-hero-editorial__folio-card {
+  --focus-glow-x: 50%;
+  --focus-glow-y: 50%;
+
+  position: relative;
+  overflow: hidden;
   min-height: 18rem;
   padding: clamp(1.1rem, 2vw, 1.5rem);
   display: flex;
@@ -291,8 +313,38 @@
   justify-content: space-between;
 }
 
+.home-hero-editorial__folio-card::before {
+  content: '';
+  position: absolute;
+  inset: 0;
+  z-index: 0;
+  pointer-events: none;
+  opacity: 0;
+  background:
+    radial-gradient(
+      circle at var(--focus-glow-x) var(--focus-glow-y),
+      rgba(233, 184, 88, 0.28) 0%,
+      rgba(233, 184, 88, 0.12) 22%,
+      rgba(45, 62, 39, 0.08) 44%,
+      transparent 68%
+    );
+  transition: opacity 0.28s $ease-out;
+}
+
+.home-hero-editorial__folio-card:hover::before,
+.home-hero-editorial__folio-card:focus-within::before {
+  opacity: 1;
+}
+
+.home-hero-editorial__folio-card > * {
+  position: relative;
+  z-index: 1;
+}
+
 .home-hero-editorial__folio-card::after {
   content: 'No. 01 / Home';
+  position: relative;
+  z-index: 1;
   display: block;
   margin-top: 2rem;
   font-family: $font-writing-serif;
@@ -322,6 +374,14 @@
   font-size: clamp(1.15rem, 2vw, 1.55rem);
   line-height: 1.05;
   color: rgba(242, 245, 255, 0.92);
+  transition:
+    color 0.28s $ease-out,
+    padding-inline 0.28s $ease-out;
+}
+
+.home-hero-editorial__focus-list li:hover {
+  padding-inline: 0.35rem;
+  color: #fff7df;
 }
 
 .home-hero-editorial__focus-list li::after {
@@ -371,6 +431,19 @@
 }
 
 @media (prefers-reduced-motion: reduce) {
+  .home-hero-editorial__folio-card::before {
+    transition: none;
+  }
+
+  .home-hero-editorial [data-home-hero-animate] {
+    will-change: auto;
+  }
+
+  .home-hero-editorial__title span,
+  .home-hero-editorial__focus-list li {
+    transition: none;
+  }
+
   [data-home-reveal],
   [data-home-reveal-media],
   [data-home-reveal-content] {

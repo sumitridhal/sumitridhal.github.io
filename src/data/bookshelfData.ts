@@ -29,15 +29,6 @@ export const bookshelf: BookItem[] = [
     coverSrc: 'https://covers.openlibrary.org/b/isbn/9780465050659-M.jpg',
   },
   {
-    id: 'boxing-a-cultural-history',
-    title: 'Boxing: A Cultural History',
-    author: 'Kasia Boddy',
-    spineColor: '#a72c31',
-    textColor: '#f5f6f8',
-    pages: 480,
-    coverSrc: 'https://covers.openlibrary.org/b/isbn/9781861893697-M.jpg',
-  },
-  {
     id: 'dying-for-ideas',
     title: 'Dying for Ideas',
     author: 'Costica Bradatan',
@@ -66,14 +57,6 @@ export const bookshelf: BookItem[] = [
     pages: 304,
   },
   {
-    id: 'rupa-eu-blestemul',
-    title: 'Rupea blestemului',
-    author: 'Catalin Pavel',
-    spineColor: '#c4174a',
-    textColor: '#fbf2f5',
-    pages: 288,
-  },
-  {
     id: 'simple-genius',
     title: 'Simple Genius',
     author: 'David Baldacci',
@@ -81,15 +64,6 @@ export const bookshelf: BookItem[] = [
     textColor: '#121722',
     pages: 420,
     coverSrc: 'https://covers.openlibrary.org/b/isbn/9780446581738-M.jpg',
-  },
-  {
-    id: 'drumul-catre-servitute',
-    title: 'Drumul catre servitute',
-    author: 'Friedrich A. Hayek',
-    spineColor: '#22234e',
-    textColor: '#eef2ff',
-    pages: 316,
-    coverSrc: 'https://covers.openlibrary.org/b/id/14847910-M.jpg',
   },
   {
     id: 'atlas-shrugged',
