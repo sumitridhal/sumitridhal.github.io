@@ -24,13 +24,6 @@ export function SiteHeader() {
         <button type="button" className="site-header__link" onClick={() => navigate(hrefAbout)}>
           {t('nav.about')}
         </button>
-        <button
-          type="button"
-          className="site-header__link"
-          onClick={() => navigate({ pathname: hrefHome, hash: 'work' })}
-        >
-          {t('nav.work')}
-        </button>
         <button type="button" className="site-header__link" onClick={() => navigate(hrefWritings)}>
           {t('nav.writings')}
         </button>

@@ -11,13 +11,11 @@
     "heroKicker": "Engineer, systems thinker, and interface craftsperson",
     "heroTitleLine": "builds software with an editorial eye.",
     "heroLead": "I shape product systems, resilient frontends, and AI-assisted workflows with the same care I bring to writing: clear structure, useful details, and a strong point of view.",
-    "heroPrimaryCta": "View selected work",
     "heroSecondaryCta": "Read the notes",
     "heroActionsAria": "Featured homepage links",
     "heroFolioAria": "Homepage portfolio summary",
     "heroFocusLabel": "Current focus",
     "heroStats": {
-      "projects": "selected projects",
       "experiments": "motion studies",
       "writings": "published notes"
     },
@@ -323,7 +321,7 @@
     "experienceHeading": "Work experience"
   },
   "project": {
-    "back": "All work",
+    "back": "Home",
     "role": "Role",
     "year": "Year",
     "stack": "Stack",
@@ -340,9 +338,8 @@
     "asideLabel": "Technical notes"
   },
   "footer": {
-    "intro": "Engineer and writer exploring ideas through software, notes, and experiments. This site collects selected work and occasional long-form notes.",
+    "intro": "Engineer and writer exploring ideas through software, notes, and experiments. This site collects occasional long-form notes and small studies.",
     "exploreHeading": "Explore",
-    "linkWork": "Work",
     "linkExperiments": "Experiments",
     "linkWritings": "Writings",
     "linkAbout": "About",

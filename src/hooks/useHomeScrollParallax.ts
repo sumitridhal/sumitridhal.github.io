@@ -19,7 +19,7 @@ const HOME_PARALLAX_SKIP_FADE_IDS = new Set([
 /**
  * Mirrors `/sections` scrubbed motion from `useSectionsScrollExperience`:
  * hero `yPercent` vs next section, experiments body lift, banner `<img>` drift.
- * One-shot fade-up on `#work` and `#talks` (non-parallax panels).
+ * One-shot fade-up on `#talks` (non-parallax panel).
  *
  * Does not call `useLenisScrollTrigger` — other home hooks already register it.
  */

@@ -5,11 +5,10 @@ import { useI18n } from '@/contexts/I18nContext'
 import { hrefHome } from '@/i18n/routes'
 import { useLenis } from '@/providers/LenisProvider'
 
-const SECTIONS = ['hero', 'experiments', 'work', 'writings', 'talks', 'books'] as const
+const SECTIONS = ['hero', 'experiments', 'writings', 'talks', 'books'] as const
 
 const SECTION_LABEL_KEYS: Record<(typeof SECTIONS)[number], string> = {
   hero: 'common.sections.hero',
-  work: 'common.sections.work',
   experiments: 'common.sections.experiments',
   writings: 'common.sections.writings',
   talks: 'common.sections.talks',

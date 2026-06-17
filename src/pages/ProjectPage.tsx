@@ -18,7 +18,7 @@ export function ProjectPage() {
   if (!slug || !project) {
     return (
       <Navigate
-        to={{ pathname: hrefHome, hash: 'work' }}
+        to={hrefHome}
         replace
       />
     )
@@ -38,7 +38,7 @@ export function ProjectPage() {
         type="button"
         className="project-page__back"
         onClick={() =>
-          navigate({ pathname: hrefHome, hash: 'work' })
+          navigate(hrefHome)
         }
       >
         {t('pages.project.back')}

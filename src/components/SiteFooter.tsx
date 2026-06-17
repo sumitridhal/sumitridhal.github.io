@@ -37,11 +37,6 @@ export function SiteFooter() {
             </h2>
             <ul className="site-footer__list" role="list">
               <li>
-                <Link className="site-footer__link" to={{ pathname: hrefHome, hash: 'work' }}>
-                  {t('pages.footer.linkWork')}
-                </Link>
-              </li>
-              <li>
                 <Link className="site-footer__link" to={{ pathname: hrefHome, hash: 'experiments' }}>
                   {t('pages.footer.linkExperiments')}
                 </Link>
@@ -77,11 +72,6 @@ export function SiteFooter() {
                 >
                   {t('pages.footer.linkAbout')}
                 </button>
-              </li>
-              <li>
-                <Link className="site-footer__nav-link" to={{ pathname: hrefHome, hash: 'work' }}>
-                  {t('pages.footer.linkWork')}
-                </Link>
               </li>
               <li>
                 <Link className="site-footer__nav-link" to={{ pathname: hrefHome, hash: 'experiments' }}>

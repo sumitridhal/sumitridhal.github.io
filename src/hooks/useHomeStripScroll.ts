@@ -8,8 +8,6 @@ export type HomeStripScrollRefs = {
   rootRef: RefObject<HTMLElement | null>
   experimentsTrackRef: RefObject<HTMLElement | null>
   experimentsStripRef: RefObject<HTMLElement | null>
-  workTrackRef?: RefObject<HTMLElement | null>
-  workStripRef?: RefObject<HTMLElement | null>
   booksTrackRef: RefObject<HTMLElement | null>
   booksStripRef: RefObject<HTMLElement | null>
 }
@@ -71,8 +69,6 @@ export function useHomeStripScroll({
   rootRef,
   experimentsTrackRef,
   experimentsStripRef,
-  workTrackRef,
-  workStripRef,
   booksTrackRef,
   booksStripRef,
   enabled,
@@ -88,12 +84,9 @@ export function useHomeStripScroll({
 
     const root = rootRef.current
     const experimentsSection = root?.querySelector<HTMLElement>('#experiments')
-    const workSection = root?.querySelector<HTMLElement>('#work')
     const booksSection = root?.querySelector<HTMLElement>('#books')
     const expWrap = experimentsTrackRef.current
     const expStrip = experimentsStripRef.current
-    const workWrap = workTrackRef?.current ?? null
-    const workStrip = workStripRef?.current ?? null
     const bookWrap = booksTrackRef.current
     const bookStrip = booksStripRef.current
 
@@ -104,15 +97,6 @@ export function useHomeStripScroll({
         section: experimentsSection,
         wrap: expWrap,
         strip: expStrip,
-      })
-      cleanups.push(cleanup)
-    }
-
-    if (workSection && workWrap && workStrip) {
-      const cleanup = bindSectionHorizontalStrip({
-        section: workSection,
-        wrap: workWrap,
-        strip: workStrip,
       })
       cleanups.push(cleanup)
     }
@@ -136,8 +120,6 @@ export function useHomeStripScroll({
     rootRef,
     experimentsTrackRef,
     experimentsStripRef,
-    workTrackRef,
-    workStripRef,
     booksTrackRef,
     booksStripRef,
   ])

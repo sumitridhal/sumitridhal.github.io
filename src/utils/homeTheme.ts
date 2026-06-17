@@ -1,4 +1,4 @@
-export type HomeThemeId = 'hero' | 'experiments' | 'work' | 'writings' | 'talks' | 'books'
+export type HomeThemeId = 'hero' | 'experiments' | 'writings' | 'talks' | 'books'
 
 import gsap from 'gsap'
 
@@ -13,21 +13,14 @@ export type HomeThemeTokens = {
 
 export const HOME_THEMES: Record<HomeThemeId, HomeThemeTokens> = {
   hero: {
-    bgSolid: '#1e2a1a',
-    fg: '#f2f5ff',
-    fgMuted: 'rgba(232, 236, 244, 0.7)',
-    accent: '#e9b858',
-    border: 'rgba(233, 184, 88, 0.2)',
+    bgSolid: '#f2f1e8',
+    fg: '#080807',
+    fgMuted: 'rgba(8, 8, 7, 0.66)',
+    accent: '#d84f2a',
+    border: 'rgba(8, 8, 7, 0.18)',
   },
   experiments: {
     bgSolid: '#202d1c',
-    fg: '#f2f5ff',
-    fgMuted: 'rgba(232, 236, 244, 0.68)',
-    accent: '#e9b858',
-    border: 'rgba(233, 184, 88, 0.2)',
-  },
-  work: {
-    bgSolid: '#182316',
     fg: '#f2f5ff',
     fgMuted: 'rgba(232, 236, 244, 0.68)',
     accent: '#e9b858',
