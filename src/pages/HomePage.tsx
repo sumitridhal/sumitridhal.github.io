@@ -40,6 +40,8 @@ const HERO_TUNE_DEFAULT: HeroTuneValue = {
   scale: 1,
 }
 
+const HERO_CAR_NUMBERS = new Set(['19', '20', '24', '25', '26'])
+
 const getHeroFloatProfile = (number: string, index: number) => {
   const seed = Number.parseInt(number, 10) || index + 1
   const xDirection = seed % 2 === 0 ? -1 : 1
@@ -481,6 +483,64 @@ export function HomePage() {
       const hero = heroRef.current
       if (!hero || reducedMotion) return
 
+      const cars = Array.from(hero.querySelectorAll<HTMLElement>('[data-home-hero-car]'))
+      if (!cars.length) return
+
+      const parseDegrees = (value: string) => Number.parseFloat(value.replace('deg', '')) || 0
+
+      const resetCarVars = (car: HTMLElement) => {
+        car.style.setProperty('--cutout-click-x', '0px')
+        car.style.setProperty('--cutout-click-y', '0px')
+        car.style.setProperty('--cutout-click-rotate', '0deg')
+      }
+
+      const handleCarClick = (event: MouseEvent) => {
+        const car = event.currentTarget as HTMLElement
+        const style = getComputedStyle(car)
+        const flipX = Number.parseFloat(style.getPropertyValue('--cutout-flip-x')) || 1
+        const rotate =
+          parseDegrees(style.getPropertyValue('--cutout-rotate')) +
+          parseDegrees(style.getPropertyValue('--cutout-base-rotate')) +
+          parseDegrees(style.getPropertyValue('--cutout-tune-rotate')) +
+          parseDegrees(style.getPropertyValue('--cutout-exit-rotate'))
+        const angle = (rotate * Math.PI) / 180
+        const distance = Math.min(window.innerWidth * 0.42, 430)
+        const direction = flipX < 0 ? -1 : 1
+        const x = Math.cos(angle) * distance * direction
+        const y = Math.sin(angle) * distance * direction
+        const isOut = car.dataset.carOut === 'true'
+
+        car.dataset.carOut = isOut ? 'false' : 'true'
+
+        gsap.to(car, {
+          '--cutout-click-x': isOut ? '0px' : `${x}px`,
+          '--cutout-click-y': isOut ? '0px' : `${y}px`,
+          '--cutout-click-rotate': isOut ? '0deg' : `${direction * 3}deg`,
+          duration: 0.85,
+          ease: isOut ? 'power3.out' : 'expo.out',
+        })
+      }
+
+      cars.forEach((car) => {
+        car.addEventListener('click', handleCarClick)
+      })
+
+      return () => {
+        cars.forEach((car) => {
+          car.removeEventListener('click', handleCarClick)
+          resetCarVars(car)
+          delete car.dataset.carOut
+        })
+      }
+    },
+    { scope: heroRef, dependencies: [reducedMotion], revertOnUpdate: true },
+  )
+
+  useGSAP(
+    () => {
+      const hero = heroRef.current
+      if (!hero || reducedMotion) return
+
       const cutouts = Array.from(
         hero.querySelectorAll<HTMLElement>('[data-home-hero-scroll-exit]'),
       )
@@ -618,6 +678,7 @@ export function HomePage() {
               const currentTune = heroTune[item.number] ?? item.tune
               const scaleDelta = currentTune.scale / item.tune.scale
               const floatProfile = getHeroFloatProfile(item.number, index)
+              const isCar = HERO_CAR_NUMBERS.has(item.number)
 
               return (
                 <article
@@ -631,6 +692,7 @@ export function HomePage() {
                   data-float-cross-y={floatProfile.crossY}
                   data-float-duration={floatProfile.duration}
                   data-home-hero-scroll-exit
+                  data-home-hero-car={isCar ? 'true' : undefined}
                   style={
                     {
                       '--cutout-index': index,

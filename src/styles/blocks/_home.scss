@@ -142,8 +142,7 @@
     radial-gradient(circle at 78% 22%, rgba(59, 136, 169, 0.14), transparent 18rem),
     linear-gradient(180deg, #f6f4ea 0%, #edeadf 100%);
 
-  &::before,
-  &::after {
+  &::before {
     content: '';
     position: absolute;
     pointer-events: none;
@@ -157,14 +156,6 @@
       linear-gradient(90deg, rgba(8, 8, 7, 0.028) 1px, transparent 1px);
     background-size: 44px 44px;
     mask-image: linear-gradient(180deg, black 0%, transparent 86%);
-  }
-
-  &::after {
-    left: 0;
-    right: 0;
-    bottom: clamp(1.25rem, 3vw, 2.5rem);
-    height: 1px;
-    background: rgba(8, 8, 7, 0.28);
   }
 
   .home-section__inner {
@@ -317,6 +308,9 @@
   --cutout-exit-y: 0px;
   --cutout-exit-rotate: 0deg;
   --cutout-exit-scale: 1;
+  --cutout-click-x: 0px;
+  --cutout-click-y: 0px;
+  --cutout-click-rotate: 0deg;
 
   position: absolute;
   display: block;
@@ -353,12 +347,15 @@
   position: relative;
   display: block;
   transform: translate3d(
-      calc(var(--cutout-base-x) + var(--cutout-tune-x) + var(--cutout-exit-x)),
-      calc(var(--cutout-base-y) + var(--cutout-tune-y) + var(--cutout-exit-y)),
+      calc(var(--cutout-base-x) + var(--cutout-tune-x) + var(--cutout-exit-x) + var(--cutout-click-x)),
+      calc(var(--cutout-base-y) + var(--cutout-tune-y) + var(--cutout-exit-y) + var(--cutout-click-y)),
       0
     )
     rotate(
-      calc(var(--cutout-base-rotate) + var(--cutout-tune-rotate) + var(--cutout-exit-rotate))
+      calc(
+        var(--cutout-base-rotate) + var(--cutout-tune-rotate) + var(--cutout-exit-rotate) +
+          var(--cutout-click-rotate)
+      )
     )
     scale(var(--cutout-scale)) scale(var(--cutout-base-scale)) scale(var(--cutout-tune-scale))
     scale(var(--cutout-exit-scale)) scaleX(var(--cutout-flip-x)) scaleY(var(--cutout-flip-y));
@@ -371,6 +368,11 @@
   width: 100%;
   height: auto;
   user-select: none;
+}
+
+.home-hero-editorial__cutout[data-home-hero-car] {
+  pointer-events: auto;
+  cursor: pointer;
 }
 
 .home-hero-editorial__cutout--dark-bg .home-hero-editorial__cutout-image {
