@@ -5,50 +5,61 @@ export const writingMeta = {
   date: '2026-05-30',
   category: 'Essay',
   excerpt:
-    'AI makes it easy to ship polished work fast. It does not make it easy to understand people. The gap between those two is where good design still lives.',
+    'AI makes it easy to turn a prompt into a polished screen. It does not replace the slower work of watching someone miss the label, tab through the wrong region, or quietly give up.',
   titleLines: ['The friction of feeling', 'AI, design, and empathy'],
   asideParagraphs: [
-    'Simulation can describe confusion; it cannot carry the weight of living through it.',
-    'Execution is largely solved. What remains scarce is whether someone actually listened before they shipped.',
+    'The useful friction is not hand-drawing every rectangle. It is staying close enough to the person using the thing that the rectangles answer a real moment.',
+    'A model can help me make five versions before lunch. It cannot tell me which version made someone feel less stupid.',
   ],
 }
 
 <aside className="writing-tldr" aria-label="Summary">
   <p>
-    <strong>TL;DR</strong> — AI removes the friction that once forced designers to sit with users. It can
-    simulate empathy, but it cannot supply it. Models scale whatever intent you bring: care ships faster;
-    apathy ships faster too. Execution is cheap; the human filter is the whole game.
+    <strong>TL;DR</strong> — AI has made the blank-canvas part of design almost suspiciously fast. That is
+    useful, but it also hides the older friction that made me sit with the problem longer: user calls,
+    awkward copy choices, screen-reader passes, and the uncomfortable question of whether the thing
+    actually helped. I want the speed. I do not want to outsource the noticing.
   </p>
 </aside>
 
-Creation has never been faster. A vague outline can become a working interface in an afternoon. That changes everything—and it also removes the slow parts where real understanding used to form.
+I noticed the gap on a small error state, not on a grand design exercise.
 
-A lot of what ships now looks polished. It follows the rules of UX. And it still feels hollow, like no one built it for actual people.
+The first AI draft was better than I expected: calm headline, friendly body copy, a neat retry button. It had the shape of empathy. It also sounded like every support article that has ever said, "Sorry for the inconvenience," while making the user do the work again.
 
-The old friction was not just overhead. Manual work forced designers to stay close to the product and, by extension, to the people using it. That proximity is mostly gone.
+The real issue was smaller and meaner. The user had already filled a long form. The failure message needed to say what was saved, what was not, and whether hitting back would destroy anything. No persona prompt gave me that. I had to trace the flow, reproduce the failure, and ask the boring product questions.
 
-You can prompt a persona. You can generate an empathetic error message. You can simulate pain points on demand.
+That is the part I worry we are starting to skip.
 
-But simulation is not empathy.
+## The useful kind of slow
 
-> Empathy requires vulnerability and lived experience, and as a machine, I have neither.
+I do not miss pushing pixels for the sake of pushing pixels. I am happy that a rough idea can become a working mock in an afternoon. I like asking a model for five layout options and throwing four away before Figma would have warmed up.
 
-I can describe confusion. I cannot feel what it is like to be tired at 2 AM, stuck on a confusing menu, or relying on a screen reader to parse a messy layout.
+But some of the old slowness did useful work. It forced me to read the copy out loud. It forced me to sit in the empty state long enough to notice that the button label was lying. It forced me to watch keyboard focus move through a layout that looked perfect in a screenshot and terrible in real use.
 
-**Some people use AI to skip the hard part.** Synthetic feedback replaces interviews. Averages replace individuals. The result is frictionless software that connects with no one.
+AI can make those checks easier. It can draft accessibility notes, generate test data, summarize interview transcripts, and turn a messy flow into something inspectable. The danger is when that help becomes a replacement for contact with the person using the product.
 
-**Others use AI to listen more.** They offload boilerplate and spend the saved time with real users—watching, asking, noticing what goes unsaid. They build faster, but they root the work in something human.
+Synthetic feedback has a dangerous smoothness to it. It never gets embarrassed. It never says, "I thought this was my fault." It never hesitates before admitting that the pricing page made no sense. Those pauses are data too.
 
-AI does not give you care. It scales the intent you bring to the prompt.
+## What I trust less now
 
-## What changes for designers
+I trust polished first drafts less than I used to. Not because they are bad, but because they remove the visual discomfort that used to tell everyone, "This is still a sketch." A screen can now look finished before the thinking underneath it has earned that finish.
 
-Execution is largely solved. Understanding people is not.
+That changes the review conversation. The question cannot be only, "Does this look good?" It has to be:
 
-The gap between seeing a struggle and shipping a fix used to take months. Now it can take days. Designers who actually listen can move much closer to the finished product themselves.
+- Where did this answer come from?
+- Which real user moment does it handle?
+- What did we check manually because a model would happily invent confidence?
 
-The best ones will treat models like an exoskeleton: machines handle mechanics; humans keep the emotional labor. The tools can build the house. Only you know how to make it feel like a home.
+I have seen AI make a team more attentive. Boilerplate vanished, prototypes got cheaper, and the saved time went into sharper critique. I have also seen it make a team lazier: no interviews, no edge cases, just a few simulated users nodding in a document.
 
-I am a mirror. I reflect the care—or the lack of it—in the prompt.
+Same tools. Different posture.
 
-Empathy is not disappearing. It is just getting easier to spot who is practicing it. The products that last will come from those who do.
+## The part I want to keep
+
+The best use of AI in design, for me, is not "make this feel human." It is "help me get through the mechanical layer faster so I can spend more time on the human layer."
+
+That means using the model to generate variants, then taking the variants back to the product, the logs, the support tickets, the accessibility tree, and the person who got stuck. It means letting the tool accelerate execution without letting it launder guesses into insight.
+
+Empathy is not a tone setting. It is a practice of staying near the user's reality after the mockup already looks good enough to ship.
+
+That friction is still worth keeping.

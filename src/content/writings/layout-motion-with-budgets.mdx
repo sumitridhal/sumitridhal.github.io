@@ -4,24 +4,37 @@ export const writingMeta = {
   "title": "Layout-driven motion and knowing when to stop",
   "date": "2023-08-14",
   "category": "UI",
-  "excerpt": "Layout-driven animation means the transition follows real geometry changes—width, position, flex distribution—not a hand-authored keyframe that drifts out of sync when copy changes. Libraries that measure DOM boxes and…",
+  "excerpt": "The motion I usually regret is not the hard animation. It is the extra animation: every card, label, and panel politely moving at once until the interface feels busy instead of alive.",
   "titleLines": [
     "Layout-driven motion",
     "and knowing when to stop"
   ]
 }
 
-Layout-driven animation means the transition follows real geometry changes—width, position, flex distribution—not a hand-authored keyframe that drifts out of sync when copy changes. Libraries that measure DOM boxes and interpolate FLIP-style transforms excel at dashboards and responsive cards.
+The first version of a layout animation almost always feels good in isolation. A card expands, its neighbours slide out of the way, the headline settles into a new width. Then you put the whole flow together and realize everything is moving: the card, the tabs, the chart, the helper text, the little badge nobody asked to animate.
+
+That is the point where I now stop and make a budget.
+
+Layout-driven animation means the transition follows real geometry changes - width, position, flex distribution - instead of a keyframe that only works for one copy length. FLIP-style libraries are great at this because they measure before and after boxes and interpolate the visual delta. The danger is that they make "animate all layout changes" too easy.
 
 ```ts
 const reduceMotion = window.matchMedia('(prefers-reduced-motion: reduce)').matches
 const duration = reduceMotion ? 0 : 0.35
 ```
 
-The failure mode is everything moving at once. Give hierarchy: one primary transition per gesture, secondary motion at lower amplitude, and respect reduced-motion settings with cross-fades or instant swaps instead of parallax.
+On a dashboard I worked through, the useful motion was the panel resize. It told you where the extra detail came from. The distracting motion was everything around it trying to be equally graceful. Labels nudged, pills slid, charts reflowed, and the eye had no anchor.
+
+The fix was not better easing. It was fewer actors:
+
+- One primary motion per gesture.
+- Secondary motion at smaller distance or lower opacity.
+- No decorative parallax in flows where the user is trying to read numbers.
+- Instant swaps or cross-fades when `prefers-reduced-motion` is set.
 
 <figure className="writing-inline-figure">
   <img src="/media/writings/layout-motion-with-budgets.png" alt={writingMeta.title} loading="lazy" decoding="async" />
 </figure>
 
-Ship a motion budget the same way you ship performance budgets: count simultaneous animated properties, cap duration, and test on low-end hardware. Delight is subtractive; the best interface motion is often the motion you delete after recording yourself using the flow twice.
+My rough rule: record the interaction twice, once while admiring the animation and once while trying to complete the task quickly. If the second recording makes the motion feel like furniture in the hallway, delete something.
+
+Ship a motion budget the same way you ship a performance budget. Count simultaneous animated properties, cap duration, and test on a tired laptop, not only on the machine where you built it. The best interface motion is often the one remaining movement after you remove the clever parts.

@@ -6,7 +6,7 @@ export const writingMeta = {
   "title": "Noise in Creative Coding",
   "date": "2021-05-20",
   "category": "Creative code",
-  "excerpt": "Noise is an indispensable tool for creative coding. We use it to generate all kinds of organic effects like clouds, landscapes, and contours. Or to move and distort objects with a more lifelike behaviour than easing…",
+  "excerpt": "When a sketch feels too mechanical, a shared noise field can make neighbouring points breathe together. The trick is choosing a field that fits the scale of the canvas.",
   "titleLines": [
     "Noise in",
     "Creative Coding"
@@ -32,7 +32,9 @@ export const writingMeta = {
   "coverSrc": "/media/writings/noise-in-creative-coding.png"
 }
 
-Noise is an indispensable tool for creative coding. We use it to generate all kinds of organic effects like clouds, landscapes, and contours. Or to move and distort objects with a more lifelike behaviour than easing alone can suggest.
+The first time a sketch feels too mechanical, I usually reach for noise before I reach for more animation curves. A row of bars looks like a chart until a shared field makes the widths breathe together. A flat gradient looks like a poster until a slow warp gives it weather. Noise is useful because it gives neighbouring points related answers, not because it is “random.”
+
+In creative coding, that related randomness becomes clouds, landscapes, contours, displacement, and motion that feels less like an easing preset. The important choice is not adding noise; it is deciding what kind of field the piece can afford to show.
 
 <WritingShaderDemo
   preset="valueNoiseFbm"
@@ -53,12 +55,14 @@ float fbm(vec2 p) {
 }
 ```
 
+The preview uses a friendly version of the idea: layered value noise that bends colour slowly enough to read as structure. Push the frequency too high and the same shader turns into static; push the amplitude too hard and every later design decision has to fight the field.
+
 The trick is choosing a field that reads well at the scale of your canvas: value noise for grit, gradient noise when you need continuity, and layered octaves when you want detail without a single harsh frequency dominating the frame.
 
 <figure className="writing-inline-figure">
   <img src="/media/writings/noise-in-creative-coding.png" alt={writingMeta.title} loading="lazy" decoding="async" />
 </figure>
 
-When you map noise to colour or displacement, keep a slow control surface—amplitude, rotation, seed—so the piece stays tunable in performance. The goal is not randomness for its own sake but a controlled distribution that still surprises on every run.
+When you map noise to colour or displacement, keep a slow control surface—amplitude, rotation, seed—so the piece stays tunable in performance. I like exposing those knobs even in throwaway demos because they tell you quickly whether the sketch has a range or only one lucky screenshot. The goal is not randomness for its own sake but a controlled distribution that still surprises on every run.
 
 For a concrete **CPU-side** pattern—2D Perlin driving bar widths on a fixed grid—see [Perlin noise as a field of vertical bars](/writing/perlin-noise-vertical-bars).

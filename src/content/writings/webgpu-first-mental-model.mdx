@@ -6,7 +6,7 @@ export const writingMeta = {
   "title": "A first mental model for WebGPU in the browser",
   "date": "2023-05-03",
   "category": "Graphics",
-  "excerpt": "WebGPU asks you to think in explicit queues, bind groups, and pipelines instead of the implicit state machine many of us grew up with in immediate-mode GL. That verbosity is the contract: the driver gets a smaller…",
+  "excerpt": "A WebGL habit stops helping once resource ownership matters. WebGPU’s queues, bind groups, and pipelines feel verbose because they expose the costs you used to let the driver guess.",
   "titleLines": [
     "A first mental model",
     "for WebGPU in the browser"
@@ -16,6 +16,8 @@ export const writingMeta = {
     "Prefer explicit `copyBufferToTexture` staging for uploads you do once; stream uploads only when profiling proves you need them."
   ]
 }
+
+I wrote this for the moment where a WebGL habit stops helping. In WebGL, a small fullscreen sketch can survive on muscle memory: bind a buffer, set a uniform, draw. In WebGPU, the same sketch asks you to name the queue, the bind group layout, the pipeline, and the resource lifetime before a pixel moves. That feels like ceremony until you realize the ceremony is the API telling you where the cost lives.
 
 WebGPU asks you to think in explicit queues, bind groups, and pipelines instead of the implicit state machine many of us grew up with in immediate-mode GL. That verbosity is the contract: the driver gets a smaller decision surface, which tends to mean more predictable performance on integrated GPUs and laptops.
 
@@ -35,10 +37,12 @@ fn vsMain(@builtin(vertex_index) vi: u32) -> @builtin(position) vec4f {
 }
 ```
 
+The live block here is still a WebGL2 stand-in because it needs to run everywhere this site runs. That mismatch is a useful reminder: the visual idea is not the hard part. The hard part in WebGPU is making resource ownership explicit enough that a future compute pass, texture upload, or post stack does not turn into guesswork.
+
 A tiny ergonomic layer on top—typed shader nodes, macro helpers, or a scene graph that emits pipelines—can buy readability without hiding the two things that still matter: how often you switch pipelines and how wide your memory barriers are. Abstractions that obscure those two knobs eventually show up as jank.
 
 <figure className="writing-inline-figure">
   <img src="/media/writings/webgpu-first-mental-model.png" alt={writingMeta.title} loading="lazy" decoding="async" />
 </figure>
 
-Reach for WebGPU when you need compute shaders beside graphics, large structured buffers, or tighter control over multi-pass rendering. Stay on WebGL when your asset is stable, your audience still includes older Safari constraints, or the port cost outweighs a single fullscreen effect.
+Reach for WebGPU when you need compute shaders beside graphics, large structured buffers, or tighter control over multi-pass rendering. Stay on WebGL when your asset is stable, your audience still includes older Safari constraints, or the port cost outweighs a single fullscreen effect. The honest test is not whether WebGPU is newer; it is whether explicit control removes more uncertainty than it adds.

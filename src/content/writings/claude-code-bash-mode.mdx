@@ -4,24 +4,37 @@ export const writingMeta = {
   "title": "Claude Code bash mode",
   "date": "2025-02-24",
   "category": "TIL",
-  "excerpt": "Bash mode is the moment you stop treating the agent as a chat surface and let it drive the shell the same way you would: chained commands, pipes, and exit codes that either unblock the next step or surface a real…",
+  "excerpt": "Bash mode clicked for me when I stopped asking the agent to explain commands and started asking it to run the same boring verification chain I would run before trusting a patch.",
   "titleLines": [
     "Claude Code",
     "bash mode"
   ]
 }
 
-Bash mode is the moment you stop treating the agent as a chat surface and let it drive the shell the same way you would: chained commands, pipes, and exit codes that either unblock the next step or surface a real failure.
+Bash mode clicked for me on a small cleanup, not a dramatic refactor. I had a patch that looked fine in the diff, but the repo had the usual pile of small traps: one test script with extra flags, a build step that caught MDX mistakes, and a formatter that was quiet until it was not.
+
+Instead of asking for another explanation, I asked Claude Code to run the same chain I would have run by hand and stop on the first real failure.
 
 ```bash
 set -euo pipefail
 npm test -- --run && npm run build
 ```
 
-The habit that saves the most time is naming intent before mechanics. Ask for a dry run or `echo` plan when the command touches production data, then widen permissions once the shape of the change is obvious. The model is fast; your filesystem permissions are not.
+Bash mode is useful because the shell already has a contract: commands either exit cleanly or they do not. Pipes, chained commands, and stderr give the agent a much sharper loop than "try again" in prose.
+
+The habit that saves me the most time is naming intent before mechanics:
+
+```bash
+# Verify the content build only; do not install or upgrade anything.
+npm run build
+```
+
+That one sentence matters. If the command might touch production data, write the dry run first. If it might delete files, make it print the candidates before it removes anything. The model is fast; filesystem permissions are faster.
 
 <figure className="writing-inline-figure">
   <img src="/media/writings/claude-code-bash-mode.png" alt={writingMeta.title} loading="lazy" decoding="async" />
 </figure>
 
-When something goes sideways, capture stderr verbatim. It is the fastest signal for both the model and humans about whether you are fighting PATH issues, missing binaries, or a subtle quoting bug—three different fixes, one shared symptom.
+When something goes sideways, keep stderr boring and complete. "It failed" is not useful. The exact line usually tells you whether you are fighting a missing binary, a PATH mismatch, a quoting bug, or a test that actually caught the change.
+
+The small win is not that an agent can run bash. It is that you can turn a vague review loop into a sequence of commands with exit codes, then make the next decision from evidence instead of vibes.

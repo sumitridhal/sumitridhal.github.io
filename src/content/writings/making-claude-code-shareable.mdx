@@ -4,14 +4,18 @@ export const writingMeta = {
   "title": "Making Claude Code sessions shareable",
   "date": "2025-03-18",
   "category": "Dev",
-  "excerpt": "Pairing on a hard problem is easier when someone can see the same transcript, file picks, and tool output you do. The friction is rarely the model; it is packaging context so another engineer—or your future self—can…",
+  "excerpt": "A useful agent session is not the full transcript. It is the few facts another engineer needs when they open the branch cold: what changed, what failed, what you ruled out, and where to look next.",
   "titleLines": [
     "Making Claude Code",
     "sessions shareable"
   ]
 }
 
-Pairing on a hard problem is easier when someone can see the same transcript, file picks, and tool output you do. The friction is rarely the model; it is packaging context so another engineer—or your future self—can replay the reasoning without re-asking half the questions.
+The first time I tried to hand off an agent-heavy debugging session, I shared too much.
+
+There was a long transcript, a branch with a half-fixed bug, and a few commands buried somewhere in the middle that actually mattered. The next person did what any sane engineer would do: ignored most of it and asked me for the short version.
+
+That was the lesson. A shareable Claude Code session is not a transcript dump. It is a handoff note.
 
 ```markdown
 ## Handoff
@@ -20,10 +24,22 @@ Pairing on a hard problem is easier when someone can see the same transcript, fi
 - Next: inspect refresh token rotation in `auth/refresh.ts`
 ```
 
-Start by treating the session as an artifact: a short README in the repo that links to the branch, lists the key decisions, and points to any scripts or env vars that matter. If you use Claude Code in the terminal, capture the high-signal turns (plan, diff summary, test commands) in commit messages or a changelog entry instead of pasting the entire log.
+The useful packet is small:
+
+- The branch or PR.
+- The exact failing command, if there is one.
+- The files that mattered.
+- The thing you tried that looked promising but did not work.
+- The next bet.
+
+I try to write that while the session is still warm. Waiting until the next morning means I have the transcript but not the shape of the investigation. The model can remember the words; it cannot know which moment made me change direction unless I leave that note.
 
 <figure className="writing-inline-figure">
   <img src="/media/writings/making-claude-code-shareable.png" alt={writingMeta.title} loading="lazy" decoding="async" />
 </figure>
 
-When you need a literal handoff, export the smallest slice that still tells the story: the final patch, the failing test name, and one paragraph on what you tried that did not work. Shareable sessions are curated, not raw dumps—and that curation is what makes them useful across teams and time zones.
+For commits, I like pulling the high-signal parts into the message: why the fix went this way, what test proved it, and any caveat the next reviewer should not have to rediscover. For a teammate, a short markdown note in the branch is usually enough.
+
+The transcript is still useful as backup. It can answer "what exactly did the agent see?" or "where did that idea come from?" But it should not be the front door. The front door is the curated slice: final patch, failing test name, dead ends, and next step.
+
+Shareable sessions are not raw logs. They are receipts with the noise removed.
