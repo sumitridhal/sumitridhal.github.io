@@ -1,0 +1,68 @@
+export const workMeta = {
+  id: 'argus',
+  order: 1,
+  title: 'Argus',
+  tagline:
+    'Local meta-agent SRE control plane: scaffold an agent, inject failure, open an incident, approve a heal loop',
+  category: 'AI / SRE',
+  role: 'Product engineering',
+  year: '2026',
+  stack: 'Next.js, Node supervisor, Docker, Claude/Cursor CLI, SQLite, OTel',
+  techStack: [
+    'Next.js App Router',
+    'Node supervisor',
+    'Docker',
+    'Claude / Cursor CLI',
+    'SQLite',
+    'OpenTelemetry',
+    'Hono agent template',
+  ],
+  coverSrc: '/media/projects/aiops-incident-assistant-dashboard.png',
+  imageKey: 'project-argus',
+  demoUrl: 'http://localhost:3401',
+  repoPath: '~/git/argus',
+  highlights: [
+    'End-to-end heal loop on one agent as the Phase 1 proof — not a multi-template platform.',
+    'HITL git: local branch + diff → Approve → merge → redeploy (no remote GitHub gate).',
+    'SRE concurrency 1: auto-open Incident → Run SRE → Approve only if tests green and diff non-empty.',
+  ],
+  gallery: [
+    {
+      src: '/media/projects/aiops-incident-assistant-dashboard.png',
+      alt: 'AIOps-style incident assistant dashboard used as the Argus case-study visual stand-in.',
+      width: 1024,
+      height: 890,
+    },
+  ],
+}
+
+Argus is a **local Meta-Agent SRE control plane**. Phase 1 is a POC whose success criterion is a single heal loop you can watch: create an agent, inject failure, open an incident, run SRE, approve a green patch, and return to healthy.
+
+## Problem
+
+Cloud-native demos often stop at “agent writes a PR.” Operators still need a closed loop they trust: health signals, a bounded repair turn, and a human gate before merge. Multi-agent platforms obscure that proof. Argus locks the POC to **one template, one supervisor, one approve path**.
+
+## Approach
+
+- **Stack split:** Next.js dashboard (`apps/web`) plus a long-lived Node supervisor (`packages/supervisor`) and CLI executors (`packages/executor`).
+- **Template:** one TypeScript Hono HTTP agent with OTel and an `INJECT_FAILURE` hook — copy → optional `claude -p` customize → Docker.
+- **Trigger:** Level-2 health/log poll with a thin OTel→SQLite store (no Grafana dependency for the POC).
+- **Auth:** host Claude/Cursor CLI for meta/SRE turns; `ANTHROPIC_API_KEY` only inside agent containers when needed.
+- **UI surfaces:** Agents / Incidents / Raw — nothing else in Phase 1.
+
+## Tech stack
+
+Next.js App Router, Node supervisor, Docker, Claude or Cursor CLI adapters, SQLite, OpenTelemetry, Hono agent template.
+
+## Demo
+
+```bash
+cp .env.example .env
+pnpm install
+pnpm --filter @argus/executor build
+pnpm dev:supervisor   # terminal 1
+pnpm dev:web          # terminal 2 → http://localhost:3401
+pnpm demo             # skipCli by default; DEMO_SKIP_CLI=0 for real CLI turns
+```
+
+Sources: repo README at `~/git/argus`, brain page `projects/argus`.

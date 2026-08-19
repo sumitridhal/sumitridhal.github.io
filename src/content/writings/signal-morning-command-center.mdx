@@ -1,0 +1,49 @@
+export const writingMeta = {
+  id: 'signal-morning-command-center',
+  order: 0,
+  title: 'Signal: a morning command center for feeds and triage',
+  date: '2026-07-25',
+  category: 'Productivity',
+  excerpt:
+    'I wanted one screen in the morning that showed me fresh technical links, let me triage what matters, and gave me a digest I could skim in five minutes. Signal is that screen.',
+  titleLines: ['Signal', 'morning command center'],
+  asideParagraphs: [
+    'The morning routine is not about reading everything. It is about deciding what not to read.',
+    'AI digests are optional enrichment. The feed itself is the product — fresh links from sources I already trust.',
+  ],
+  coverSrc: '/media/projects/cloud-cost-intelligence-dashboard.png',
+}
+
+My morning information routine was scattered. Hacker News in one tab, Lobsters in another, DEV Community bookmarked somewhere, GitHub Blog in an RSS reader I never opened. Every day I spent ten minutes clicking through tabs before I knew what was worth reading.
+
+Signal consolidates that into one local app.
+
+## What it does
+
+On launch, Signal pulls fresh links from HN, Lobsters, DEV, GitHub Blog, and a few other sources I care about. Each item gets a relevance score based on my past triage history — what I clicked, what I saved, what I skipped.
+
+The triage view is the core interaction: scan the list, star the things worth reading later, archive the rest. Five minutes, done. The starred items become a digest I can come back to during a break or at the end of the day.
+
+TLDR summaries are available if you set up an OpenAI key, but they are optional. The feed works without AI. The relevance scoring works without AI. The only thing that requires an API key is the summary generation, and I use it maybe half the time.
+
+## Why a local app
+
+I tried building this as a web app first. The problem is that feed curation is personal and opinionated — the relevance model trains on my reading habits, the sources are my sources, and the triage history is mine. Hosting that on a server adds auth, database, and privacy considerations for something that only one person uses.
+
+The Tauri desktop shell wraps the same Next.js app but runs it as a native window. The workspace files — feed cache, triage history, starred items — live in the local filesystem. The app starts fast, stays out of the way, and does not need the internet to show me yesterday's digest.
+
+<figure className="writing-inline-figure">
+  <img src="/media/projects/cloud-cost-intelligence-dashboard.png" alt={writingMeta.title} loading="lazy" decoding="async" />
+</figure>
+
+## The cursor-agent integration
+
+Signal has an optional chat panel that connects to Cursor's agent mode. I use it for two things: asking questions about a starred article ("what is the main claim in this paper?") and planning work based on what I read ("I want to try this technique — what files in my project would I change?").
+
+The chat is not a chatbot. It is a workspace tool that has access to the same context I am looking at. When it answers, it cites the article. When it suggests changes, it names the files.
+
+## What I actually learned
+
+The biggest insight was not about AI or feeds. It was that **deciding what not to read** is the valuable part of a morning routine. The feed gives me options. The triage gives me decisions. The digest gives me a receipt. Everything else — summaries, chat, relevance scoring — is optimization on top of that core loop.
+
+Five minutes of triage saves thirty minutes of tab-wandering. That is the entire pitch.

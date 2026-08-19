@@ -14,7 +14,9 @@ export function ProjectCard({ project }: ProjectCardProps) {
   const [loaded, setLoaded] = useState(false)
   const key = project.imageKey as ImageKey
   const dim = dimensions[key]
-  const lqipSrc = lqip[key]
+  const lqipSrc = (lqip as Record<string, string | undefined>)[key]
+  const width = dim?.width ?? 1024
+  const height = dim?.height ?? 640
 
   return (
     <article className="project-card">
@@ -23,25 +25,27 @@ export function ProjectCard({ project }: ProjectCardProps) {
           className={`project-card__media${loaded ? ' project-card__media--loaded' : ''}`}
           style={
             {
-              '--ar-w': dim.width,
-              '--ar-h': dim.height,
+              '--ar-w': width,
+              '--ar-h': height,
             } as CSSProperties
           }
         >
-          <img
-            className="project-card__lqip"
-            src={lqipSrc}
-            alt=""
-            width={dim.width}
-            height={dim.height}
-            decoding="async"
-          />
+          {lqipSrc ? (
+            <img
+              className="project-card__lqip"
+              src={lqipSrc}
+              alt=""
+              width={width}
+              height={height}
+              decoding="async"
+            />
+          ) : null}
           <img
             className={`project-card__img${loaded ? ' project-card__img--loaded' : ''}`}
             src={project.coverSrc}
             alt={project.title}
-            width={dim.width}
-            height={dim.height}
+            width={width}
+            height={height}
             loading="lazy"
             decoding="async"
             onLoad={() => setLoaded(true)}

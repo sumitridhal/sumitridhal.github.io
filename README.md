@@ -78,4 +78,12 @@ This repository deploys with [`.github/workflows/deploy-pages.yml`](.github/work
 
 **One-time setup on GitHub:** open **Settings → Pages → Build and deployment**, set **Source** to **GitHub Actions**, then save. Until that is set, the **deploy** job can fail while **build** succeeds.
 
-After enabling, push any commit or use **Actions → Deploy to GitHub Pages → Run workflow** to redeploy. The site URL is [https://sumitridhal.github.io/](https://sumitridhal.github.io/).
+## Project case studies (`/work/:slug`)
+
+MDX case studies live in `src/content/work/`. See [docs/work-case-studies.md](docs/work-case-studies.md) for the template, registry wiring, and scaffold script:
+
+```bash
+node scripts/scaffold-case-study.mjs my-project --title "My Project"
+```
+
+After enabling, push any commit or use **Actions → Deploy to GitHub Pages → Run workflow** to redeploy. The site URL is [https://0xTHAC0.github.io/](https://0xTHAC0.github.io/).

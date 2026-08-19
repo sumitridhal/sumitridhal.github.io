@@ -325,6 +325,9 @@
     "role": "Role",
     "year": "Year",
     "stack": "Stack",
+    "demo": "Demo",
+    "repo": "Repo",
+    "techStackLabel": "Tech stack",
     "highlightsHeading": "What we built"
   },
   "writing": {
@@ -336,6 +339,20 @@
     "readArticle": "Read article",
     "galleryListLink": "Home listing",
     "asideLabel": "Technical notes"
+  },
+  "notes": {
+    "back": "All notes",
+    "backHome": "Back home",
+    "galleryCategory": "Personal notes",
+    "galleryHeroLead": "Selected notes from my local knowledge system, published deliberately and reviewed before they reach this site.",
+    "empty": "No notes have been marked for publishing yet.",
+    "sourceLabel": "Source"
+  },
+  "reading": {
+    "category": "Signal reading feed",
+    "title": "Saved signals",
+    "lead": "Links I bookmarked in Signal for another pass: engineering, design, tools, and ideas worth keeping.",
+    "empty": "No Signal bookmarks have been synced yet."
   },
   "footer": {
     "intro": "Engineer and writer exploring ideas through software, notes, and experiments. This site collects occasional long-form notes and small studies.",

@@ -1,0 +1,65 @@
+export const workMeta = {
+  id: 'motion-forge',
+  order: 2,
+  title: 'Motion Forge',
+  tagline:
+    'Local video + stills workspace: Paper shader looks, multi-effect layers, and HyperFrames export without SaaS paywalls',
+  category: 'Creative tools',
+  role: 'Product engineering',
+  year: '2026',
+  stack: 'Next.js, Three.js, Paper shaders, HyperFrames, FFmpeg, GSAP',
+  techStack: [
+    'Next.js (apps/web)',
+    'Three.js / Paper shaders',
+    'HyperFrames',
+    'FFmpeg',
+    'GSAP',
+    'Layer compositor',
+  ],
+  coverSrc: '/media/projects/motion-forge-cover.svg',
+  imageKey: 'project-motion-forge',
+  repoPath: '~/git/motion-forge',
+  highlights: [
+    'Multi-effect layer stack with top-live preview and dirty underlay bake.',
+    'In-editor motion export to MP4 / PNG sequence under outputs/motion/.',
+    'Skip freemium export gating — local tool, invest in utility not paywalls.',
+  ],
+  gallery: [
+    {
+      src: '/media/projects/motion-forge-cover.svg',
+      alt: 'Motion Forge cover: shaders, layers, and local export.',
+      width: 1024,
+      height: 640,
+    },
+  ],
+}
+
+Motion Forge is a **local intro and motion workspace**. Shaders are look references that feed HyperFrames and Studio — not a competing shader SaaS. The product bet versus effect.app is a Photoshop-like **layer stack** plus honest local export.
+
+## Problem
+
+Effect-style tools win on media → layers → export. Open shader libraries win on primitives. Neither gives a durable local loop for intro videos and stills with upload, composition, and FFmpeg output without cloud quotas.
+
+## Approach
+
+- **Web app in `apps/web`** with Paper shader canvases, Layers UI, and an Export drawer.
+- **Assets v1:** capture 1920×1080 PNGs from shaders → `POST /api/assets` → browse on `/assets`.
+- **P0 shipped:** multi-effect compositor (soft cap 4), media upload for image filters, seek+PNG frames → FFmpeg MP4 / PNG-seq.
+- **Positioning:** effect.app = effects product; Paper = primitives; Forge = local intro workspace.
+- **Deferred:** Figma bridge (ADR 0005), WebM, freemium watermarks (explicitly skipped — ADR 0006).
+
+## Tech stack
+
+Next.js workspace app, Paper shaders / Three.js, HyperFrames preview+render, FFmpeg export, GSAP for intro templates.
+
+## Demo
+
+```bash
+cd ~/git/motion-forge
+npm install
+npm run dev          # apps/web
+npm run preview:intro
+npm run render:intro # → outputs/default-intro.mp4
+```
+
+Sources: `~/git/motion-forge/docs/README.md`, `docs/ROADMAP.md`, brain `projects/motion-forge`.

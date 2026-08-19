@@ -12,9 +12,9 @@ export function AppShell() {
 
   const isSectionsRoute = location.pathname === hrefSections
 
-  const isWritingRoute = useMemo(() => {
+  const isEditorialRoute = useMemo(() => {
     const parts = location.pathname.split('/').filter(Boolean)
-    return parts[0] === 'writing'
+    return ['notes', 'reading', 'writing'].includes(parts[0] ?? '')
   }, [location.pathname])
 
   useEffect(() => {
@@ -25,12 +25,12 @@ export function AppShell() {
   }, [isHome])
 
   useEffect(() => {
-    if (!isWritingRoute) return
+    if (!isEditorialRoute) return
     document.body.classList.add('route-writing')
     return () => {
       document.body.classList.remove('route-writing')
     }
-  }, [isWritingRoute])
+  }, [isEditorialRoute])
 
   return (
     <div className="app">

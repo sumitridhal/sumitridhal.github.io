@@ -5,6 +5,7 @@ import { useI18n } from '@/contexts/I18nContext'
 import dimensions from '@/data/image-dimensions.json'
 import { getProjectDetail } from '@/data/projectDetails'
 import { getProjectBySlug } from '@/data/projectsData'
+import { getWorkEntryBySlug } from '@/data/workRegistry'
 import { hrefHome } from '@/i18n/routes'
 import { useViewTransitionNavigate } from '@/hooks/useViewTransitionNavigate'
 
@@ -14,6 +15,7 @@ export function ProjectPage() {
   const navigate = useViewTransitionNavigate()
 
   const project = useMemo(() => (slug ? getProjectBySlug(slug) : undefined), [slug])
+  const workEntry = useMemo(() => getWorkEntryBySlug(slug), [slug])
 
   if (!slug || !project) {
     return (
@@ -27,19 +29,19 @@ export function ProjectPage() {
   const key = project.imageKey
   const dim = dimensions[key]
   const detail = getProjectDetail(project.slug)
+  const meta = workEntry?.meta
 
-  const role = detail?.role ?? 'Lead front-end'
-  const year = detail?.year ?? '2025'
-  const stack = detail?.stack ?? 'React, WebGL, Vite'
+  const role = meta?.role ?? detail?.role ?? 'Lead front-end'
+  const year = meta?.year ?? detail?.year ?? '2025'
+  const stack = meta?.stack ?? detail?.stack ?? 'React, WebGL, Vite'
+  const Body = workEntry?.Body
 
   return (
     <article className="project-page">
       <button
         type="button"
         className="project-page__back"
-        onClick={() =>
-          navigate(hrefHome)
-        }
+        onClick={() => navigate(hrefHome)}
       >
         {t('pages.project.back')}
       </button>
@@ -55,16 +57,65 @@ export function ProjectPage() {
         <li>
           <strong>{t('pages.project.stack')}</strong> — {stack}
         </li>
+        {meta?.demoUrl ? (
+          <li>
+            <strong>{t('pages.project.demo')}</strong> —{' '}
+            <a href={meta.demoUrl} className="project-page__link">
+              {meta.demoUrl}
+            </a>
+          </li>
+        ) : null}
+        {meta?.repoPath ? (
+          <li>
+            <strong>{t('pages.project.repo')}</strong> —{' '}
+            <code className="project-page__code">{meta.repoPath}</code>
+          </li>
+        ) : null}
       </ul>
       <figure className="project-page__figure">
         <img
           src={project.coverSrc}
           alt={project.title}
-          width={dim.width}
-          height={dim.height}
+          width={dim?.width}
+          height={dim?.height}
         />
       </figure>
-      {detail ? (
+
+      {Body ? (
+        <div className="project-page__body project-page__mdx">
+          {meta?.techStack && meta.techStack.length > 0 ? (
+            <ul className="project-page__tech" aria-label={t('pages.project.techStackLabel')}>
+              {meta.techStack.map((item) => (
+                <li key={item}>{item}</li>
+              ))}
+            </ul>
+          ) : null}
+          {meta?.highlights && meta.highlights.length > 0 ? (
+            <>
+              <h2 className="project-page__section-title">
+                {t('pages.project.highlightsHeading')}
+              </h2>
+              <ul className="project-page__highlights">
+                {meta.highlights.map((item) => (
+                  <li key={item}>{item}</li>
+                ))}
+              </ul>
+            </>
+          ) : null}
+          <Body />
+          {meta?.gallery?.map((item) => (
+            <figure key={item.src} className="project-page__figure">
+              <img
+                src={item.src}
+                alt={item.alt}
+                {...(item.width != null && item.height != null
+                  ? { width: item.width, height: item.height }
+                  : {})}
+              />
+            </figure>
+          ))}
+        </div>
+      ) : detail ? (
         <div className="project-page__body">
           {detail.intro.map((paragraph, i) => (
             <p key={i} className="project-page__prose">

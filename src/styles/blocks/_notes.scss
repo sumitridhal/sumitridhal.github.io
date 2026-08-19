@@ -1,0 +1,13 @@
+@use '../variables' as *;
+
+.notes-gallery .writings-gallery__inner {
+  max-width: 48rem;
+}
+
+.note-page__source {
+  margin: 1rem 0 0;
+  font-family: $font-writing-mono;
+  font-size: 0.75rem;
+  letter-spacing: 0.03em;
+  color: $color-muted;
+}

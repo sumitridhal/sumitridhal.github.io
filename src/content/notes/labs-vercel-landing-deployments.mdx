@@ -1,0 +1,33 @@
+export const noteMeta = {
+  "id": "labs-vercel-landing-deployments",
+  "title": "Labs Vercel Landing Deployments",
+  "date": "2026-08-18",
+  "category": "concept",
+  "excerpt": "Signal's Labs catalog links each project to a public production page. Static landing source is owned by each product repository under landing/ ; Signal stores the URLs in signal/src/content/labs.ts .",
+  "tags": [
+    "deployment",
+    "labs",
+    "signal",
+    "vercel"
+  ],
+  "generated": true,
+  "source": "gbrain:labs-vercel-landing-deployments"
+}
+
+Signal's Labs catalog links each project to a public production page. Static landing source is owned by each product repository under `landing/`; Signal stores the URLs in `signal/src/content/labs.ts`.
+
+## Production URLs
+
+- Talos: https://talos-landing-ten.vercel.app — source `~/git/talos/landing/`
+- CMSMark: https://cmsmark.vercel.app/ — existing Astro documentation deployment, reused instead of creating a duplicate landing project
+- Branchmark: https://branchmark-landing.vercel.app — source `~/git/branchmark/landing/`
+- Motion Forge: https://motion-forge-landing.vercel.app — source `~/git/motion-forge/landing/`
+- FinIQ: https://finiq-landing-pi.vercel.app — source `~/git/finiq/landing/`
+- Argus: https://argus-landing-red.vercel.app — source `~/git/argus/landing/`; Argus was initialized as a local Git repository on 2026-08-14
+- Synvix: https://synvix-landing.vercel.app — source `~/git/synvix/landing/`
+- Signal: https://signal-landing-two.vercel.app — source `~/git/data-ai/learning/signal-workspace/signal/landing/`
+- Nimbus: https://nimbus-landing-delta.vercel.app — source `~/git/poc-nimbus/landing/`
+
+## Deployment convention
+
+The eight new projects use `<slug>-landing` project names on Vercel team `sridhals-projects` and are direct static deployments with no Git provider connection. Each site consists of `index.html`, `styles.css`, and `vercel.json`. CMSMark remains on its existing `cmsmark` project. Product applications themselves are not deployed by this workflow.

@@ -1,4 +1,6 @@
 import imageDimensions from '@/data/image-dimensions.json'
+import { workEntries } from '@/data/workRegistry'
+import type { WorkMeta } from '@/data/workTypes'
 
 export type ImageKey = keyof typeof imageDimensions
 
@@ -12,7 +14,20 @@ export type Project = {
   slug: string
 }
 
-export const projects: Project[] = [
+function workMetaToProject(meta: WorkMeta): Project {
+  return {
+    id: meta.id,
+    imageKey: meta.imageKey as ImageKey,
+    coverSrc: meta.coverSrc,
+    title: meta.title,
+    category: meta.category,
+    tagline: meta.tagline,
+    slug: meta.id,
+  }
+}
+
+/** Legacy TypeScript catalog entries (pre-MDX case studies). */
+const legacyProjects: Project[] = [
   {
     id: 'wu-design-system',
     imageKey: 'project-wu-design-system',
@@ -33,6 +48,12 @@ export const projects: Project[] = [
       'Cash-in send flow for in-store kiosks: limits, validation, and clear recovery when hardware or networks fail',
     slug: 'western-union-cash-send-kiosk',
   },
+]
+
+/** MDX case studies first, then legacy TS-backed pages. */
+export const projects: Project[] = [
+  ...workEntries.map((e) => workMetaToProject(e.meta)),
+  ...legacyProjects,
 ]
 
 export function getProjectBySlug(slug: string): Project | undefined {

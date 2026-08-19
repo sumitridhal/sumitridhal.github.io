@@ -1,0 +1,53 @@
+export const writingMeta = {
+  id: 'motion-forge-skip-the-paywall',
+  order: 0,
+  title: 'Motion Forge: local creative tools that skip the export paywall',
+  date: '2026-07-26',
+  category: 'Creative',
+  excerpt:
+    'I got tired of freemium export limits on creative tools I was using for my own projects. Motion Forge is a local video and stills workspace with Paper shaders, multi-effect layers, and FFmpeg export — no SaaS paywall.',
+  titleLines: ['Motion Forge', 'skip the export paywall'],
+  asideParagraphs: [
+    'The freemium export gate is not a business model for creators. It is a tax on finishing.',
+    "Local tools with FFmpeg under the hood will always export faster and cheaper than a round trip to someone else's GPU.",
+  ],
+  coverSrc: '/media/projects/motion-forge-cover.svg',
+}
+
+Every time I needed a quick video for a demo or a shader still for a blog post, I hit the same wall: the tool is free to use but charges to export. Watermarks, resolution caps, format restrictions. The creative part is free; the useful part is gated.
+
+Motion Forge exists because I wanted to stop paying that tax.
+
+## What it does
+
+It is a local workspace for video and stills with three main pieces:
+
+**Paper shaders** — a library of shader looks inspired by paper textures, grain, and analog processing. These are not Instagram filters. They are GLSL programs that run in Three.js with full parameter control. You can combine them, animate them, and export the result as frames or video.
+
+**Multi-effect layer stack** — stack multiple effects with a live preview on top and a dirty underlay that bakes when you are ready. Think Photoshop layers but for shader effects. The compositor handles blend modes, opacity, and per-layer timing.
+
+**HyperFrames export** — render to PNG sequences or MP4 via FFmpeg. Everything happens locally. No upload step, no render queue, no "your export will be ready in 10 minutes" email.
+
+<figure className="writing-inline-figure">
+  <img src="/media/projects/motion-forge-cover.svg" alt={writingMeta.title} loading="lazy" decoding="async" />
+</figure>
+
+## The anti-SaaS stance
+
+Motion Forge is intentionally local. The export path is `outputs/motion/` on your disk. The render runs on your GPU. The FFmpeg binary is the one you already have installed.
+
+This is not a philosophical position against cloud tools. It is a practical one: for the kind of short-form creative work I do — demo videos, shader stills, social media visuals — a local tool with no export gate is faster and cheaper than any hosted alternative. The round trip to a cloud GPU adds latency and cost for work that my laptop handles in seconds.
+
+## What I use it for
+
+Mostly three things:
+
+1. **Blog post covers** — run a shader, capture a still, crop it, done. No Figma, no stock photo search.
+2. **Demo videos** — record a 15-second loop of an interactive experiment, export as MP4, post it.
+3. **Social media visuals** — shader-generated textures and gradients that look distinctive without requiring illustration skills.
+
+The shaders are the part I enjoy building. The export pipeline is the part that makes the tool useful. Without the export, it is a toy. With it, it is a production step in my content workflow.
+
+## Stack
+
+Next.js for the workspace UI, Three.js for the shader runtime, GSAP for timeline animation, and FFmpeg for the final render. The effect layer compositor is custom — blend modes and timing curves per layer, with a bake step that flattens the stack for export.

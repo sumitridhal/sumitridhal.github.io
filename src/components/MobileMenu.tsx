@@ -4,7 +4,13 @@ import type { To } from 'react-router-dom'
 import { useAppState } from '@/contexts/AppStateContext'
 import { useI18n } from '@/contexts/I18nContext'
 import { useViewTransitionNavigate } from '@/hooks/useViewTransitionNavigate'
-import { hrefAbout, hrefHome, hrefWritings } from '@/i18n/routes'
+import {
+  hrefAbout,
+  hrefHome,
+  hrefNotes,
+  hrefReading,
+  hrefWritings,
+} from '@/i18n/routes'
 
 export function MobileMenu() {
   const { menuOpen, setMenuOpen } = useAppState()
@@ -62,6 +68,12 @@ export function MobileMenu() {
         </button>
         <button type="button" className="mobile-menu__link" onClick={() => go(hrefWritings)}>
           {t('nav.writings')}
+        </button>
+        <button type="button" className="mobile-menu__link" onClick={() => go(hrefNotes)}>
+          {t('nav.notes')}
+        </button>
+        <button type="button" className="mobile-menu__link" onClick={() => go(hrefReading)}>
+          {t('nav.reading')}
         </button>
         <button
           type="button"

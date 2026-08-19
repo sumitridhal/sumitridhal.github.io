@@ -1,0 +1,79 @@
+export const writingMeta = {
+  id: 'bun-zig-to-rust-agent-fleet',
+  order: 0,
+  title: 'Bun’s Zig-to-Rust rewrite as an agent fleet case study',
+  date: '2026-07-20',
+  category: 'AI',
+  excerpt:
+    'Jarred Sumner’s 11-day Bun rewrite is less interesting as a language debate and more useful as an ops manual: 64 concurrent Claudes, hostile reviewers, worktree isolation, and “fix the workflow, never the diff.”',
+  titleLines: ['Bun’s agent fleet', 'Zig → Rust case study'],
+  asideParagraphs: [
+    'The transferable unit is not “run 64 agents.” It is machine-checkable exits, separate review contexts, and a rulebook that absorbs repeated mistakes.',
+    'Hostile review is the design choice that keeps implementers from grading their own homework.',
+  ],
+  coverSrc: 'https://picsum.photos/seed/bun-zig-to-rust-agent-fleet/960/640',
+}
+
+Jarred Sumner’s [Rewriting Bun in Rust](https://bun.com/blog/bun-in-rust) post is the primary source. Anthropic’s [code-migration playbook](https://claude.com/blog/ai-code-migration) and the [Developers Digest breakdown](https://www.developersdigest.tech/blog/bun-rust-rewrite-agent-fleet-case-study) fill in the fleet shape. What follows is the case study I want on hand when someone asks how far multi-agent coding can go when the exit conditions are mechanical.
+
+## The headline
+
+May 3–14, 2026. Bun’s runtime moved from **535,496 lines of Zig** to roughly **1M lines of Rust**. Peak concurrency: **64** Claude Fable 5 instances across **4 git worktrees** (16 agents each). About **50** Claude Code dynamic workflows. Cost: ~**$165,000** at API pricing. Before merge: **100%** of the existing TypeScript test suite — zero tests skipped or deleted.
+
+That is the spectacle. The useful part is the control system.
+
+## Fleet shape
+
+Why four worktrees instead of sixty-four? A full checkout was too heavy, and an early failure taught the hard lesson: agents sharing one checkout will fight over `git stash` and `git reset`. Isolation is not optional at this scale.
+
+Each task unit ran a **1 → 2 → 1** pipeline:
+
+1. Implementer writes the Rust port
+2. Two adversarial reviewers see **only the diff**, with a hostile mandate — assume it is broken
+3. Fixer applies validated feedback, then commit
+
+Reviewers do not share the implementer’s context. Tiebreakers exist when the two reviewers disagree. Smaller models do volume implementation; larger models review and edit the rules other agents follow.
+
+## Five phases
+
+1. **Preparation** (~3 hours human) — `PORTING.md`, `LIFETIMES.tsv`, a 3-file pilot, eight specialized failure-mode reviewers
+2. **Mass translation** — all 1,448 `.zig` files; on May 4 alone, +413k lines in two hours
+3. **Compiler errors** — ~16,000 errors, fixed crate by crate; when Claude started stubbing functions, the fix was a workflow instruction change, not a hand edit
+4. **Runtime validation** — stacktraces → fix → dual review per subcommand
+5. **CI green race** — Linux, then macOS, then Windows; failing test files 972 → 23 → 0
+
+Final gate on Debian x64: **1,386,826** `expect()` calls across **60,624** tests.
+
+## Cost and outcomes
+
+Token burn: 5.9B uncached input, 690M output, 72B cached reads. Estimated human alternative: a small team for about a year.
+
+Reported wins on benchmarks: memory 6,745 MB → 609 MB; binary ~19% smaller; HTTP serving a few percent faster. Trade-offs that matter more for anyone copying the pattern: **13,365 `unsafe` blocks**, five unsound functions found post-merge, nineteen regressions fixed after merge, and **no human fully reviewed** the generated tree. Hardening after merge included eleven Claude Code security rounds, continuous fuzzing, Miri, and LeakSanitizer.
+
+## Operator principle
+
+Sumner’s job for eleven days was not writing the port. It was designing pipelines, watching outputs, editing the rulebook when a bad pattern appeared, and deciding when CI was honest enough to merge.
+
+**Fix the workflow, never the diff.**
+
+## Eight patterns worth stealing
+
+1. Hostile adversarial review — ask why it is broken, not for balanced praise
+2. Machine-checkable exits per phase — compiler, smoke tests, full suite; agents never grade themselves
+3. Worktree isolation — shared checkouts fail at scale
+4. Pilot before scale — three files before 1,448
+5. Encode repeated mistakes in the rulebook once
+6. Audit that tests actually ran
+7. Separate implementer and reviewer context windows
+8. Build daemon — one process owns expensive rebuilds
+
+## Why I filed this
+
+Language wars are a distraction here. The durable artifact is an ops pattern for migrations where a language-independent conformance suite exists and a human is willing to own the harness. If you only take one sentence away: **parallel agents without isolation, hostile review, and mechanical gates are just expensive chaos.**
+
+## Sources
+
+- [Rewriting Bun in Rust](https://bun.com/blog/bun-in-rust) — Bun Blog
+- [How Anthropic runs large-scale code migrations with Claude Code](https://claude.com/blog/ai-code-migration) — Claude Blog
+- [How Bun Coordinated 64 Concurrent Claude Agents](https://www.developersdigest.tech/blog/bun-rust-rewrite-agent-fleet-case-study) — Developers Digest
+- [Simon Willison’s notes](https://simonwillison.net/2026/Jul/8/rewriting-bun-in-rust/)
