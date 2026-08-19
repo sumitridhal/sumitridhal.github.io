@@ -2,17 +2,8 @@ import type { CSSProperties, RefObject } from 'react'
 
 import { HomePanel } from '@/components/HomePanel'
 import { HomeSlideLayout } from '@/components/HomeSlideLayout'
+import type { BookItem } from '@/data/bookshelfData'
 import { HOME_SECTION_BANNERS } from '@/data/homeSectionBanners'
-
-type BookItem = {
-  id: string
-  title: string
-  author: string
-  spineColor: string
-  textColor: string
-  pages: number
-  coverSrc?: string
-}
 
 function spineWidthFromPages(pages: number): string {
   const minPages = 80
@@ -85,7 +76,9 @@ export function HomeBookshelfSection({
                     {book.author}
                   </span>
                   <div className="bookshelf__spine">
-                    <p className="bookshelf__title">{book.title}</p>
+                    <p className="bookshelf__title" lang={book.lang}>
+                      {book.title}
+                    </p>
                     <p className="bookshelf__author">{book.author}</p>
                   </div>
                 </article>

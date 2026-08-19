@@ -6,6 +6,8 @@ export type BookItem = {
   textColor: string
   pages: number
   coverSrc?: string
+  /** BCP-47 tag when the title is not English. */
+  lang?: string
 }
 
 /** Same shelf as the home page bookshelf strip. */
@@ -168,5 +170,74 @@ export const bookshelf: BookItem[] = [
     textColor: '#edf3ea',
     pages: 864,
     coverSrc: 'https://prodimage.images-bn.com/pimages/9780140449174_p0_v2_s600x595.jpg',
+  },
+  {
+    id: 'ek-chuhe-ki-maut',
+    title: 'एक चूहे की मौत',
+    author: 'Badiuzzaman',
+    spineColor: '#6f2b2b',
+    textColor: '#fff3e6',
+    pages: 176,
+    lang: 'hi',
+  },
+  {
+    id: 'suraj-ka-satwan-ghoda',
+    title: 'सूरज का सातवाँ घोड़ा',
+    author: 'Dharamvir Bharati',
+    spineColor: '#d38a27',
+    textColor: '#21160a',
+    pages: 112,
+    lang: 'hi',
+  },
+  {
+    id: 'tamas',
+    title: 'तमस',
+    author: 'Bhisham Sahni',
+    spineColor: '#29231f',
+    textColor: '#f5e8d4',
+    pages: 352,
+    lang: 'hi',
+  },
+  {
+    id: 'raag-darbari',
+    title: 'राग दरबारी',
+    author: 'Shrilal Shukla',
+    spineColor: '#52633f',
+    textColor: '#f3f0d8',
+    pages: 384,
+    lang: 'hi',
+  },
+  {
+    id: 've-din',
+    title: 'वे दिन',
+    author: 'Nirmal Verma',
+    spineColor: '#7b6b83',
+    textColor: '#faf1f5',
+    pages: 192,
+    lang: 'hi',
+  },
+  {
+    id: 'the-metamorphosis',
+    title: 'The Metamorphosis',
+    author: 'Franz Kafka',
+    spineColor: '#4a4b3f',
+    textColor: '#f0eee4',
+    pages: 128,
+  },
+  {
+    id: 'the-overcoat',
+    title: 'The Overcoat',
+    author: 'Nikolai Gogol',
+    spineColor: '#35505f',
+    textColor: '#edf6f8',
+    pages: 48,
+  },
+  {
+    id: 'notes-from-underground',
+    title: 'Notes from Underground',
+    author: 'Fyodor Dostoevsky',
+    spineColor: '#5b3038',
+    textColor: '#f8eaec',
+    pages: 160,
   },
 ]

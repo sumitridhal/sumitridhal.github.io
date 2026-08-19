@@ -5,6 +5,7 @@ import { Link, useLocation } from 'react-router-dom'
 
 import { HomeBookshelfSection } from '@/components/HomeBookshelfSection'
 import { HomeExperimentsSection } from '@/components/HomeExperimentsSection'
+import { ScrambleName } from '@/components/ScrambleName'
 import { HOME_SECTION_BANNERS } from '@/data/homeSectionBanners'
 import { HomePanel } from '@/components/HomePanel'
 import { HomeSlideLayout } from '@/components/HomeSlideLayout'
@@ -661,11 +662,8 @@ export function HomePage() {
       >
         <div ref={heroRef} className="home-hero-editorial">
           <div className="home-hero-editorial__intro" data-home-reveal-content>
-            <p className="home-hero-editorial__role" data-home-hero-animate>
-              Principal Software Engineer
-            </p>
             <h1 id="hero-heading" className="home-hero-editorial__title" data-home-hero-animate>
-              {t('pages.home.heroName')}
+              <ScrambleName idle={t('pages.home.heroName')} revealed="Sumit Ridhal" />
             </h1>
             <p className="home-hero-editorial__statement" data-home-hero-animate>
               I craft resilient interfaces, product systems, and AI-assisted workflows with clarity

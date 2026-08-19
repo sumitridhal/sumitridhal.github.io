@@ -27,7 +27,6 @@ export function SiteFooter() {
         <div className="site-footer__inner site-footer__grid site-footer__grid--upper">
           <div className="site-footer__col site-footer__col--brand">
             <p className="site-footer__brand">{t('common.brand')}</p>
-            <p className="site-footer__role">{t('common.tagline')}</p>
             <p className="site-footer__intro">{t('pages.footer.intro')}</p>
           </div>
 
@@ -107,12 +106,12 @@ export function SiteFooter() {
                   decoding="async"
                 />
               ) : (
-                <span className="site-footer__visual-mark">SR</span>
+                <span className="site-footer__visual-mark">0x</span>
               )}
             </Link>
           ) : (
             <div className="site-footer__visual" aria-hidden>
-              <span className="site-footer__visual-mark">SR</span>
+              <span className="site-footer__visual-mark">0x</span>
             </div>
           )}
 
