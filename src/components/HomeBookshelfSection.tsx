@@ -46,6 +46,9 @@ export function HomeBookshelfSection({
         lead="A horizontal shelf of references for systems thinking, product taste, engineering judgment, and the long memory behind better software."
       >
         <div className="bookshelf__scroll-shift">
+          <p className="bookshelf__scroll-hint" aria-hidden="true">
+            Scroll to browse <span>→</span>
+          </p>
           <div
             ref={trackRef}
             className={`bookshelf__track${scrubHorizontal ? ' bookshelf__track--scrub' : ''}`}

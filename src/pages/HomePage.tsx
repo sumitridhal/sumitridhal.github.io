@@ -105,15 +105,6 @@ const HERO_COLLAGE_ITEMS = [
     tune: { x: 650, y: 92, rotate: -20, scale: 1 },
   },
   {
-    id: 'dyson-solarcycle',
-    number: '6',
-    src: '/media/hero/dyson-solarcycle-floor.webp',
-    shape: 'dyson-lamp',
-    group: 'lamps',
-    tone: 'solid',
-    tune: { x: 187, y: 36, rotate: -5, scale: 2.34 },
-  },
-  {
     id: 'flos-bellhop',
     number: '7',
     src: '/media/hero/flos-bellhop-table.webp',
@@ -229,15 +220,6 @@ const HERO_COLLAGE_ITEMS = [
     group: 'objects',
     tone: 'solid',
     tune: { x: -81, y: 42, rotate: -7, scale: 1 },
-  },
-  {
-    id: 'onitsuka-tiger',
-    number: '21',
-    src: '/media/hero/onitsuka-tiger-mexico66.webp',
-    shape: 'onitsuka-shoe',
-    group: 'objects',
-    tone: 'solid',
-    tune: { x: -81, y: -46, rotate: 0, scale: 1 },
   },
   {
     id: 'craighill-eyewear',

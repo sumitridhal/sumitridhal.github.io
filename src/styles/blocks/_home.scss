@@ -196,7 +196,7 @@
 .home-slide__eyebrow {
   margin: 0;
   font-family: $font-writing-mono;
-  font-size: clamp(0.58rem, 0.82vw, 0.72rem);
+  font-size: $fs-eyebrow;
   font-weight: 600;
   line-height: 1.45;
   letter-spacing: 0.18em;
@@ -206,13 +206,13 @@
 
 .home-hero-editorial__title {
   margin: 0 auto;
-  max-width: min(100%, 12ch);
-  font-family: $font-writing-serif;
-  font-size: clamp(4.25rem, 11vw, 8.5rem);
-  font-style: italic;
-  font-weight: 400;
-  line-height: 0.86;
-  letter-spacing: -0.08em;
+  max-width: min(100%, 14ch);
+  font-family: $font-writing-mono;
+  font-size: $fs-display;
+  font-style: normal;
+  font-weight: 500;
+  line-height: 1.05;
+  letter-spacing: -0.02em;
   text-transform: none;
   color: #050505;
 }
@@ -229,6 +229,23 @@
   white-space: nowrap;
   background: transparent;
   cursor: pointer;
+}
+
+.scramble-name__cursor {
+  display: inline-block;
+  margin-left: 0.08em;
+  animation: hero-cursor-blink 1.05s steps(1, end) infinite;
+}
+
+@keyframes hero-cursor-blink {
+  0%,
+  100% {
+    opacity: 1;
+  }
+
+  50% {
+    opacity: 0;
+  }
 }
 
 .scramble-name__label {
@@ -263,7 +280,7 @@
   max-width: 36rem;
   margin: 0 auto;
   font-family: $font-writing-mono;
-  font-size: clamp(0.74rem, 1.08vw, 0.95rem);
+  font-size: $fs-lead;
   line-height: 1.55;
   letter-spacing: 0.02em;
   color: rgba(8, 8, 7, 0.7);
@@ -528,14 +545,6 @@
   width: clamp(5.5rem, 8vw, 8.5rem);
 }
 
-.home-hero-editorial__cutout--dyson-lamp {
-  --cutout-rotate: -7deg;
-
-  left: clamp(-3rem, -2vw, -1rem);
-  bottom: clamp(2rem, 5vw, 5rem);
-  width: clamp(6rem, 9vw, 9.5rem);
-}
-
 .home-hero-editorial__cutout--bellhop-lamp {
   --cutout-rotate: 9deg;
 
@@ -667,14 +676,6 @@
   left: clamp(-9rem, -6vw, -4rem);
   right: auto;
   width: clamp(12rem, 20vw, 22rem);
-}
-
-.home-hero-editorial__cutout--onitsuka-shoe {
-  --cutout-rotate: -6deg;
-
-  left: clamp(4rem, 9vw, 10rem);
-  bottom: clamp(-3rem, -4vw, -1.5rem);
-  width: clamp(10rem, 16vw, 18rem);
 }
 
 .home-hero-editorial__cutout--eyewear-stand {
@@ -1101,6 +1102,11 @@
     will-change: auto;
   }
 
+  .scramble-name__cursor {
+    animation: none;
+    opacity: 1;
+  }
+
   [data-home-reveal],
   [data-home-reveal-media],
   [data-home-reveal-content] {
@@ -1140,7 +1146,7 @@
   margin: 0;
   max-width: 15ch;
   font-family: $font-writing-serif;
-  font-size: clamp(2.7rem, 6vw, 5.8rem);
+  font-size: $fs-title;
   font-weight: 400;
   line-height: 0.9;
   letter-spacing: -0.065em;
@@ -1150,7 +1156,7 @@
 .home-slide__lead {
   margin: clamp(0.8rem, 1.4vw, 1.1rem) 0 0;
   max-width: 44rem;
-  font-size: clamp(0.98rem, 1.5vw, 1.16rem);
+  font-size: $fs-lead;
   line-height: 1.7;
   color: var(--home-fg-muted);
 }
@@ -1633,17 +1639,48 @@
 }
 
 .bookshelf__track {
+  position: relative;
   width: 100%;
   min-width: 0;
 }
 
 .bookshelf__track--scrub {
   overflow-x: hidden;
+
+  &::after {
+    content: '';
+    position: absolute;
+    z-index: 2;
+    top: 0;
+    right: 0;
+    bottom: 0.75rem;
+    width: clamp(2.5rem, 7vw, 5rem);
+    pointer-events: none;
+    background: linear-gradient(90deg, transparent, rgba(14, 25, 14, 0.92));
+  }
 }
 
 .bookshelf__track:not(.bookshelf__track--scrub) {
   overflow-x: auto;
   overscroll-behavior-x: contain;
+}
+
+.bookshelf__scroll-hint {
+  display: flex;
+  gap: 0.6rem;
+  align-items: center;
+  justify-content: flex-end;
+  margin: 0 0 0.25rem;
+  font-family: $font-writing-mono;
+  font-size: 0.64rem;
+  font-weight: 600;
+  letter-spacing: 0.14em;
+  text-transform: uppercase;
+  color: var(--home-fg-muted);
+
+  span {
+    color: var(--home-accent);
+  }
 }
 
 .bookshelf__grid {
@@ -1756,7 +1793,7 @@
   }
 
   .home-hero-editorial__title {
-    font-size: clamp(3.9rem, 10vw, 7rem);
+    font-size: $fs-display-md;
   }
 
   .home-hero-editorial__collage {
@@ -1863,12 +1900,6 @@
     width: clamp(4.75rem, 8vw, 6rem);
   }
 
-  .home-hero-editorial__cutout--dyson-lamp {
-    left: -6%;
-    bottom: 2%;
-    width: clamp(5.5rem, 9vw, 7rem);
-  }
-
   .home-hero-editorial__cutout--bellhop-lamp {
     left: -2%;
     bottom: 23%;
@@ -1970,12 +2001,6 @@
     width: clamp(10rem, 18vw, 14rem);
   }
 
-  .home-hero-editorial__cutout--onitsuka-shoe {
-    left: 5%;
-    bottom: -8%;
-    width: clamp(9rem, 17vw, 13rem);
-  }
-
   .home-hero-editorial__cutout--eyewear-stand {
     right: -3%;
     bottom: 10%;
@@ -2054,11 +2079,11 @@
   }
 
   .home-hero-editorial__title {
-    font-size: clamp(3rem, 14vw, 4.5rem);
+    font-size: $fs-display-sm;
   }
 
   .home-hero-editorial__statement {
-    font-size: 0.72rem;
+    font-size: $fs-lead-sm;
     max-width: 21rem;
   }
 
@@ -2110,12 +2135,6 @@
     top: 9%;
     left: 8%;
     width: clamp(4rem, 18vw, 5.4rem);
-  }
-
-  .home-hero-editorial__cutout--dyson-lamp {
-    left: -12%;
-    bottom: 4%;
-    width: clamp(4.5rem, 20vw, 6.25rem);
   }
 
   .home-hero-editorial__cutout--clockclock {
@@ -2179,7 +2198,6 @@
   .home-hero-editorial__cutout--lego-porsche,
   .home-hero-editorial__cutout--lego-shelby,
   .home-hero-editorial__cutout--lego-f40,
-  .home-hero-editorial__cutout--onitsuka-shoe,
   .home-hero-editorial__cutout--eyewear-stand {
     display: none;
   }
@@ -2226,7 +2244,7 @@
 
   .home-slide__title {
     max-width: 100%;
-    font-size: clamp(2.55rem, 13vw, 4rem);
+    font-size: $fs-title-sm;
   }
 
   .zoom-hero {

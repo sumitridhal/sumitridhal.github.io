@@ -16,9 +16,10 @@ type StripBinding = {
   section: HTMLElement
   wrap: HTMLElement
   strip: HTMLElement
+  pin?: boolean
 }
 
-function bindSectionHorizontalStrip({ section, wrap, strip }: StripBinding) {
+function bindSectionHorizontalStrip({ section, wrap, strip, pin = false }: StripBinding) {
   let max = 0
 
   const measure = () => {
@@ -33,9 +34,14 @@ function bindSectionHorizontalStrip({ section, wrap, strip }: StripBinding) {
     ease: 'none',
     scrollTrigger: {
       trigger: section,
-      start: 'top bottom',
-      end: 'bottom top',
+      start: pin
+        ? () => (section.offsetHeight <= window.innerHeight ? 'bottom bottom' : 'top top')
+        : 'top bottom',
+      end: pin ? () => `+=${max}` : 'bottom top',
       scrub: true,
+      pin: pin ? section : false,
+      pinSpacing: pin,
+      anticipatePin: pin ? 1 : 0,
       invalidateOnRefresh: true,
     },
   })
@@ -106,6 +112,7 @@ export function useHomeStripScroll({
         section: booksSection,
         wrap: bookWrap,
         strip: bookStrip,
+        pin: true,
       })
       cleanups.push(cleanup)
     }

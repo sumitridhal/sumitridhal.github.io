@@ -76,6 +76,9 @@ export function ScrambleName({ idle, revealed }: ScrambleNameProps) {
       <span ref={textRef} aria-hidden="true">
         {idle}
       </span>
+      <span className="scramble-name__cursor" aria-hidden="true">
+        _
+      </span>
       <span className="scramble-name__label">
         {idle} ({revealed})
       </span>
