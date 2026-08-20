@@ -1,127 +1,73 @@
 @use '../variables' as *;
 
 .about-page {
-  max-width: 1100px;
+  width: min(100%, 46rem);
   margin: 0 auto;
-  padding: calc(#{$header-h} + 2rem) clamp(1rem, 4vw, 3rem) 4rem;
+  padding: calc(#{$header-h} + clamp(2.5rem, 8vw, 5rem))
+    clamp(1.25rem, 5vw, 2.5rem) clamp(4rem, 10vw, 7rem);
   color: var(--editorial-ink);
+  font-family: $font-writing-serif;
+  font-size: clamp(1.08rem, 1.5vw, 1.25rem);
+  line-height: 1.55;
 }
 
-.about-page__intro {
-  margin-bottom: 2.5rem;
+.about-page__section + .about-page__section {
+  margin-top: clamp(2.75rem, 7vw, 4.5rem);
 }
 
-.about-page__kicker {
-  margin: 0 0 0.6rem;
+.about-page__title,
+.about-page__section h2 {
+  margin: 0 0 0.45em;
+  font-family: $font-writing-serif;
+  font-weight: 600;
+  letter-spacing: -0.025em;
+  line-height: 1.1;
+}
+
+.about-page__title {
+  font-size: clamp(1.85rem, 4vw, 2.35rem);
+}
+
+.about-page__section h2 {
+  font-size: clamp(1.55rem, 3vw, 1.9rem);
+}
+
+.about-page__section p {
+  margin: 0;
+}
+
+.about-page__section p + p {
+  margin-top: 1em;
+}
+
+.about-page__path {
+  font-weight: 600;
+}
+
+.about-page a {
+  color: inherit;
+  text-decoration-color: color-mix(in srgb, currentColor 55%, transparent);
+  text-decoration-thickness: 1px;
+  text-underline-offset: 0.18em;
+  transition:
+    color 0.2s $ease-out,
+    text-decoration-color 0.2s $ease-out;
+}
+
+.about-page a:hover {
   color: var(--editorial-accent);
-  text-transform: uppercase;
-  letter-spacing: 0.08em;
-  font-size: 0.75rem;
+  text-decoration-color: currentColor;
 }
 
-.about-page__headline {
-  margin: 0 0 0.75rem;
-  font-family: $font-display;
-  font-size: clamp(2rem, 4.4vw, 3.5rem);
-  line-height: 1;
+.about-page a:focus-visible {
+  border-radius: 2px;
+  outline: 2px solid var(--editorial-accent);
+  outline-offset: 4px;
 }
 
-.about-page__lead {
-  margin: 0;
-  max-width: 74ch;
-  color: var(--editorial-ink);
-  font-size: clamp(1.02rem, 1.9vw, 1.35rem);
-  line-height: 1.45;
-}
-
-.about-page__highlights {
-  margin: 1.25rem 0 0;
-  padding: 0;
-  list-style: none;
-  display: grid;
-  gap: 0.7rem;
-}
-
-.about-page__highlights li {
-  margin: 0;
-  padding-left: 1rem;
-  position: relative;
-  color: var(--editorial-ink);
-}
-
-.about-page__highlights li::before {
-  content: '';
-  position: absolute;
-  top: 0.6em;
-  left: 0;
-  width: 0.35rem;
-  height: 0.35rem;
-  border-radius: 999px;
-  background: var(--editorial-accent);
-}
-
-.about-page__section-title {
-  margin: 0 0 1rem;
-  font-family: 'Iowan Old Style', 'Times New Roman', serif;
-  font-style: italic;
-  font-size: clamp(1.7rem, 3vw, 2.35rem);
-  font-weight: 500;
-}
-
-.about-page__experience-list {
-  display: grid;
-  gap: 1.1rem;
-}
-
-.about-page__experience-item {
-  border: 1px solid var(--editorial-rule);
-  background: rgb(var(--editorial-surface-rgb) / 0.45);
-  border-radius: 10px;
-  padding: 1.1rem;
-}
-
-.about-page__experience-header {
-  margin-bottom: 0.8rem;
-}
-
-.about-page__experience-header h3 {
-  margin: 0;
-  font-size: 1.2rem;
-}
-
-.about-page__experience-header p {
-  margin: 0.25rem 0 0;
-  color: var(--editorial-muted);
-  font-size: 0.95rem;
-}
-
-.about-page__role + .about-page__role {
-  margin-top: 0.85rem;
-  padding-top: 0.85rem;
-  border-top: 1px solid var(--editorial-rule);
-}
-
-.about-page__role-head {
-  display: flex;
-  flex-wrap: wrap;
-  justify-content: space-between;
-  gap: 0.45rem;
-  margin-bottom: 0.4rem;
-}
-
-.about-page__role-head h4 {
-  margin: 0;
-  font-size: 1rem;
-}
-
-.about-page__role-head span {
-  color: var(--editorial-muted);
-  font-size: 0.9rem;
-}
-
-.about-page__role ul {
-  margin: 0;
-  padding-left: 1.1rem;
-  display: grid;
-  gap: 0.3rem;
+@media (max-width: 520px) {
+  .about-page {
+    font-size: 1.03rem;
+    line-height: 1.58;
+  }
 }

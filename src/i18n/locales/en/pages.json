@@ -315,9 +315,7 @@
   },
   "about": {
     "title": "About",
-    "body": "Principal Software Engineer with deep expertise in React, Node.js, microservices, and AI-centric application architecture.",
-    "kicker": "Profile",
-    "experienceHeading": "Work experience"
+    "body": "Principal Engineer working on agentic UX and AI, building agentic workflows, AI-first product experiences, and developer tooling."
   },
   "writing": {
     "back": "All writings",
