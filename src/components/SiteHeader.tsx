@@ -1,14 +1,14 @@
 import { useViewTransitionNavigate } from '@/hooks/useViewTransitionNavigate'
 import { useI18n } from '@/contexts/I18nContext'
 import { useAppState } from '@/contexts/AppStateContext'
+import { ThemeToggle } from '@/components/ThemeToggle'
 import {
   hrefAbout,
   hrefHome,
-  hrefNotes,
   hrefReading,
   hrefWritings,
 } from '@/i18n/routes'
-import { useLocation } from 'react-router-dom'
+import { Link, useLocation } from 'react-router-dom'
 
 export function SiteHeader() {
   const { t } = useI18n()
@@ -18,7 +18,25 @@ export function SiteHeader() {
   const isHomeRoute = location.pathname === hrefHome
 
   if (isHomeRoute) {
-    return <header className="site-header site-header--home" />
+    return (
+      <header className="site-header site-header--home">
+        <Link className="site-header__brand" to={hrefHome} aria-label={t('nav.home')}>
+          {t('common.brand')}
+        </Link>
+        <div className="site-header__controls">
+          <ThemeToggle />
+          <button
+            type="button"
+            className="site-header__burger"
+            aria-expanded={menuOpen}
+            aria-controls="mobile-menu-panel"
+            onClick={toggleMenu}
+          >
+            {t('nav.menu')}
+          </button>
+        </div>
+      </header>
+    )
   }
 
   return (
@@ -33,22 +51,22 @@ export function SiteHeader() {
         <button type="button" className="site-header__link" onClick={() => navigate(hrefWritings)}>
           {t('nav.writings')}
         </button>
-        <button type="button" className="site-header__link" onClick={() => navigate(hrefNotes)}>
-          {t('nav.notes')}
-        </button>
         <button type="button" className="site-header__link" onClick={() => navigate(hrefReading)}>
           {t('nav.reading')}
         </button>
       </nav>
-      <button
-        type="button"
-        className="site-header__burger"
-        aria-expanded={menuOpen}
-        aria-controls="mobile-menu-panel"
-        onClick={toggleMenu}
-      >
-        {t('nav.menu')}
-      </button>
+      <div className="site-header__controls">
+        <ThemeToggle />
+        <button
+          type="button"
+          className="site-header__burger"
+          aria-expanded={menuOpen}
+          aria-controls="mobile-menu-panel"
+          onClick={toggleMenu}
+        >
+          {t('nav.menu')}
+        </button>
+      </div>
     </header>
   )
 }

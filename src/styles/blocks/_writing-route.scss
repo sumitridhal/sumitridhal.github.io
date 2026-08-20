@@ -1,11 +1,11 @@
 @use '../variables' as *;
 
 body.route-writing {
-  color-scheme: dark;
+  color-scheme: inherit;
 }
 
 body.route-writing .app__main {
-  background: $color-writing-forest-deep;
+  background: var(--editorial-page);
 }
 
 body.route-writing .site-header:not(.site-header--home) {
@@ -14,16 +14,16 @@ body.route-writing .site-header:not(.site-header--home) {
   max-width: none;
   justify-content: space-between;
   background: transparent;
-  color: var(--writing-hero);
-  border-top: 6px solid $color-writing-forest;
+  color: var(--editorial-ink);
+  border-top: 6px solid var(--editorial-accent);
 }
 
 body.route-writing .site-header:not(.site-header--home) .site-header__burger {
-  border-color: rgba(45, 62, 39, 0.45);
+  border-color: var(--editorial-rule);
 }
 
 body.route-writing .site-header:not(.site-header--home) .site-header__burger:hover,
 body.route-writing .site-header:not(.site-header--home) .site-header__burger:focus-visible {
-  border-color: rgba(45, 62, 39, 0.75);
-  background: rgba(45, 62, 39, 0.06);
+  border-color: var(--editorial-accent);
+  background: rgb(var(--editorial-accent-rgb) / 0.08);
 }

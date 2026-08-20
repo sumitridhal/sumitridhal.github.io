@@ -4,6 +4,7 @@ import { BrowserRouter } from 'react-router-dom'
 
 import { AppStateProvider } from '@/contexts/AppStateContext'
 import { I18nProvider } from '@/contexts/I18nContext'
+import { ThemeProvider } from '@/contexts/ThemeContext'
 import { Intro } from '@/components/Intro'
 import { LenisProvider } from '@/providers/LenisProvider'
 
@@ -26,7 +27,9 @@ createRoot(document.getElementById('root')!).render(
     <BrowserRouter>
       <LenisProvider>
         <AppStateProvider>
-          <AppRoot />
+          <ThemeProvider>
+            <AppRoot />
+          </ThemeProvider>
         </AppStateProvider>
       </LenisProvider>
     </BrowserRouter>

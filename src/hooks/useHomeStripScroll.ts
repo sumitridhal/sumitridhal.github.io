@@ -6,8 +6,6 @@ gsap.registerPlugin(ScrollTrigger)
 
 export type HomeStripScrollRefs = {
   rootRef: RefObject<HTMLElement | null>
-  experimentsTrackRef: RefObject<HTMLElement | null>
-  experimentsStripRef: RefObject<HTMLElement | null>
   booksTrackRef: RefObject<HTMLElement | null>
   booksStripRef: RefObject<HTMLElement | null>
 }
@@ -67,45 +65,26 @@ function bindSectionHorizontalStrip({ section, wrap, strip, pin = false }: Strip
   }
 }
 
-/**
- * Scroll-scrubbed horizontal strips — each section scrubs while that panel
- * crosses the viewport (same feel as Experiments).
- */
+/** Pins and scroll-scrubs the horizontal bookshelf. */
 export function useHomeStripScroll({
   rootRef,
-  experimentsTrackRef,
-  experimentsStripRef,
   booksTrackRef,
   booksStripRef,
   enabled,
-  experimentsEnabled = true,
   booksEnabled = true,
 }: HomeStripScrollRefs & {
   enabled: boolean
-  experimentsEnabled?: boolean
   booksEnabled?: boolean
 }) {
   useLayoutEffect(() => {
     if (!enabled) return
 
     const root = rootRef.current
-    const experimentsSection = root?.querySelector<HTMLElement>('#experiments')
     const booksSection = root?.querySelector<HTMLElement>('#books')
-    const expWrap = experimentsTrackRef.current
-    const expStrip = experimentsStripRef.current
     const bookWrap = booksTrackRef.current
     const bookStrip = booksStripRef.current
 
     const cleanups: Array<() => void> = []
-
-    if (experimentsEnabled && experimentsSection && expWrap && expStrip) {
-      const cleanup = bindSectionHorizontalStrip({
-        section: experimentsSection,
-        wrap: expWrap,
-        strip: expStrip,
-      })
-      cleanups.push(cleanup)
-    }
 
     if (booksEnabled && booksSection && bookWrap && bookStrip) {
       const cleanup = bindSectionHorizontalStrip({
@@ -122,11 +101,8 @@ export function useHomeStripScroll({
     }
   }, [
     enabled,
-    experimentsEnabled,
     booksEnabled,
     rootRef,
-    experimentsTrackRef,
-    experimentsStripRef,
     booksTrackRef,
     booksStripRef,
   ])

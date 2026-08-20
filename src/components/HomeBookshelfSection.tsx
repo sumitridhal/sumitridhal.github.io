@@ -41,9 +41,7 @@ export function HomeBookshelfSection({
     >
       <HomeSlideLayout
         titleId="books-heading"
-        eyebrow="Reading shelf"
-        title="Books that keep the practice honest"
-        lead="A horizontal shelf of references for systems thinking, product taste, engineering judgment, and the long memory behind better software."
+        title="Reading"
       >
         <div className="bookshelf__scroll-shift">
           <p className="bookshelf__scroll-hint" aria-hidden="true">
@@ -66,18 +64,20 @@ export function HomeBookshelfSection({
                   className="bookshelf__book"
                   data-home-reveal
                   role="listitem"
-                  aria-label={`${book.title}, ${book.author}, ${book.pages} pages`}
+                  aria-label={`${book.title}, ${book.author}, published by ${book.publisher}, ${book.pages} pages`}
                   style={
                     {
                       '--book-width': spineWidthFromPages(book.pages),
                       '--book-spine-color': book.spineColor,
                       '--book-text-color': book.textColor,
+                      '--book-mark': `url("/media/publishers/${book.publisherMark}.${book.publisherMarkExt ?? 'svg'}")`,
                     } as CSSProperties
                   }
                 >
-                  <span className="bookshelf__badge" aria-hidden="true">
-                    {book.author}
-                  </span>
+                  <span
+                    className={`bookshelf__mark${book.publisherMark === 'penguin-random-house' ? ' bookshelf__mark--image' : ''}`}
+                    aria-hidden="true"
+                  />
                   <div className="bookshelf__spine">
                     <p className="bookshelf__title" lang={book.lang}>
                       {book.title}

@@ -2,11 +2,11 @@
 
 // Align with `.writing-page` tokens so the index matches article chrome.
 .writings-gallery {
-  --wg-fg: #{$color-text};
-  --wg-fg-soft: #{$color-muted};
-  --wg-hero: #f2f5ff;
-  --wg-edge: rgba(233, 184, 88, 0.2);
-  --wg-mustard-soft: rgba(233, 184, 88, 0.82);
+  --wg-fg: var(--editorial-ink);
+  --wg-fg-soft: var(--editorial-muted);
+  --wg-hero: var(--editorial-code-ink);
+  --wg-edge: rgb(var(--editorial-accent-rgb) / 0.2);
+  --wg-mustard-soft: rgb(var(--editorial-accent-rgb) / 0.82);
 
   position: relative;
   overflow-x: clip;
@@ -16,12 +16,12 @@
   margin-inline: 0;
   min-height: calc(100vh - #{$header-h});
   padding: 0;
-  background: $color-writing-forest-deep;
+  background: var(--editorial-page);
   color: var(--wg-fg);
 }
 
 .writings-gallery__inner {
-  max-width: 42rem;
+  max-width: 48rem;
   margin-inline: auto;
   padding: calc(#{$header-h} + clamp(1.25rem, 4vw, 2.25rem))
     clamp(1.15rem, 4.5vw, 1.75rem) clamp(2.5rem, 6vw, 4rem);
@@ -38,7 +38,7 @@
   font-weight: 700;
   letter-spacing: 0.2em;
   text-transform: uppercase;
-  color: $color-writing-mustard;
+  color: var(--editorial-accent);
 }
 
 .writings-gallery__intro {
@@ -83,12 +83,12 @@
 
   &:hover,
   &:focus-visible {
-    color: $color-writing-mustard;
+    color: var(--editorial-accent);
   }
 
   &:focus-visible {
     outline: none;
-    box-shadow: inset 0 0 0 1px rgba(233, 184, 88, 0.55);
+    box-shadow: inset 0 0 0 1px rgb(var(--editorial-accent-rgb) / 0.55);
   }
 }
 
@@ -113,7 +113,7 @@
 
 .writings-gallery__row:hover .writings-gallery__row-meta,
 .writings-gallery__row:focus-visible .writings-gallery__row-meta {
-  color: rgba(233, 184, 88, 0.75);
+  color: rgb(var(--editorial-accent-rgb) / 0.75);
 }
 
 .writings-gallery__empty {
@@ -131,14 +131,14 @@
   font-family: $font-sans;
   font-size: 0.88rem;
   font-weight: 500;
-  color: rgba(233, 184, 88, 0.88);
+  color: rgb(var(--editorial-accent-rgb) / 0.88);
   text-decoration: underline;
   text-underline-offset: 0.22em;
-  text-decoration-color: rgba(233, 184, 88, 0.35);
+  text-decoration-color: rgb(var(--editorial-accent-rgb) / 0.35);
 
   &:hover,
   &:focus-visible {
-    color: $color-writing-mustard;
-    text-decoration-color: rgba(233, 184, 88, 0.75);
+    color: var(--editorial-accent);
+    text-decoration-color: rgb(var(--editorial-accent-rgb) / 0.75);
   }
 }

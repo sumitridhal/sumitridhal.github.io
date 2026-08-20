@@ -4,8 +4,9 @@
   "version": "0.0.0",
   "type": "module",
   "scripts": {
-    "dev": "vite",
+    "dev": "vite --port 3630",
     "build": "tsc -b && vite build && node -e \"require('node:fs').copyFileSync('dist/index.html','dist/404.html')\"",
+    "experiments:ingest": "node scripts/ingest-experiments.mjs",
     "lint": "eslint .",
     "preview": "vite preview"
   },

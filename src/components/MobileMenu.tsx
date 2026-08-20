@@ -1,13 +1,13 @@
 import { useEffect, useRef } from 'react'
-import type { To } from 'react-router-dom'
+import { useLocation, type To } from 'react-router-dom'
 
 import { useAppState } from '@/contexts/AppStateContext'
 import { useI18n } from '@/contexts/I18nContext'
 import { useViewTransitionNavigate } from '@/hooks/useViewTransitionNavigate'
 import {
   hrefAbout,
+  hrefExperiments,
   hrefHome,
-  hrefNotes,
   hrefReading,
   hrefWritings,
 } from '@/i18n/routes'
@@ -16,7 +16,12 @@ export function MobileMenu() {
   const { menuOpen, setMenuOpen } = useAppState()
   const { t } = useI18n()
   const navigate = useViewTransitionNavigate()
+  const location = useLocation()
   const panelRef = useRef<HTMLDivElement>(null)
+  const isHome = location.pathname === hrefHome
+  const isExperiments = location.pathname === hrefExperiments
+  const isWritings =
+    location.pathname === hrefWritings || location.pathname.startsWith(`${hrefWritings}/`)
 
   useEffect(() => {
     if (!menuOpen) return
@@ -53,26 +58,44 @@ export function MobileMenu() {
         role="dialog"
         aria-modal="true"
       >
-        <button type="button" className="mobile-menu__link" onClick={() => go(hrefHome)}>
+        <button
+          type="button"
+          className="mobile-menu__link"
+          aria-current={isHome ? 'page' : undefined}
+          onClick={() => go(hrefHome)}
+        >
           {t('nav.home')}
         </button>
-        <button type="button" className="mobile-menu__link" onClick={() => go(hrefAbout)}>
+        <button
+          type="button"
+          className="mobile-menu__link"
+          aria-current={location.pathname === hrefAbout ? 'page' : undefined}
+          onClick={() => go(hrefAbout)}
+        >
           {t('nav.about')}
         </button>
         <button
           type="button"
           className="mobile-menu__link"
-          onClick={() => go({ pathname: hrefHome, hash: 'experiments' })}
+          aria-current={isExperiments ? 'page' : undefined}
+          onClick={() => go(hrefExperiments)}
         >
           {t('nav.experiments')}
         </button>
-        <button type="button" className="mobile-menu__link" onClick={() => go(hrefWritings)}>
+        <button
+          type="button"
+          className="mobile-menu__link"
+          aria-current={isWritings ? 'page' : undefined}
+          onClick={() => go(hrefWritings)}
+        >
           {t('nav.writings')}
         </button>
-        <button type="button" className="mobile-menu__link" onClick={() => go(hrefNotes)}>
-          {t('nav.notes')}
-        </button>
-        <button type="button" className="mobile-menu__link" onClick={() => go(hrefReading)}>
+        <button
+          type="button"
+          className="mobile-menu__link"
+          aria-current={location.pathname === hrefReading ? 'page' : undefined}
+          onClick={() => go(hrefReading)}
+        >
           {t('nav.reading')}
         </button>
         <button

@@ -1,109 +1,52 @@
-import type { RefObject } from 'react'
 import { Link } from 'react-router-dom'
 
+import { ExperimentCollage } from '@/components/experiments/ExperimentCollage'
 import { HomePanel } from '@/components/HomePanel'
-import { HomeSlideLayout } from '@/components/HomeSlideLayout'
 import { useI18n } from '@/contexts/I18nContext'
 import { homeExperiments } from '@/data/experimentsData'
-import { HOME_SECTION_BANNERS } from '@/data/homeSectionBanners'
+import { HOME_SLOTS } from '@/data/experimentsCollage'
+import { hrefExperiments } from '@/i18n/routes'
 
-type HomeExperimentsSectionProps = {
-  trackRef?: RefObject<HTMLDivElement | null>
-  stripRef?: RefObject<HTMLUListElement | null>
-  /** Transform-driven strip (linked scroll timeline). Otherwise native horizontal scroll. */
-  scrubHorizontal?: boolean
-}
+const HOME_EXPERIMENTS_PREVIEW_COUNT = 8
 
-export function HomeExperimentsSection({
-  trackRef,
-  stripRef,
-  scrubHorizontal = false,
-}: HomeExperimentsSectionProps) {
+export function HomeExperimentsSection() {
   const { t } = useI18n()
+  const previewItems = homeExperiments.slice(0, HOME_EXPERIMENTS_PREVIEW_COUNT)
 
   return (
     <HomePanel
       id="experiments"
       theme="experiments"
       className="home-experiments"
-      backgroundImage={HOME_SECTION_BANNERS.experiments}
       aria-labelledby="experiments-heading"
     >
-      <HomeSlideLayout
-        titleId="experiments-heading"
-        eyebrow={t('pages.home.experimentsEyebrow')}
-        title={t('pages.home.experimentsHeading')}
-        lead={t('pages.home.experimentsLead')}
-      >
-        <div className="home-experiments__scroll-shift">
-          {homeExperiments.length === 0 ? (
+      <div className="home-experiments__scroll-shift">
+        {previewItems.length > 0 ? (
+          <ExperimentCollage
+            items={previewItems}
+            slots={HOME_SLOTS}
+            className="home-experiments__collage"
+            ariaLabel={t('pages.home.experimentsGridAria')}
+            overlay={
+              <header className="home-experiments__header" data-home-reveal-content>
+                <h2 id="experiments-heading" className="home-experiments__heading">
+                  {t('pages.home.experimentsHeading')}
+                </h2>
+                <Link className="home-experiments__all" to={hrefExperiments}>
+                  {t('pages.home.experimentsAll')}
+                </Link>
+              </header>
+            }
+          />
+        ) : (
+          <div className="home-experiments__empty-wrap">
+            <h2 id="experiments-heading" className="home-experiments__heading">
+              {t('pages.home.experimentsHeading')}
+            </h2>
             <p className="home-experiments__empty">{t('pages.home.experimentsEmpty')}</p>
-          ) : (
-            <div
-              ref={trackRef}
-              className={`home-experiments__track${scrubHorizontal ? ' home-experiments__track--scrub' : ''}`}
-            >
-              <ul
-                ref={stripRef}
-                className="home-experiments__grid"
-                role="list"
-                aria-label={t('pages.home.experimentsGridAria')}
-              >
-                {homeExperiments.map((item) => {
-                  const caption = (
-                    <>
-                      <span className="home-experiments__title">{item.title}</span>
-                      {item.tag ? <span className="home-experiments__tag">{item.tag}</span> : null}
-                    </>
-                  )
-                  const media = (
-                    <div className="home-experiments__frame">
-                      <img
-                        className="home-experiments__image"
-                        src={item.mediaSrc}
-                        alt={item.alt}
-                        width={512}
-                        height={512}
-                        loading="lazy"
-                        decoding="async"
-                        draggable={false}
-                      />
-                    </div>
-                  )
-
-                  return (
-                    <li key={item.id} className="home-experiments__cell" data-home-reveal role="listitem">
-                      {item.href ? (
-                        item.href.startsWith('http') ? (
-                          <a
-                            className="home-experiments__tile"
-                            href={item.href}
-                            target="_blank"
-                            rel="noopener noreferrer"
-                          >
-                            {media}
-                            <span className="home-experiments__caption">{caption}</span>
-                          </a>
-                        ) : (
-                          <Link className="home-experiments__tile" to={item.href}>
-                            {media}
-                            <span className="home-experiments__caption">{caption}</span>
-                          </Link>
-                        )
-                      ) : (
-                        <div className="home-experiments__tile home-experiments__tile--static">
-                          {media}
-                          <span className="home-experiments__caption">{caption}</span>
-                        </div>
-                      )}
-                    </li>
-                  )
-                })}
-              </ul>
-            </div>
-          )}
-        </div>
-      </HomeSlideLayout>
+          </div>
+        )}
+      </div>
     </HomePanel>
   )
 }

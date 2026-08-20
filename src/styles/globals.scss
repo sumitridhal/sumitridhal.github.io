@@ -5,20 +5,54 @@
 @use 'blocks/mobile-menu';
 @use 'blocks/minimap';
 @use 'blocks/hero';
-@use 'blocks/projects';
 @use 'blocks/about';
 @use 'blocks/sections';
-@use 'blocks/project-detail';
 @use 'blocks/writing';
 @use 'blocks/writings-gallery';
 @use 'blocks/writing-route';
-@use 'blocks/notes';
 @use 'blocks/reading';
+@use 'blocks/experiments';
 @use 'blocks/home';
 @use 'blocks/footer';
 @use 'blocks/grain';
 
 @import url('https://fonts.googleapis.com/css2?family=DM+Sans:ital,opsz,wght@0,9..40,400;0,9..40,600;1,9..40,400&family=JetBrains+Mono:ital,wght@0,400;0,500;1,400&family=Newsreader:ital,opsz,wght@0,6..72,400;0,6..72,500;1,6..72,400&family=Noto+Serif+Devanagari:wght@400;500&family=Outfit:wght@600;700;800&display=swap');
+
+:root {
+  --editorial-page: #1e2a1a;
+  --editorial-surface: #12161e;
+  --editorial-ink: #e8ecf4;
+  --editorial-muted: #aab1c0;
+  --editorial-rule: rgba(233, 184, 88, 0.2);
+  --editorial-accent: #e9b858;
+  --editorial-accent-ink: #141210;
+  --editorial-code-bg: #0c1016;
+  --editorial-code-ink: #f2f5ff;
+  --editorial-accent-rgb: 233 184 88;
+  --editorial-ink-rgb: 255 255 255;
+  --editorial-page-rgb: 20 18 16;
+  --editorial-surface-rgb: 18 22 30;
+  --editorial-muted-rgb: 200 210 224;
+  --editorial-shadow-rgb: 0 0 0;
+}
+
+html[data-theme='light'] {
+  color-scheme: light;
+  --editorial-page: #f4f1ea;
+  --editorial-surface: #fffdf8;
+  --editorial-ink: #1a1816;
+  --editorial-muted: #655f57;
+  --editorial-rule: rgba(111, 82, 21, 0.24);
+  --editorial-accent: #765817;
+  --editorial-accent-ink: #fffdf8;
+  --editorial-code-bg: #e8e4dc;
+  --editorial-code-ink: #1e2220;
+  --editorial-accent-rgb: 111 82 21;
+  --editorial-ink-rgb: 20 18 16;
+  --editorial-page-rgb: 244 241 234;
+  --editorial-surface-rgb: 255 253 248;
+  --editorial-muted-rgb: 101 95 87;
+}
 
 *,
 *::before,
@@ -39,8 +73,8 @@ body,
 body {
   margin: 0;
   font-family: $font-sans;
-  background: $color-bg;
-  color: $color-text;
+  background: var(--editorial-page);
+  color: var(--editorial-ink);
   -webkit-font-smoothing: antialiased;
 }
 

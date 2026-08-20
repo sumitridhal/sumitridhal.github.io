@@ -1,10 +1,9 @@
 {
   "home": {
     "experimentsHeading": "Experiments",
-    "experimentsEyebrow": "Motion studies",
-    "experimentsLead": "Small studies in motion, shaders, layouts, and interface atmosphere - quick tests that sharpen the larger product work.",
     "experimentsEmpty": "Add entries in src/data/experimentsData.ts to show them here.",
     "experimentsGridAria": "Experiments catalog grid",
+    "experimentsAll": "All experiments",
     "aboutHeading": "About",
     "aboutLead": "Engineer and writer exploring ideas through software, notes, and experiments.",
     "heroName": "0xthac0",
@@ -320,16 +319,6 @@
     "kicker": "Profile",
     "experienceHeading": "Work experience"
   },
-  "project": {
-    "back": "Home",
-    "role": "Role",
-    "year": "Year",
-    "stack": "Stack",
-    "demo": "Demo",
-    "repo": "Repo",
-    "techStackLabel": "Tech stack",
-    "highlightsHeading": "What we built"
-  },
   "writing": {
     "back": "All writings",
     "viewAllHome": "View all writings",
@@ -340,38 +329,29 @@
     "galleryListLink": "Home listing",
     "asideLabel": "Technical notes"
   },
-  "notes": {
-    "back": "All notes",
-    "backHome": "Back home",
-    "galleryCategory": "Personal notes",
-    "galleryHeroLead": "Selected notes from my local knowledge system, published deliberately and reviewed before they reach this site.",
-    "empty": "No notes have been marked for publishing yet.",
-    "sourceLabel": "Source"
-  },
   "reading": {
-    "category": "Signal reading feed",
     "title": "Saved signals",
     "lead": "Links I bookmarked in Signal for another pass: engineering, design, tools, and ideas worth keeping.",
     "empty": "No Signal bookmarks have been synced yet."
   },
+  "experiments": {
+    "kicker": "Motion studies",
+    "title": "Experiments in motion",
+    "lead": "Small visual systems shaped with shaders, motion, and generative code.",
+    "empty": "No experiments yet."
+  },
   "footer": {
     "intro": "Engineer and writer exploring ideas through software, notes, and experiments. This site collects occasional long-form notes and small studies.",
-    "exploreHeading": "Explore",
     "linkExperiments": "Experiments",
     "linkWritings": "Writings",
     "linkAbout": "About",
-    "tagline": "Open to interesting collaborations and mentoring conversations.",
-    "latestHeading": "Latest blog",
-    "readPostCta": "Read post",
+    "linkReading": "Reading",
     "elsewhereHeading": "Elsewhere",
-    "emptyWritings": "New writing is on the way. Check back soon.",
     "social": {
       "githubLabel": "GitHub",
-      "githubHref": "https://github.com/sumitridhal",
+      "githubHref": "https://github.com/0xTHAC0",
       "linkedinLabel": "LinkedIn",
-      "linkedinHref": "https://www.linkedin.com/in/sumitridhal",
-      "viewAll": "View all",
-      "viewAllHref": "https://github.com/sumitridhal"
+      "linkedinHref": "https://www.linkedin.com/in/sumitridhal"
     }
   }
 }

@@ -3,8 +3,9 @@
   "about": "About",
   "experiments": "Experiments",
   "writings": "Writings",
-  "notes": "Notes",
   "reading": "Reading",
   "menu": "Menu",
-  "close": "Close"
+  "close": "Close",
+  "useLightTheme": "Use light theme",
+  "useDarkTheme": "Use dark theme"
 }

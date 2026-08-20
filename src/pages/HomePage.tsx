@@ -11,7 +11,6 @@ import { HomePanel } from '@/components/HomePanel'
 import { HomeSlideLayout } from '@/components/HomeSlideLayout'
 import { useI18n } from '@/contexts/I18nContext'
 import { bookshelf } from '@/data/bookshelfData'
-import { homeExperiments } from '@/data/experimentsData'
 import { talks } from '@/data/talksData'
 import { writings } from '@/data/writingsData'
 import { useHomeStripScroll } from '@/hooks/useHomeStripScroll'
@@ -22,7 +21,6 @@ import { usePrefersReducedMotion } from '@/hooks/usePrefersReducedMotion'
 import { hrefWriting, hrefWritings } from '@/i18n/routes'
 import { lenisService } from '@/services/lenisService'
 import { formatWritingDate } from '@/utils/formatWritingDate'
-import { preloadImages } from '@/utils/imagePreloadCache'
 
 const HOME_WRITINGS_PREVIEW_COUNT = 8
 const HERO_TUNER_ENABLED = import.meta.env.DEV
@@ -281,13 +279,10 @@ export function HomePage() {
   const { t } = useI18n()
   const panelsRef = useRef<HTMLDivElement>(null)
   const heroRef = useRef<HTMLDivElement>(null)
-  const experimentsTrackRef = useRef<HTMLDivElement>(null)
-  const experimentsStripRef = useRef<HTMLUListElement>(null)
   const booksTrackRef = useRef<HTMLDivElement>(null)
   const booksStripRef = useRef<HTMLDivElement>(null)
   const reducedMotion = usePrefersReducedMotion()
   const location = useLocation()
-  const experimentsScrubHorizontal = !reducedMotion && homeExperiments.length > 0
   const booksScrubHorizontal = !reducedMotion && bookshelf.length > 0
   const [activeHeroTuneNumber, setActiveHeroTuneNumber] = useState<string>(
     HERO_COLLAGE_ITEMS[0].number,
@@ -325,12 +320,9 @@ export function HomePage() {
 
   useHomeStripScroll({
     rootRef: panelsRef,
-    experimentsTrackRef,
-    experimentsStripRef,
     booksTrackRef,
     booksStripRef,
-    enabled: experimentsScrubHorizontal || booksScrubHorizontal,
-    experimentsEnabled: experimentsScrubHorizontal,
+    enabled: booksScrubHorizontal,
     booksEnabled: booksScrubHorizontal,
   })
 
@@ -612,11 +604,6 @@ export function HomePage() {
   )
 
   useEffect(() => {
-    const images = homeExperiments.map((e) => e.mediaSrc).filter(Boolean)
-    if (images.length) void preloadImages(images)
-  }, [])
-
-  useEffect(() => {
     const sectionId = HASH_SECTION_IDS[location.hash]
     if (!sectionId) return
     const el = document.getElementById(sectionId)
@@ -801,24 +788,18 @@ export function HomePage() {
         </aside>
       ) : null}
 
-      <HomeExperimentsSection
-        trackRef={experimentsTrackRef}
-        stripRef={experimentsStripRef}
-        scrubHorizontal={experimentsScrubHorizontal}
-      />
+      <HomeExperimentsSection />
 
       <HomePanel
         id="writings"
         theme="writings"
-        className="home-listing"
+        className="home-listing home-listing--writings"
         backgroundImage={HOME_SECTION_BANNERS.writings}
         aria-labelledby="writings-heading"
       >
         <HomeSlideLayout
           titleId="writings-heading"
-          eyebrow="Field notes"
-          title="Long-form notes from the edge of building"
-          lead="Essays and technical sketches on engineering practice, creative tools, and the habits that make software feel considered."
+          title="Writing"
         >
           <div className="home-listing__rows" role="list">
             {writings.slice(0, HOME_WRITINGS_PREVIEW_COUNT).map((item) => (
@@ -844,9 +825,7 @@ export function HomePage() {
       <HomePanel id="talks" theme="talks" className="home-listing" aria-labelledby="talks-heading">
         <HomeSlideLayout
           titleId="talks-heading"
-          eyebrow="Speaking"
-          title="Ideas made portable"
-          lead="Talks and public notes shaped for teams, meetups, and builders who care about durable craft."
+          title="Talks"
         >
           <div className="home-listing__rows" role="list">
             {talks.map((item) => (

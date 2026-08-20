@@ -1,0 +1,265 @@
+@use '../variables' as *;
+
+.experiments-page {
+  min-height: 100vh;
+  padding-top: $header-h;
+  overflow: hidden;
+  background:
+    radial-gradient(circle at 50% 24%, rgba(255, 255, 255, 0.035), transparent 30rem),
+    #09090a;
+  color: #f4f2ed;
+}
+
+.experiments-page__collage {
+  min-height: calc(100vh - #{$header-h});
+}
+
+.experiments-page__header {
+  width: min(34rem, calc(100vw - 3rem));
+  text-align: left;
+}
+
+.experiments-page__kicker {
+  margin: 0 0 0.8rem;
+  font-family: $font-writing-mono;
+  font-size: 0.62rem;
+  letter-spacing: 0.08em;
+  color: rgba(244, 242, 237, 0.55);
+}
+
+.experiments-page__title {
+  margin: 0;
+  font-family: $font-writing-serif;
+  font-size: clamp(3rem, 6vw, 6.5rem);
+  font-weight: 400;
+  line-height: 0.86;
+  letter-spacing: -0.06em;
+  color: #f4f2ed;
+}
+
+.experiments-page__lead {
+  max-width: 30rem;
+  margin: 1.25rem 0 0;
+  font-size: clamp(0.9rem, 1.3vw, 1.05rem);
+  line-height: 1.55;
+  color: rgba(244, 242, 237, 0.58);
+}
+
+.experiments-page__empty-wrap {
+  min-height: calc(100vh - #{$header-h});
+  display: grid;
+  place-content: center;
+  padding: 2rem;
+}
+
+.experiments-page__empty {
+  margin: 1.5rem 0 0;
+  font-family: $font-writing-mono;
+  color: rgba(244, 242, 237, 0.55);
+}
+
+.collage {
+  position: relative;
+  width: 100%;
+  height: var(--collage-height);
+  min-height: 44rem;
+  overflow: hidden;
+  isolation: isolate;
+  background:
+    radial-gradient(circle at 18% 32%, rgba(86, 73, 122, 0.06), transparent 25rem),
+    radial-gradient(circle at 82% 66%, rgba(72, 112, 95, 0.055), transparent 27rem);
+}
+
+.collage__list {
+  position: absolute;
+  inset: 0;
+  margin: 0;
+  padding: 0;
+  list-style: none;
+}
+
+.collage__cell {
+  position: absolute;
+  z-index: 1;
+  top: var(--y);
+  left: var(--x);
+  width: var(--w);
+  min-width: 7rem;
+  margin: 0;
+  translate: -50% 0;
+  opacity: calc(0.58 + var(--depth) * 0.42);
+}
+
+.collage__float,
+.collage__pointer {
+  width: 100%;
+  will-change: transform;
+}
+
+.collage__frame {
+  position: relative;
+  width: 100%;
+  aspect-ratio: var(--ar);
+  overflow: hidden;
+  border: 1px solid rgba(255, 255, 255, 0.08);
+  border-radius: 10px;
+  background: #151517;
+  box-shadow:
+    0 22px 55px rgba(0, 0, 0, 0.36),
+    0 2px 10px rgba(0, 0, 0, 0.28);
+}
+
+.collage__frame::after {
+  content: '';
+  position: absolute;
+  inset: 0;
+  pointer-events: none;
+  border-radius: inherit;
+  box-shadow: inset 0 0 0 1px rgba(255, 255, 255, 0.025);
+}
+
+.collage__media {
+  display: block;
+  width: 100%;
+  height: 100%;
+  object-fit: cover;
+  transition:
+    transform 0.8s $ease-out,
+    filter 0.8s $ease-out;
+}
+
+.collage__cell:hover {
+  z-index: 3;
+}
+
+.collage__cell:hover .collage__media,
+.collage__media:focus-visible {
+  filter: saturate(1.12) contrast(1.04);
+  transform: scale(1.025);
+}
+
+.collage__media:focus-visible {
+  outline: 1px solid rgba(244, 242, 237, 0.9);
+  outline-offset: -3px;
+}
+
+.collage__caption {
+  display: flex;
+  flex-direction: column;
+  gap: 0.2rem;
+  padding: 0.55rem 0.12rem 0;
+  font-family: $font-writing-mono;
+  line-height: 1.35;
+}
+
+.collage__title {
+  overflow: hidden;
+  font-size: clamp(0.55rem, 0.72vw, 0.68rem);
+  letter-spacing: -0.015em;
+  color: rgba(244, 242, 237, 0.88);
+  text-overflow: ellipsis;
+  white-space: nowrap;
+}
+
+.collage__cat {
+  overflow: hidden;
+  font-size: clamp(0.48rem, 0.62vw, 0.58rem);
+  letter-spacing: 0.01em;
+  color: rgba(244, 242, 237, 0.38);
+  text-overflow: ellipsis;
+  white-space: nowrap;
+  text-transform: capitalize;
+}
+
+.collage__overlay {
+  position: absolute;
+  z-index: 4;
+  top: 25.5rem;
+  left: 50%;
+  translate: -50% 0;
+  pointer-events: none;
+}
+
+.collage__overlay a,
+.collage__overlay button {
+  pointer-events: auto;
+}
+
+@media (max-width: 720px) {
+  .experiments-page {
+    padding-top: calc(#{$header-h} + 1rem);
+  }
+
+  .collage {
+    height: auto;
+    min-height: 0;
+    padding: 1.25rem;
+    overflow: visible;
+  }
+
+  .collage__overlay {
+    position: static;
+    translate: none;
+    margin-bottom: 3rem;
+    pointer-events: auto;
+  }
+
+  .collage__list {
+    position: static;
+    display: grid;
+    grid-template-columns: repeat(2, minmax(0, 1fr));
+    gap: 2rem 1rem;
+  }
+
+  .collage__cell {
+    position: static;
+    width: auto;
+    min-width: 0;
+    translate: none;
+    opacity: 1;
+  }
+
+  .collage__float,
+  .collage__pointer {
+    transform: none !important;
+  }
+
+  .collage__frame {
+    aspect-ratio: 1;
+  }
+
+  .collage__title,
+  .collage__cat {
+    font-size: 0.58rem;
+  }
+
+  .experiments-page__header {
+    width: 100%;
+  }
+
+  .experiments-page__title {
+    font-size: clamp(3.25rem, 17vw, 5.5rem);
+  }
+}
+
+@media (prefers-reduced-motion: reduce) {
+  .collage__float,
+  .collage__pointer {
+    transform: none !important;
+  }
+
+  .collage__media {
+    transition: none;
+  }
+
+  .collage__cell:hover .collage__media {
+    transform: none;
+  }
+}
+
+@media (max-width: 460px) {
+  .collage__list {
+    grid-template-columns: 1fr;
+    gap: 2.5rem;
+  }
+}

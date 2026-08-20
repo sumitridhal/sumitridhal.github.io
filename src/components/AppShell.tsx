@@ -14,7 +14,7 @@ export function AppShell() {
 
   const isEditorialRoute = useMemo(() => {
     const parts = location.pathname.split('/').filter(Boolean)
-    return ['notes', 'reading', 'writing'].includes(parts[0] ?? '')
+    return ['reading', 'writing'].includes(parts[0] ?? '')
   }, [location.pathname])
 
   useEffect(() => {

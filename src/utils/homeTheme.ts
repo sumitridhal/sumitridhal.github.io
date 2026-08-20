@@ -20,11 +20,11 @@ export const HOME_THEMES: Record<HomeThemeId, HomeThemeTokens> = {
     border: 'rgba(8, 8, 7, 0.18)',
   },
   experiments: {
-    bgSolid: '#202d1c',
-    fg: '#f2f5ff',
-    fgMuted: 'rgba(232, 236, 244, 0.68)',
-    accent: '#e9b858',
-    border: 'rgba(233, 184, 88, 0.2)',
+    bgSolid: '#0a0a0b',
+    fg: '#f4f2ed',
+    fgMuted: 'rgba(244, 242, 237, 0.58)',
+    accent: '#d9d6cf',
+    border: 'rgba(244, 242, 237, 0.14)',
   },
   writings: {
     bgSolid: '#1e2a1a',

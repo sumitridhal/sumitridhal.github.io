@@ -5,6 +5,15 @@
   <meta charset="UTF-8" />
   <link rel="icon" type="image/svg+xml" href="/favicon.svg" />
   <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+  <script>
+    (() => {
+      const savedTheme = localStorage.getItem('0xthac0-theme')
+      const theme = savedTheme === 'light' || savedTheme === 'dark'
+        ? savedTheme
+        : matchMedia('(prefers-color-scheme: light)').matches ? 'light' : 'dark'
+      document.documentElement.dataset.theme = theme
+    })()
+  </script>
   <title>0xthac0 | Portfolio</title>
 </head>
 

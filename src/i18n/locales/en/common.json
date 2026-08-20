@@ -1,12 +1,10 @@
 {
   "brand": "0xthac0",
-  "ctaWork": "View work",
   "ctaContact": "Start a project",
   "sections": {
     "hero": "Intro",
     "experiments": "Experiments",
     "writings": "Writings",
-    "notes": "Notes",
     "reading": "Reading",
     "talks": "Talks",
     "books": "Bookshelf",
