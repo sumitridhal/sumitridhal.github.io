@@ -101,8 +101,7 @@
   width: 100%;
   aspect-ratio: var(--ar);
   overflow: hidden;
-  border: 1px solid rgba(255, 255, 255, 0.08);
-  border-radius: 10px;
+  border-radius: 6px;
   background: #151517;
   box-shadow:
     0 22px 55px rgba(0, 0, 0, 0.36),
@@ -141,34 +140,6 @@
 .collage__media:focus-visible {
   outline: 1px solid rgba(244, 242, 237, 0.9);
   outline-offset: -3px;
-}
-
-.collage__caption {
-  display: flex;
-  flex-direction: column;
-  gap: 0.2rem;
-  padding: 0.55rem 0.12rem 0;
-  font-family: $font-writing-mono;
-  line-height: 1.35;
-}
-
-.collage__title {
-  overflow: hidden;
-  font-size: clamp(0.55rem, 0.72vw, 0.68rem);
-  letter-spacing: -0.015em;
-  color: rgba(244, 242, 237, 0.88);
-  text-overflow: ellipsis;
-  white-space: nowrap;
-}
-
-.collage__cat {
-  overflow: hidden;
-  font-size: clamp(0.48rem, 0.62vw, 0.58rem);
-  letter-spacing: 0.01em;
-  color: rgba(244, 242, 237, 0.38);
-  text-overflow: ellipsis;
-  white-space: nowrap;
-  text-transform: capitalize;
 }
 
 .collage__overlay {
@@ -226,11 +197,6 @@
 
   .collage__frame {
     aspect-ratio: 1;
-  }
-
-  .collage__title,
-  .collage__cat {
-    font-size: 0.58rem;
   }
 
   .experiments-page__header {

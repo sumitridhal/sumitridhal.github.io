@@ -7,7 +7,7 @@ import { homeExperiments } from '@/data/experimentsData'
 import { HOME_SLOTS } from '@/data/experimentsCollage'
 import { hrefExperiments } from '@/i18n/routes'
 
-const HOME_EXPERIMENTS_PREVIEW_COUNT = 8
+const HOME_EXPERIMENTS_PREVIEW_COUNT = 9
 
 export function HomeExperimentsSection() {
   const { t } = useI18n()

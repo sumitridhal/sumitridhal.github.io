@@ -75,10 +75,6 @@ export function ExperimentCollage({
                       playback={slot.depth >= 0.72 ? 'auto' : 'hover'}
                     />
                   </div>
-                  <div className="collage__caption">
-                    <span className="collage__title">{item.title}</span>
-                    {item.tag ? <span className="collage__cat">{item.tag}</span> : null}
-                  </div>
                 </div>
               </div>
             </li>

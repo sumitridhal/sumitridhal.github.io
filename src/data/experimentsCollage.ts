@@ -29,12 +29,13 @@ export const PAGE_SLOTS: CollageSlot[] = [
 ]
 
 export const HOME_SLOTS: CollageSlot[] = [
-  { x: -3, y: 2, w: 19, ar: 0.78, depth: 0.44 },
-  { x: 22, y: 7, w: 14, ar: 1, depth: 0.7 },
-  { x: 48, y: 1, w: 18, ar: 0.74, depth: 0.9 },
-  { x: 76, y: 5, w: 15, ar: 1.15, depth: 0.56 },
-  { x: 103, y: 1, w: 17, ar: 0.82, depth: 0.76 },
+  { x: -3, y: 4, w: 19, ar: 0.78, depth: 0.44 },
+  { x: 22, y: 11, w: 14, ar: 1, depth: 0.7 },
+  { x: 48, y: -2, w: 18, ar: 0.74, depth: 0.9 },
+  { x: 76, y: 14, w: 15, ar: 1.15, depth: 0.56 },
+  { x: 103, y: 3, w: 17, ar: 0.82, depth: 0.76 },
   { x: 14, y: 33, w: 17, ar: 1.4, depth: 0.84 },
+  { x: 39, y: 43, w: 13, ar: 1, depth: 0.72 },
   { x: 68, y: 34, w: 19, ar: 1.45, depth: 1 },
   { x: 96, y: 36, w: 14, ar: 0.78, depth: 0.62 },
 ]

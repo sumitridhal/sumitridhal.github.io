@@ -1541,7 +1541,13 @@
 }
 
 .home-experiments__header {
-  width: min(29rem, calc(100vw - 3rem));
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  width: max-content;
+  max-width: calc(100vw - 3rem);
+  margin-inline: auto;
+  text-align: center;
 }
 
 .home-experiments__heading {
