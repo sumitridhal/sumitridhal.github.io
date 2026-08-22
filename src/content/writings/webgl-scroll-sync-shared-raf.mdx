@@ -1,0 +1,119 @@
+import { WritingScrollSyncPreviewLazy } from '@/components/writings/WritingScrollSyncPreviewLazy'
+
+export const writingMeta = {
+  id: 'webgl-scroll-sync-shared-raf',
+  order: -2,
+  title: 'When WebGL becomes the third scroll clock',
+  date: '2026-08-15',
+  category: 'Creative code',
+  excerpt:
+    'Driving Lenis from one ticker solves two clocks. Adding React Three Fiber creates a third: the durable fix is one frame owner and a scroll snapshot every consumer reads.',
+  titleLines: ['When WebGL becomes', 'the third scroll clock'],
+  coverSrc: 'https://picsum.photos/seed/webgl-scroll-sync-raf/960/640',
+  keywords: ['lenis', 'react-three-fiber', 'scroll', 'performance'],
+  asideParagraphs: [
+    'The preview deliberately exaggerates the error with a fast local sweep. At ordinary trackpad speed, a one-frame mismatch can look like weak easing instead of wrong ordering.',
+    'A custom scroll container is the second trap: window.scrollY may not be the value the smooth-scroll library owns.',
+  ],
+}
+
+My earlier note, [Driving Lenis from GSAP’s ticker](/writing/lenis-gsap-scroll-loop), stops two animation clocks from competing. Haoqi Wen’s [HAOQI.DESIGN case study](https://tympanus.net/codrops/2026/08/15/inside-haoqi-design-letting-dom-and-webgl-share-a-retro-futurist-stage/) adds the next failure mode: introduce React Three Fiber and the canvas becomes a third clock.
+
+<WritingScrollSyncPreviewLazy />
+
+The preview models the ordering problem with local overflow scrollers and a small requestAnimationFrame loop; it does **not** mount Lenis inside the article. Yellow markers are ordinary DOM content. The left canvas draws from the previous frame’s scroll value, while the right draws from the snapshot captured after the current scroll step. Fast auto-scroll makes that single-frame slip visible and measurable.
+
+## Why interpolation cannot repair ordering
+
+Imagine Lenis and R3F each own a `requestAnimationFrame` callback:
+
+```text
+frame N:
+  R3F reads scroll = 410
+  Lenis advances scroll to 427
+  DOM paints at 427
+  WebGL paints at 410
+```
+
+The canvas is not poorly eased. It is correct for stale data. Changing lerp strength may hide the gap at one speed, then make it worse at another.
+
+A custom smooth-scroll container adds a second problem. `window.scrollY` may stay at zero while Lenis maintains a virtual position elsewhere. The canvas can be reading the wrong value as well as reading it at the wrong time.
+
+## Let the renderer own the frame
+
+The stable arrangement is to disable Lenis’ automatic loop, then advance it from the renderer:
+
+```tsx
+<ReactLenis options={{ autoRaf: false }}>
+  <Canvas>{/* scene */}</Canvas>
+</ReactLenis>
+```
+
+```ts
+useEffect(() => {
+  if (!lenis) return
+  return addEffect((time) => {
+    lenis.raf(time)
+  })
+}, [lenis])
+```
+
+Now there is one ordering contract: the render loop advances scrolling first. Lenis emits its new value during that call, and a small bus records the value for the rest of the frame.
+
+## One snapshot, two access patterns
+
+The bus does not need a state library:
+
+```ts
+type ScrollSnapshot = { scrollTop: number }
+
+let snapshot: ScrollSnapshot = { scrollTop: 0 }
+const listeners = new Set<() => void>()
+
+export const getScrollSnapshot = () => snapshot
+
+export function bindLenis(lenis: Lenis) {
+  const onScroll = ({ scroll }: { scroll: number }) => {
+    snapshot = { scrollTop: scroll }
+    listeners.forEach((listener) => listener())
+  }
+  lenis.on('scroll', onScroll)
+  return () => lenis.off('scroll', onScroll)
+}
+```
+
+WebGL already renders frame by frame, so `useFrame` reads the mutable module snapshot directly:
+
+```ts
+useFrame(() => {
+  const scrollY = getScrollSnapshot().scrollTop
+  mesh.position.y = scrollY * -0.001
+})
+```
+
+React components should subscribe only where scroll changes actual DOM output:
+
+```ts
+const SERVER_SNAPSHOT = { scrollTop: 0 }
+
+const scroll = useSyncExternalStore(
+  subscribeScroll,
+  getScrollSnapshot,
+  () => SERVER_SNAPSHOT,
+)
+```
+
+The server snapshot is a module-level constant on purpose. Returning a fresh object each time tells React the external store changed on every read.
+
+## Pointer input has the same shape
+
+Once scroll has one writer and many readers, pointer state should follow it. Convert browser coordinates to UV once, flip Y once, then expose two representations:
+
+- a mutable `Vector2` for frame-by-frame shader work;
+- an immutable snapshot for React output.
+
+Reset the coordinate to center on pointer leave, window blur, and tab hide. Otherwise the effect resumes from a stale edge coordinate when the user returns.
+
+## The rule I am keeping
+
+Whoever renders owns the frame. Scroll physics runs first, the bus publishes one snapshot, and every visual system reads that value. When a canvas appears beside GSAP and Lenis, adding more interpolation is not architecture; establishing one clock is.

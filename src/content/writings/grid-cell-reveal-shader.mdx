@@ -1,0 +1,124 @@
+import { WritingGridCellRevealPreviewLazy } from '@/components/writings/WritingGridCellRevealPreviewLazy'
+
+export const writingMeta = {
+  id: 'grid-cell-reveal-shader',
+  order: -1,
+  title: 'Moving the grid-cell image reveal onto the GPU',
+  date: '2026-08-15',
+  category: 'Creative code',
+  excerpt:
+    'The DOM version proved the threshold model. A fullscreen quad makes the dense version cheap, but introduces a more interesting choice: should the cell grid live in screen space or restart inside every card?',
+  titleLines: ['Moving the grid reveal', 'onto one GPU quad'],
+  coverSrc: 'https://picsum.photos/seed/grid-cell-reveal-shader/960/640',
+  keywords: ['webgl', 'glsl', 'interaction', 'motion'],
+  asideParagraphs: [
+    'The preview generates both source textures on a 2D canvas, then uploads each once. No cross-origin images or per-frame texture work are involved.',
+    'The hover target and range input share one uniform. Under reduced motion, the shader jumps to the requested state instead of damping toward it.',
+  ],
+}
+
+My [DOM grid-pixel reveal](/writing/grid-pixel-image-reveal) ended with a promise: a few hundred tiles are fine for an article embed, but a dense mask belongs on one canvas or GPU quad. Haoqi Wen’s [HAOQI.DESIGN case study](https://tympanus.net/codrops/2026/08/15/inside-haoqi-design-letting-dom-and-webgl-share-a-retro-futurist-stage/) supplies the useful next step—a cell reveal that is not just denser, but continuous across the screen.
+
+<WritingGridCellRevealPreviewLazy />
+
+## One progress value, no tile nodes
+
+The DOM version gives every cell a threshold and changes hundreds of element opacities. Here, the fragment shader receives one `uProgress` value. Every pixel finds its cell, computes how large that cell’s shape should be, and decides which texture to sample.
+
+```glsl
+vec2 cellUv = fract((screenUv * uResolution) / uPixelSize);
+float squareDistance = max(
+  abs(cellUv.x - 0.5),
+  abs(cellUv.y - 0.5)
+);
+float squareMask = 1.0 - smoothstep(
+  squareExtent - squareAa,
+  squareExtent + squareAa,
+  squareDistance
+);
+```
+
+`fract` discards the cell ID and keeps only coordinates inside the current cell. The same math runs for five cells or five thousand; the quad still costs one draw call.
+
+The shape edge uses derivatives instead of a fixed blur width:
+
+```glsl
+float aa = fwidth(squareDistance) * 1.5;
+```
+
+That keeps the edge readable as device pixel ratio, canvas size, and cell size change.
+
+## Screen space is a design decision
+
+The preview has two adjacent virtual cards. In **screen** mode, both cards divide the same viewport coordinate system:
+
+```glsl
+vec2 screenCellUv = fract(
+  (screenUv * uResolution) / uPixelSize
+);
+```
+
+The grid continues through the gap. A vertical cell boundary that starts in the left card lands at the same x-coordinate in the right card. The cards feel like windows cut into one display.
+
+In **card** mode, each card converts to local UV before dividing into cells:
+
+```glsl
+vec2 localUv = (screenUv - rect.xy) / rect.zw;
+vec2 cardPixels = rect.zw * uResolution;
+vec2 cardCellUv = fract(
+  (localUv * cardPixels) / uPixelSize
+);
+```
+
+Now the first cell starts at every card’s top-left corner. That can be correct for independent components, but it breaks the page-wide dot-matrix language.
+
+Neither coordinate space is universally right. The important part is choosing it deliberately instead of accepting whichever UV was easiest to reach.
+
+## Expand a region, then grow each cell
+
+A plain grid crossfade flips every cell together. The HAOQI pattern separates two dimensions of progress:
+
+1. A circular region expands from the card center.
+2. Inside that region, a square grows from zero to half a cell.
+
+```glsl
+vec2 centered = localUv * 2.0 - 1.0;
+centered.x *= cardAspect;
+
+float radius = uProgress * (maxRadius + 0.16);
+float grow = 1.0 - smoothstep(
+  radius - 0.16,
+  radius + 0.16,
+  length(centered)
+);
+
+float squareExtent = mix(0.0, 0.5, grow);
+```
+
+Aspect compensation matters. Without `centered.x *= cardAspect`, a mathematically circular reveal looks elliptical on a wide card.
+
+The shape toggle swaps the cell distance function from Chebyshev distance (`max(abs(x), abs(y))`) for squares to Euclidean distance (`length`) for circles. The transition architecture stays the same while the visual vocabulary changes.
+
+## Hover and accessibility use the same uniform
+
+Pointer hover targets progress `1`; leaving returns to the range input’s value. The frame loop damps the current uniform toward that target:
+
+```ts
+const target = hovered ? 1 : manualProgress
+current = reduced
+  ? target
+  : THREE.MathUtils.damp(current, target, 8, delta)
+```
+
+The slider is not a debugging afterthought. It gives keyboard and touch users a direct way to inspect the transition, and it leaves the preview useful when reduced motion removes the interpolation.
+
+## What changed from the DOM version
+
+The mental model stayed intact—one scalar drives many cells—but responsibility moved:
+
+- React no longer renders or updates hundreds of tiles.
+- The GPU computes cell membership and edge antialiasing per fragment.
+- Cell density can rise without adding DOM nodes.
+- Coordinate space becomes an explicit visual-system choice.
+
+That last point is the reason to make the GPU version. Performance gets the technique onto the canvas; screen-space continuity turns it into a language the rest of the page can share.

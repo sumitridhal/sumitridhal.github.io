@@ -1,0 +1,131 @@
+import { WritingGlassRefractionPreviewLazy } from '@/components/writings/WritingGlassRefractionPreviewLazy'
+
+export const writingMeta = {
+  id: 'glass-refraction-dispersion-tinting',
+  order: -3,
+  title: 'Glass refraction, dispersion, and tinting across themes',
+  date: '2026-08-15',
+  category: 'Creative code',
+  excerpt:
+    'A two-pass glass study: remove the object from its own framebuffer, split the color channels for dispersion, and admit that light and dark themes need different tint models.',
+  titleLines: ['Glass refraction', 'across two themes'],
+  coverSrc: 'https://picsum.photos/seed/glass-refraction-dispersion/960/640',
+  keywords: ['webgl', 'three.js', 'shaders', 'refraction'],
+  asideParagraphs: [
+    'The preview uses a sphere and a procedural text texture so the rendering setup stays visible. Move the loupe before swapping primitive geometry for a GLTF.',
+    'Layer isolation is two-sided: if the camera never enables the glass layer again, the object disappears from the final frame as well as its framebuffer.',
+  ],
+}
+
+Haoqi Wen’s Codrops case study, [Inside HAOQI.DESIGN](https://tympanus.net/codrops/2026/08/15/inside-haoqi-design-letting-dom-and-webgl-share-a-retro-futurist-stage/), makes a useful point about glass: the shader is only half the effect. The other half is arranging a scene worth refracting, then controlling which objects are allowed into the sampled image.
+
+<WritingGlassRefractionPreviewLazy />
+
+## Render the world, not the glass
+
+The preview uses two passes. First, the camera renders layer `0` into a `WebGLRenderTarget`. A fullscreen quad containing repeated text lives there; the spherical loupe does not. The lens is isolated on layer `1`, so its shader can sample the framebuffer without recursively capturing itself.
+
+```ts
+const BACKDROP_LAYERS = 1 << 0
+const ALL_LAYERS = (1 << 0) | (1 << 1)
+
+camera.layers.enable(1)
+glass.layers.set(1)
+
+camera.layers.mask = BACKDROP_LAYERS
+gl.setRenderTarget(target)
+gl.render(scene, camera)
+gl.setRenderTarget(null)
+
+camera.layers.mask = ALL_LAYERS
+gl.render(scene, camera)
+```
+
+That second mask is not bookkeeping. A Three.js camera starts on layer `0` only. Moving the glass to layer `1` without enabling that layer on the camera removes it from **both** passes—the exact failure mode that initially left this preview showing only its backdrop.
+
+The fragment shader starts from screen coordinates, then uses GLSL’s `refract()` to bend the view ray through the surface normal:
+
+```glsl
+vec2 screenUv = gl_FragCoord.xy / uResolution;
+vec3 normal = normalize(vNormalView);
+vec3 incident = -normalize(vViewPosition);
+vec3 ray = refract(incident, normal, 1.0 / uIor);
+vec2 sampleUv = screenUv + ray.xy * (0.14 * uThickness);
+```
+
+Dispersion becomes a short spectral loop. Each sample changes the index of refraction slightly, then contributes to a different part of the spectrum:
+
+```glsl
+const int SAMPLES = 12;
+vec3 sum = vec3(0.0);
+vec3 weightSum = vec3(0.0);
+
+for (int i = 0; i < SAMPLES; i++) {
+  float t = float(i) / float(SAMPLES - 1);
+  float ior = mix(uIor - uDispersion, uIor + uDispersion, t);
+  vec3 ray = refract(incident, normal, 1.0 / ior);
+  vec3 weight = spectrumWeight(t);
+  sum += texture2D(
+    uScene,
+    screenUv + ray.xy * (0.14 * uThickness)
+  ).rgb * weight;
+  weightSum += weight;
+}
+
+vec3 refracted = sum / max(weightSum, vec3(0.0001));
+```
+
+Twelve samples are inexpensive over a lens that occupies only part of a 330-pixel-tall canvas. The output is opaque because it already contains the sampled backdrop; blending it over the backdrop again would wash out the fringe.
+
+## One tint model does not survive both themes
+
+The preview opens nearly clear—tint is `0.08`—so refraction is the first thing you see. Raise tint to inspect the theme-specific models. On the light background, transmission is approximated with `pow(tint, thickness)`. Increasing thickness removes more of the channels the tint does not preserve.
+
+```glsl
+vec3 transmittance = pow(tint, vec3(max(uThickness, 0.01)));
+vec3 beerColor = mix(refracted, refracted * transmittance, uTintAmount);
+```
+
+Move the same absorption onto a nearly black background and it becomes muddy. The dark-mode toggle therefore switches to Hard Light, which keeps the color lifted and saturated. This is not one unified optical model; it is an honest theme-specific art-direction decision.
+
+```glsl
+vec3 hardColor = mix(
+  refracted,
+  hardLight(clamp(refracted, 0.0, 1.0), tint),
+  uTintAmount
+);
+vec3 color = mix(beerColor, hardColor, uDark);
+```
+
+## Let movement carry the rim highlight
+
+The lens now follows the pointer, so using pointer direction for its light would collapse the two interactions into one. Instead, the preview derives the target angle from the loupe’s movement:
+
+```ts
+velocity.set(position.x - previous.x, position.y - previous.y)
+if (velocity.lengthSq() > 1e-6) {
+  targetAngle = Math.atan2(velocity.y, velocity.x)
+}
+```
+
+The light stays on a circle of fixed radius around the sphere. Ordinary interpolation takes the long route when an angle crosses from `π` to `-π`, so the difference is wrapped before damping:
+
+```ts
+const shortest = Math.atan2(
+  Math.sin(targetAngle - currentAngle),
+  Math.cos(targetAngle - currentAngle),
+)
+currentAngle += shortest * (1 - Math.exp(-6 * delta))
+```
+
+That small correction is what makes the rim light feel attached to the object instead of occasionally orbiting the wrong way.
+
+## What I would copy
+
+- Put the refractive object on its own layer before tuning the shader.
+- Explicitly enable that layer for the final camera pass.
+- Put high-contrast detail behind the material; repeated type makes magnification and edge fringing easy to read.
+- Treat light and dark backgrounds as separate material conditions.
+- Clamp render-target resolution and snap pointer-following motion under `prefers-reduced-motion`.
+
+The shader can become more physical later. The first useful milestone is a stable two-pass contract and a scene that makes the distortion legible.
