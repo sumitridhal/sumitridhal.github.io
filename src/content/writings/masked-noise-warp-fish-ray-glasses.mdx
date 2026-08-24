@@ -1,0 +1,192 @@
+import { WritingMaskedNoiseWarpPreviewLazy } from '@/components/writings/WritingMaskedNoiseWarpPreviewLazy'
+
+export const writingMeta = {
+  id: 'masked-noise-warp-fish-ray-glasses',
+  order: -1,
+  title: 'Masked noise warp: rebuilding “fish-ray glasses” in one pass',
+  date: '2026-08-16',
+  category: 'Creative code',
+  excerpt:
+    'A seven-layer WarpKit poster becomes one fragment pass: a razor-sharp polygon aperture, turbulent coordinate displacement, a multiplied x-ray layer, and a composition that holds perfectly still.',
+  titleLines: ['Masked noise warp:', 'one aperture, one pass'],
+  coverSrc: '/media/writings/masked-noise-warp/comparative-anatomy.jpg',
+  keywords: ['webgl', 'shaders', 'noise', 'compositing'],
+  asideParagraphs: [
+    'A mask is not merely a crop. Here it decides which pixels may be displaced, which overlay may be composited, and where the untouched source must remain bit-for-bit stable.',
+    'All seven layers report static motion and the piece reports zero animated layers. The six-second loop is an export format, not a description of anything moving.',
+  ],
+}
+
+[“Fish-ray glasses” by @goodbytes](https://www.warpkit.xyz/w/fish-ray-glasses-9f68cd08-2229-4011-802c-b252e2656b88) is a good reminder that a funny image can hide a precise compositing graph. A fish sits on a pale field. A flat lavender polygon opens across its middle, dark rib-like marks appear through it, and the rest of the image remains clean. The result reads as an x-ray even though every ingredient is flat and nothing moves.
+
+WarpKit publishes the recipe, which is more useful than the finished pixels. Seven layers, WebGPU with TSL, a six-second seamless loop, and — the detail that matters most — `Animated 00`, with every single layer reporting `Motion: static`. The same stack ships as a square 1080 × 1080 specimen and a wide 1920 × 1080 one. The interactive study below collapses it into one Three.js/GLSL fragment pass.
+
+![A side-by-side comparative-anatomy plate showing a muscle figure on the left and its skeleton on the right.](/media/writings/masked-noise-warp/comparative-anatomy.jpg)
+
+For the study, I replaced the fish artwork with this two-view anatomy plate. The left half becomes the base image; the matching crop from the right half becomes the x-ray layer. Move the aperture over the muscle figure and the registered skeleton appears in place.
+
+<WritingMaskedNoiseWarpPreviewLazy />
+
+## Read the layer panel as a graph
+
+The layers do not all do the same kind of work. Background, images, and text **draw**. Noise Warp **transforms**. The polygon is used as a **mask** by the two layers above it. Reading the list only as back-to-front paint order misses those side connections.
+
+Top to bottom, with the reported blend modes:
+
+- **07 Text**, EB Garamond Regular — draws, normal at 30%
+- **06 Text**, EB Garamond Bold — draws, normal
+- **05 Image** — draws, **multiply**, clipped to layer 03
+- **04 Noise Warp**, Turbulent — **transforms**, normal, clipped to layer 03
+- **03 Polygon**, Solid — draws, normal, and acts as the stencil for the two layers above
+- **02 Image** — draws, normal
+- **01 Background**, solid color — draws, normal
+
+Layer 03 does double duty: it paints as a normal solid shape *and* its opacity decides where the two layers above it may act. Layer 07 sitting at 30% is why the small caption reads as a whisper rather than a label.
+
+The useful mental model is:
+
+1. Draw the background and muscle figure.
+2. Evaluate the aperture as a scalar field.
+3. Distort source coordinates only where that field is white.
+4. Sample the registered skeleton at those distorted coordinates.
+5. Multiply the skeleton into the body through the same mask.
+6. Draw typography after the effect, so its edges stay undistorted.
+
+That shared mask is the load-bearing part. Turn **Polygon mask** off in the demo and the operation spreads across the body crop instead of staying over the torso. The warp is still mathematically valid; the anatomical reading is no longer legible. The title remains clean because it is composited after the warped layers.
+
+## A warp moves coordinates, not finished pixels
+
+A fragment shader cannot reach sideways and push a neighboring pixel. It asks a texture for a different location instead. The apparent displacement comes from perturbing `uv` before sampling:
+
+```glsl
+vec2 noiseUv = uv * uFrequency;
+vec2 warp = vec2(
+  layeredNoise(noiseUv + loopPoint),
+  layeredNoise(noiseUv + vec2(7.13, -3.71) - loopPoint)
+);
+
+vec2 warpedUv = uv + warp * uAmount;
+vec3 displaced = texture2D(uBody, warpedUv).rgb;
+vec3 base = mix(texture2D(uBody, uv).rgb, displaced, mask);
+```
+
+The two noise calls use different offsets. Reusing one value for both axes only moves samples along a diagonal; decorrelated calls produce a two-dimensional flow. `uAmount` should stay small. Once the offset becomes larger than the visual feature being bent, “soft tissue” quickly turns into a broken collage.
+
+## Turbulence folds smooth noise into ridges
+
+Ordinary fractal Brownian motion adds smooth noise at increasing frequencies and decreasing amplitudes. Turbulence folds each octave around zero with `abs()`. Valleys become peaks, producing the sharper creases that make this effect feel fibrous instead of cloudy.
+
+```glsl
+float signedNoise = valueNoise(p) - 0.5;
+float ridge = abs(signedNoise) * 2.0 - 0.5;
+sum += amplitude * mix(signedNoise, ridge, uTurbulent);
+
+p = mat2(1.6, 1.2, -1.2, 1.6) * p;
+amplitude *= 0.5;
+```
+
+The matrix scales and rotates between octaves. Without that rotation, value-noise grid directions begin to line up and the displacement reveals its lattice. Use the **Noise character** toggle to compare the rounded drift of signed noise with the pinched contours of turbulence.
+
+Octaves buy detail, not strength. Frequency sets the size of the folds; amount sets their travel; octaves fill smaller frequencies into the silhouette. Keeping those controls separate makes tuning predictable.
+
+## The aperture is a distance field, and it holds still
+
+The aperture does not need geometry or a stencil buffer. It needs a scalar field that is negative inside, positive outside, and zero at the edge. WarpKit describes layer 03 as a polygon "drawn mathematically so its edges stay razor-sharp at any size," which is a signed distance function in all but name:
+
+```glsl
+vec2 p = uv - uCenter;
+p.x *= uResolution.x / uResolution.y;
+
+float sector = 6.28318531 / uSides;
+float angle = atan(p.x, p.y) + 3.14159265;
+float edgeIndex = floor(0.5 + angle / sector);
+
+float irregular = 1.0 + uIrregularity * (valueNoise(vec2(edgeIndex * 1.37, 4.21)) - 0.5);
+float distanceToPolygon = cos(edgeIndex * sector - angle) * length(p) - 0.145 * irregular;
+
+float mask = 1.0 - smoothstep(-uFeather, uFeather, distanceToPolygon);
+```
+
+Quantizing the angle into `edgeIndex` is what produces flat facets instead of a circle. Because the perturbation is indexed per edge rather than per pixel, it changes each face's distance from the center without curving any of them — the outline stays asymmetric and hand-cut while every edge remains dead straight.
+
+Nothing in that function reads `uTime`, and that is deliberate. An earlier revision animated the outline with angular harmonics whose phases advanced over the loop, and it was wrong twice over: the shape visibly crawled like a lava lamp, and it contradicted the reference, where all seven layers report static motion. A distorted edge and a *moving* edge are different decisions, and only the first one is in the source.
+
+Correcting `p.x` for the canvas aspect ratio keeps the polygon from stretching with the viewport. `smoothstep` turns the zero crossing into a narrow transition; a hard `step` would preserve the shape but alias its diagonals, while too much feather makes the x-ray look airbrushed.
+
+Because the aperture center is a uniform rather than a constant, it can still follow the pointer without any of the layers animating on their own. The demo damps the cursor position toward `uCenter` and drifts the noise domain by the same displacement, so moving across the canvas both relocates the window and reshuffles the turbulence inside it:
+
+```ts
+center.x = THREE.MathUtils.damp(center.x, targetX, 7, delta)
+uniforms.uCenter.value.set(center.x, center.y)
+uniforms.uPointerDrift.value.set(
+  (center.x - RESTING_CENTER.x) * 1.8,
+  (center.y - RESTING_CENTER.y) * 1.8,
+)
+```
+
+Damping matters more than it looks. Assigning the raw pointer position makes the aperture snap and stutter at the frame rate; an exponential approach gives it the small lag that reads as a physical object being carried. When the pointer leaves, the same damping returns the window to its resting position instead of teleporting it. The target is also clamped to the torso, because an anatomical reveal hovering over empty background is just floating debris.
+
+## Multiply makes an overlay belong to the subject
+
+The skeleton crop has a pale background and darker bone illustration. Multiply treats the near-white field as almost neutral and lets the darker anatomical marks inherit the muscle image beneath them:
+
+```glsl
+vec3 base = mix(untouched, displaced, mask);
+vec3 skeleton = texture2D(uSkeleton, warpedUv).rgb;
+float luma = dot(skeleton, vec3(0.2126, 0.7152, 0.0722));
+float boneInk = 1.0 - smoothstep(0.85, 0.89, luma);
+vec3 multiplied = base * vec3(1.0 - boneInk * 0.82);
+vec3 color = mix(base, multiplied, mask * 0.94);
+```
+
+Normal blending makes the source switch explicit: skin and muscle give way to the literal skeleton crop. Multiply is subtler; it preserves the surface shading while darkening the bone drawing into it. A tight luminance gate makes the pale image field exactly neutral and turns the tan illustration into dark x-ray ink before multiplication. Toggle **Skeleton blend** to compare both readings without changing either texture.
+
+The same warped UV samples both the body and the skeleton. That makes the two layers buckle together. Warping only one would create sliding at the mask boundary—the fastest way to reveal that the “x-ray” is two unrelated images.
+
+## Registration is what sells the x-ray
+
+The shader does not know that one texture is skin and the other is bone. It only knows that the same coordinate must identify the same anatomical point in both images. A side-by-side anatomy plate is useful because it already supplies two aligned views at matching scale. Cropping identical rectangles from each half—same width, height, and vertical offset—turns that editorial layout into texture registration.
+
+If the crops differ by even a few pixels, shoulders jump, the rib cage floats, and the hand appears twice. No amount of noise tuning fixes that. Alignment is not polish added after the effect; it is the condition that makes the effect possible.
+
+Layers 06 and 07 in the source sit above the warp and are not clipped to the polygon, so they would be composited last at untouched coordinates. The live anatomy study intentionally omits both text layers: the figure and moving aperture remain unobstructed while the layer analysis above still records the source stack.
+
+## The six-second loop is a container, not a motion
+
+It is tempting to read "6s seamless loop" as a promise that something moves. Next to `Animated 00` and seven layers of `Motion: static`, it means the opposite: the piece is exported as a looping realtime clip, and every frame of that clip is identical. The renderer runs continuously; the composition does not change.
+
+So the demo defaults **Layer motion** to `STATIC` and feeds `uTime` a constant zero. Only the pointer moves anything.
+
+The loop is still worth keeping available, because it demonstrates a real technique. Linear time never returns to its starting coordinate, so a warp driven by `uTime` drifts forever and can never close. Walking a circle through the noise domain closes it:
+
+```glsl
+float phase = 6.28318531 * mod(uTime / 6.0, 1.0);
+vec2 loopPoint = vec2(cos(phase), sin(phase)) * 0.34;
+float n = layeredNoise(uv * uFrequency + loopPoint);
+```
+
+At zero and six seconds `phase` differs by exactly one turn, so the noise input is identical and the motion cannot seam. Switch the toggle to `6s LOOP` to watch it, then switch back to see how much calmer the static reading is. `prefers-reduced-motion` forces the static path regardless.
+
+## TSL and GLSL describe the same graph
+
+WarpKit renders with WebGPU and Three Shader Language. This study uses the repository’s established Three.js/WebGL path and writes GLSL directly. The syntax differs, but the graph does not:
+
+`source UV → turbulence → offset UV → sample body → sample skeleton → multiply → polygon mix`
+
+That is the portable part. Once the data flow is understood, moving between visual nodes, TSL, GLSL, WGSL, or a compositor is mostly a translation exercise.
+
+## What I would copy
+
+- Treat layer stacks as dependency graphs, especially when masks and transforms point sideways.
+- Distort sampling coordinates and composite through the same mask.
+- Use turbulence for ridges; use signed fbm for clouds.
+- Keep amount, frequency, and octave count as independent controls.
+- Multiply light-backed line art when the base texture should remain visible.
+- Perturb a polygon per edge, not per pixel, when you want irregular facets that stay straight.
+- Read "static" in a layer panel as a constraint, not an omission; a distorted edge and a moving edge are separate decisions.
+- Keep the aperture center a uniform so a static composition can become a pointer-driven instrument.
+- Register alternate views before writing the shader; matching coordinates matter more than clever blending.
+- Build loops in the noise domain instead of hoping linear time wraps cleanly.
+- When typography is present, draw it after the distortion pass rather than baking it into the artwork.
+
+The source artwork credits [@goodbytes and WarpKit](https://www.warpkit.xyz/w/fish-ray-glasses-9f68cd08-2229-4011-802c-b252e2656b88), with its photographic source attributed there to [Laker on Pexels](https://www.pexels.com/@laker/). This preview does not copy that photograph: it applies the compositing idea to a generated comparative-anatomy plate supplied for this study.
