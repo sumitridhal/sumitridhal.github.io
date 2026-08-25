@@ -8,7 +8,7 @@ export const writingMeta = {
   category: 'UI',
   excerpt:
     'Treat one SVG path as the spine of the composition: sample it by arc length so squares stay evenly spaced, align each tile to the tangent, then break tie order where the path crosses itself.',
-  titleLines: ['Tiles on a loop', 'arc-length path and stacking'],
+  titleLines: ['Tiles on a loop:', 'arc-length path and stacking'],
   coverSrc: '/media/writings/motion-path-typography-loop.png',
   asideParagraphs: [
     'CSS Motion Path (`offset-path` / `offset-distance` / `offset-rotate: auto`) can replace hand sampling where browser support matches your audience; keep a `getPointAtLength` fallback if you need identical geometry in older engines.',
@@ -59,7 +59,7 @@ Naive stacking—`z-index: i` in DOM order—fails when two samples sit on diffe
 
 The preview below uses that pattern; tune the `u` window and `y` threshold when you change the path.
 
-<WritingMotionPathTilesPreviewLazy />
+export const preview = <WritingMotionPathTilesPreviewLazy />
 
 The preview is lazy-loaded so the writings index route does not pay for the animation loop until you open this note.
 

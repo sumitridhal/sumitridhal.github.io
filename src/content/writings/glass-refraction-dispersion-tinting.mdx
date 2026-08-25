@@ -4,7 +4,7 @@ export const writingMeta = {
   id: 'glass-refraction-dispersion-tinting',
   order: -3,
   title: 'Glass refraction, dispersion, and tinting across themes',
-  date: '2026-08-15',
+  date: '2026-08-10',
   category: 'Creative code',
   excerpt:
     'A two-pass glass study: remove the object from its own framebuffer, split the color channels for dispersion, and admit that light and dark themes need different tint models.',
@@ -19,7 +19,7 @@ export const writingMeta = {
 
 Haoqi Wen’s Codrops case study, [Inside HAOQI.DESIGN](https://tympanus.net/codrops/2026/08/15/inside-haoqi-design-letting-dom-and-webgl-share-a-retro-futurist-stage/), makes a useful point about glass: the shader is only half the effect. The other half is arranging a scene worth refracting, then controlling which objects are allowed into the sampled image.
 
-<WritingGlassRefractionPreviewLazy />
+export const preview = <WritingGlassRefractionPreviewLazy />
 
 ## Render the world, not the glass
 

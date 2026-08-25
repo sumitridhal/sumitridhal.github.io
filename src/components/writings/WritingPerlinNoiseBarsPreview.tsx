@@ -38,7 +38,7 @@ function clamp01(t: number): number {
 }
 
 export function WritingPerlinNoiseBarsPreview({
-  caption = 'Perlin sample per cell → bar width.',
+  caption,
   className = '',
   cols = 70,
   rows = 11,
@@ -150,7 +150,12 @@ export function WritingPerlinNoiseBarsPreview({
       {caption ? <figcaption className="writing-perlin-bars__caption">{caption}</figcaption> : null}
       <div className="writing-perlin-bars__body">
         <div ref={wrapRef} className="writing-perlin-bars__stage">
-          <canvas ref={canvasRef} className="writing-perlin-bars__canvas" aria-hidden />
+          <canvas
+            ref={canvasRef}
+            className="writing-perlin-bars__canvas"
+            role="img"
+            aria-label="A drifting grid of vertical bars whose widths follow a Perlin noise field"
+          />
         </div>
       </div>
     </figure>

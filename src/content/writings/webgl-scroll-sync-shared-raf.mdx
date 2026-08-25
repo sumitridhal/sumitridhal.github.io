@@ -4,7 +4,7 @@ export const writingMeta = {
   id: 'webgl-scroll-sync-shared-raf',
   order: -2,
   title: 'When WebGL becomes the third scroll clock',
-  date: '2026-08-15',
+  date: '2026-08-12',
   category: 'Creative code',
   excerpt:
     'Driving Lenis from one ticker solves two clocks. Adding React Three Fiber creates a third: the durable fix is one frame owner and a scroll snapshot every consumer reads.',
@@ -19,7 +19,7 @@ export const writingMeta = {
 
 My earlier note, [Driving Lenis from GSAP’s ticker](/writing/lenis-gsap-scroll-loop), stops two animation clocks from competing. Haoqi Wen’s [HAOQI.DESIGN case study](https://tympanus.net/codrops/2026/08/15/inside-haoqi-design-letting-dom-and-webgl-share-a-retro-futurist-stage/) adds the next failure mode: introduce React Three Fiber and the canvas becomes a third clock.
 
-<WritingScrollSyncPreviewLazy />
+export const preview = <WritingScrollSyncPreviewLazy />
 
 The preview models the ordering problem with local overflow scrollers and a small requestAnimationFrame loop; it does **not** mount Lenis inside the article. Yellow markers are ordinary DOM content. The left canvas draws from the previous frame’s scroll value, while the right draws from the snapshot captured after the current scroll step. Fast auto-scroll makes that single-frame slip visible and measurable.
 

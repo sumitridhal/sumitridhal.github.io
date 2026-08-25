@@ -19,7 +19,7 @@ export const writingMeta = {
 
 Treat the ground plane as a graph of a function `h(x, z)`. In practice `h` is almost always **layered stochastic noise**—the same fractal Brownian motion family described in [Noise in Creative Coding](/writing/noise-in-creative-coding)—because a single octave looks like a corrugated sheet, while summed octaves read as hills and valleys at several scales.
 
-<WritingTerrainR3fPreviewLazy />
+export const preview = <WritingTerrainR3fPreviewLazy />
 
 ## Heightfield recipe
 
@@ -32,7 +32,6 @@ Normals follow from partial derivatives. On a grid you can finite-difference `h`
 <WritingShaderDemo
   preset="valueNoiseFbm"
   ariaLabel="Layered value noise field similar to fractal Brownian motion used for terrain macro shapes"
-  caption="Fragment: same fbm-style value noise family many heightfields start from"
 />
 
 ```glsl

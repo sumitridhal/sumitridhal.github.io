@@ -5,6 +5,7 @@ import * as THREE from 'three'
 
 import { WritingPlayWebglBoundary } from '@/components/writings/writingPlayWebglBoundary'
 import { useWritingPreviewReducedMotion } from '@/components/writings/useWritingPreviewReducedMotion'
+import { WritingPreviewControls } from '@/components/writings/WritingPreviewControls'
 
 const TERRAIN_VERT = /* glsl */ `
 uniform float uAmp;
@@ -192,7 +193,7 @@ export type WritingTerrainR3fPreviewProps = {
 }
 
 export function WritingTerrainR3fPreview({
-  caption = 'Drag to orbit: heightfield from layered value noise with optional domain warp',
+  caption = 'Drag to orbit the terrain.',
   height = 300,
   className = '',
 }: WritingTerrainR3fPreviewProps) {
@@ -211,8 +212,7 @@ export function WritingTerrainR3fPreview({
 
   return (
     <figure className={`writing-generative-play-preview ${className}`.trim()}>
-      {caption ? <figcaption className="writing-generative-play-preview__caption">{caption}</figcaption> : null}
-      <div className="writing-generative-play-preview__hud">
+      <WritingPreviewControls caption={caption} label="Terrain noise controls">
         <RangeRow
           id={`${uid}-amp`}
           label="Amplitude"
@@ -240,7 +240,7 @@ export function WritingTerrainR3fPreview({
           value={warp}
           onChange={setWarp}
         />
-      </div>
+      </WritingPreviewControls>
       <div className="writing-generative-play-preview__canvas-wrap" style={{ height: `${height}px` }}>
         {webglFailed ? fallback : null}
         {!webglFailed ? (

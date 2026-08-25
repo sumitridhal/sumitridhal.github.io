@@ -34,10 +34,9 @@ vec4 blurH(sampler2D tex, vec2 uv, vec2 px, float sigma) {
 
 Box filters are fewer taps but ring in frequency space; Gaussians cost more but decay smoothly. Sobel and unsharp masks are the same machinery with different weights: one estimates gradients for edges, the other adds a high-pass residual back onto the image for crispness.
 
-<WritingShaderDemo
+export const preview = <WritingShaderDemo
   preset="sobelEdges"
   ariaLabel="Sobel-style edge magnitude on a procedural checker pattern"
-  caption="Fragment: edge kernel on a field"
 />
 
 <figure className="writing-inline-figure">

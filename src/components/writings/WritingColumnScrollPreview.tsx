@@ -69,7 +69,7 @@ export type WritingColumnScrollPreviewProps = {
 }
 
 export function WritingColumnScrollPreview({
-  caption = 'Native overflow: center scroll vs outer rails at 2× translateY — Play demo or wheel. ColumnScroll repo photos.',
+  caption = 'Wheel the columns, or press Play.',
   className = '',
 }: WritingColumnScrollPreviewProps) {
   const reduced = useWritingPreviewReducedMotion()

@@ -1,0 +1,194 @@
+import { WritingShaderDemo } from '@/components/writings/WritingShaderDemo'
+
+export const writingMeta = {
+  id: 'rorschach-ink-blot-shader',
+  order: -1,
+  title: 'Rorschach ink blots as one fragment pass',
+  date: '2026-08-25',
+  category: 'Creative code',
+  excerpt:
+    'A bilateral fold, thresholded 3D-simplex fbm, and a paper vignette turn one fullscreen fragment shader into a continuously changing Rorschach ink-blot study.',
+  titleLines: ['Rorschach ink blots:', 'one fragment pass'],
+  coverSrc: '/media/writings/rorschach-ink-blot-shader.png',
+  keywords: ['webgl', 'shaders', 'noise', 'symmetry'],
+  asideParagraphs: [
+    'The image looks illustrated, but the only geometry is a fullscreen rectangle. Symmetry, contour, paper, and motion all happen inside the fragment function.',
+    'A mirrored coordinate is more useful than a mirrored result: every later noise sample inherits the same bilateral structure without another render pass.',
+  ],
+}
+
+A Rorschach blot appears to be a drawing problem: make an organic stain, duplicate it, flip one side, and press the halves together. In a shader, the more useful version of that recipe runs backwards. Fold the coordinate system first, then evaluate one noise field. Both halves ask the same question and receive the same answer, so bilateral symmetry falls out of the sampling rather than being composited afterward.
+
+The live study below rebuilds that idea as one Three.js fullscreen pass. It uses 3D simplex noise for a field that morphs instead of merely sliding, two thresholded fbm layers for warm and dark ink, unmirrored density variation, static paper grain, and a product-form vignette. Move the pointer to bias the field, change **Ink spread** to open or close the stain, choose a palette or edit the three color swatches, then switch to **Raw field** to see how much work one absolute value is doing.
+
+export const preview = <WritingShaderDemo
+  preset="rorschachInkBlot"
+  ariaLabel="Animated shader: a mirrored noise field thresholded into a Rorschach ink blot on grained paper"
+  caption="Mirrored ink from one thresholded noise field."
+  hint="Move the pointer to bias the field, tune its spread, choose a palette, or edit the warm ink, dark ink, and paper colors independently."
+  height={520}
+/>
+
+## The fold is one line, and it is the whole illusion
+
+Start with texture coordinates in the familiar zero-to-one square, move the origin to the middle, and correct the horizontal axis for the canvas aspect ratio:
+
+```glsl
+vec2 p = v_uv * 2.0 - 1.0;
+p.x *= u_resolution.x / max(u_resolution.y, 1.0);
+
+vec2 folded = p;
+folded.x = abs(folded.x);
+```
+
+On the left, `p.x` is negative. `abs()` reflects it into the positive half-plane. The right half was positive already, so both screen positions now sample the same coordinates. Nothing is copied and no finished pixel is flipped; two fragments independently land at one location in the procedural field.
+
+That distinction matters when the field changes. Mirroring a rendered texture requires an intermediate target or a second texture lookup. Mirroring the domain makes every later operation—noise, thresholds, pointer offsets, and color density—inherit the fold for free.
+
+The seam does not need special blending. At `x = 0`, both sides converge on the same sample, and a smooth contour crossing the fold meets it at a right angle. That pinched central join is exactly what gives a Rorschach stain its pressed-paper construction.
+
+The demo interpolates between raw and folded coordinates:
+
+```glsl
+folded.x = mix(folded.x, abs(folded.x), u_mouse.w);
+```
+
+The **Mirrored** and **Raw field** buttons write one or zero into `u_mouse.w`. Intermediate values would continuously dissolve the symmetry, but the binary comparison makes the underlying operation easier to read.
+
+## Thresholding noise is what makes ink instead of clouds
+
+Noise naturally produces soft grey variation. Ink needs occupied and unoccupied regions with only a narrow antialiased frontier between them. A tight reversed `smoothstep` converts the scalar field into that silhouette:
+
+```glsl
+float field = fbm(vec3(blotDomain, time + 13.0), 5);
+float ink = 1.0 - smoothstep(
+  -0.035,
+  0.035,
+  field + containment - spread
+);
+```
+
+Values below the lower edge become one; values above the upper edge become zero. Only a band `0.07` units wide remains partially covered. That band is not decorative blur—it is the contour's antialiasing budget. Replace it with `step()` and the same shape acquires stair-stepped edges.
+
+`spread` shifts the entire field relative to the threshold. Raising it classifies more samples as ink, so islands grow, touch, and eventually merge. This is why **Ink spread** behaves like wetness even though no fluid simulation is running.
+
+The final blot uses two independently offset fields. The broad field carries the warmer of the two inks; the tighter field carries a near-black. Layering thresholds gives the stain interior structure without adding geometry, textures, or another pass.
+
+## A radial term keeps the blot on the card
+
+An unconstrained noise field happily reaches every edge. Multiplying it by a circular mask would contain it, but that creates a visibly separate boundary. Adding distance before thresholding is subtler:
+
+```glsl
+float containment = length(p * vec2(0.82, 1.0)) * 0.48;
+float ink = 1.0 - smoothstep(
+  -0.035,
+  0.035,
+  field + containment - spread
+);
+```
+
+Near the center, `containment` contributes almost nothing. Toward the edges it raises the field, making those samples less likely to pass the ink threshold. The noise still decides the contour, but its odds worsen with distance.
+
+The `vec2(0.82, 1.0)` scale relaxes horizontal containment slightly, giving the stain broader shoulders without stretching the noise itself. Because containment joins the field *before* `smoothstep`, there is no visible circular crop to betray the trick.
+
+## Time is the third noise axis, not a scroll offset
+
+Animating two-dimensional noise with `p + time` moves through one fixed sheet. Features enter from one side and exit the other; the field translates. A Rorschach blot should appear to absorb, separate, and reconnect in place.
+
+Three-dimensional simplex noise supplies a different path:
+
+```glsl
+float time = u_time * 0.075;
+float field = fbm(vec3(blotDomain, time + 13.0), 5);
+```
+
+The screen occupies an XY slice through a 3D noise volume. Advancing Z selects adjacent slices, so contours morph rather than drift in a single direction. The small time multiplier keeps the topology readable instead of boiling.
+
+Each fbm octave doubles the domain frequency and halves its amplitude. Large islands establish the silhouette; smaller octaves roughen the frontier and open small holes. Five octaves are enough at this canvas size. Seven look richer in source code but multiply the most expensive operation per pixel for details the display often cannot preserve.
+
+When `prefers-reduced-motion` is active, the shared preview component pins `u_time` to zero. The shader still renders the same complete composition, just from one stationary slice of the volume.
+
+## Symmetry of shape, asymmetry of texture
+
+Perfectly duplicating every internal mark makes a blot feel stamped. The silhouette should be bilateral, but pigment density can vary across the paper. The demo therefore samples its density field from the original coordinate `p`, not `folded`:
+
+```glsl
+float density = clamp(
+  0.52 + 0.72 * fbm(
+    vec3(p * 0.86 + vec2(-1.7, 3.2), time * 0.72 + 71.0),
+    4
+  ),
+  0.0,
+  1.0
+);
+
+vec3 color = mix(paper, warmInk, outerInk * (0.38 + density * 0.58));
+color = mix(color, darkInk, innerInk * (0.48 + density * 0.48));
+```
+
+Both sides agree about where ink exists because `outerInk` and `innerInk` come from the folded domain. They disagree slightly about how saturated that ink is because `density` does not. The result keeps the iconic outline without looking like a mirrored decal.
+
+The pointer bias is applied to `blotDomain`, before both silhouette fields are sampled. Moving across the canvas changes which part of the noise volume defines the stain while preserving the bilateral contract.
+
+## Paper is grain plus a vignette
+
+A flat background makes procedural ink feel like a screen effect. Two cheap signals are enough to suggest a physical card. First, a position hash adds stable, high-frequency paper grain:
+
+```glsl
+vec2 pixel = v_uv * u_resolution;
+float grain = (hash21(pixel * 0.83) - 0.5) * 0.055;
+vec3 paper = u_paper + grain;
+```
+
+The hash reads pixel coordinates rather than time, so it does not sparkle while the blot moves. Second, a product of distances to all four edges creates a vignette with no branch and no texture:
+
+```glsl
+float edgeProduct =
+  16.0 * q.x * q.y * (1.0 - q.x) * (1.0 - q.y);
+float vignette =
+  0.34 + 0.66 * pow(max(edgeProduct, 0.0), 0.28);
+```
+
+The product is one at the center and reaches zero at every edge. Its shape follows the rectangle rather than imposing a circular spotlight, and because it uses normalized UVs it behaves consistently at every resolution.
+
+The paper and both inks are uniforms. Presets still change them as a coordinated set, while the three color inputs can break that set apart for direct experimentation:
+
+```glsl
+uniform vec3 u_paper;
+uniform vec3 u_ink_warm;
+uniform vec3 u_ink_dark;
+
+vec3 paper = u_paper + grain;
+vec3 color = mix(paper, u_ink_warm, outerInk);
+color = mix(color, u_ink_dark, innerInk);
+```
+
+The host offers Classic, Sepia, Monochrome, and Cyanotype presets. Each preset writes all three uniforms, but changing one swatch leaves the other two untouched. That makes the named sets useful starting points rather than a restriction.
+
+## What the WebGL translation had to change
+
+The reference implementation is written as a Godot `canvas_item` shader. The visual ideas transfer directly, but the host contract does not:
+
+- Godot's `UV` becomes the interpolated `v_uv` supplied by the fullscreen Three.js vertex shader.
+- `SCREEN_PIXEL_SIZE` is replaced by the drawing-buffer dimensions in `u_resolution`.
+- `FRAGCOORD.xy / iResolution.xy` reduces to `v_uv` for the vignette.
+- Godot's `COLOR` output becomes the GLSL3 fragment output `fragColor`.
+- The tint is stored as normalized RGB rather than carrying 0–255 values into the shader.
+- Aspect correction is active, so the blot keeps its proportions when the article canvas changes shape.
+- Unused host uniforms and color declarations are removed; every remaining input changes the rendered pass.
+
+Three.js and React Three Fiber do not alter the shader's mathematics. They provide a fullscreen rectangle, compile the raw GLSL, and update `u_time`, `u_resolution`, `u_mouse`, `u_paper`, `u_ink_warm`, and `u_ink_dark` each frame. The interesting work remains one fragment invocation per pixel.
+
+## What I would copy
+
+- Fold coordinates before sampling when every downstream operation should share a symmetry.
+- Threshold a scalar field with a narrow `smoothstep` when a soft signal needs a crisp, antialiased silhouette.
+- Add a distance term to a field before thresholding when containment should influence a contour without visibly clipping it.
+- Animate through a 3D noise volume when features should morph; offset 2D noise when they should travel.
+- Separate shape symmetry from surface variation so procedural work does not look mechanically duplicated.
+- Hash pixel coordinates for static grain; never put time into paper unless sparkling is intentional.
+- Keep related colors in presets, but expose individual uniforms when the study is meant for experimentation.
+- Treat octave count as a performance budget, not a quality slider with no upper cost.
+- Normalize host-specific uniforms at the boundary, then keep the shader's internal coordinate system explicit.
+
+The technique is inspired by [xjorma's Rorschach Ink Test on Shadertoy](https://www.shadertoy.com/view/wslcDf) and [Db0's Godot customization for FragmentForge](https://fragment-forge.org/), whose shared code is published under [CC BY-NC-SA 3.0](https://creativecommons.org/licenses/by-nc-sa/3.0/). This study is an independent implementation of the underlying mirrored-noise method rather than a line-by-line port. Its 3D simplex primitive is the MIT-licensed WebGL noise implementation by Ian McEwan and Ashima Arts, with attribution retained in the shader source.

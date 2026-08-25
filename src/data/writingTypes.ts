@@ -1,3 +1,5 @@
+import type { ReactNode } from "react";
+
 /** CSS-only thumbnails for the writing article figure grid. */
 export type WritingFigureVariant =
   | "grain"
@@ -30,4 +32,10 @@ export type WritingMeta = {
   titleLines?: string[];
   asideParagraphs?: string[];
   figureRows?: WritingFigureVariant[][];
+};
+
+export type WritingPreviewStep = {
+  id: string;
+  label: string;
+  node: ReactNode;
 };

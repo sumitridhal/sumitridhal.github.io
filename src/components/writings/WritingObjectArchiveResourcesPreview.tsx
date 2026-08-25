@@ -69,10 +69,7 @@ export function WritingObjectArchiveResourcesPreview() {
       aria-label="Tween concept Part 5: hover or focus a resource to swap the portrait and caption (no motion on the image slot)"
     >
       <figcaption className="writing-oa-res__caption">
-        **Tween sheet — Part 5:** One serif **list**; after the first pick, a **portrait stack** is **centered over**
-        inactive lines (`pointer-events: none` on the float); the **active** line stays above via **z-index**. **No GSAP**
-        here—**`img.src`** and copy update **synchronously** on hover/focus. The **frame** is a fixed **3:4** slot; every
-        asset uses **`object-fit: cover`** so swaps keep the **same box**.
+        Hover a name to raise its portrait.
       </figcaption>
 
       <div className="writing-oa-res__embed">

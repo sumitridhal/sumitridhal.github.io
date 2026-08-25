@@ -10,6 +10,7 @@ import halftoneDots from '@/shaders/writing-demos/halftone-dots.frag?raw'
 import lightFalloff from '@/shaders/writing-demos/light-falloff.frag?raw'
 import paletteMosaicGrid from '@/shaders/writing-demos/palette-mosaic-grid.frag?raw'
 import raymarchSphere from '@/shaders/writing-demos/raymarch-sphere.frag?raw'
+import rorschachInkBlot from '@/shaders/writing-demos/rorschach-ink-blot.frag?raw'
 import sdfPrimitives2d from '@/shaders/writing-demos/sdf-primitives-2d.frag?raw'
 import smoothstepDerivatives from '@/shaders/writing-demos/smoothstep-derivatives.frag?raw'
 import sobelEdges from '@/shaders/writing-demos/sobel-edges.frag?raw'
@@ -25,6 +26,7 @@ export const WRITING_SHADER_PRESETS = {
   halftoneDots,
   lightFalloff,
   paletteMosaicGrid,
+  rorschachInkBlot,
   sobelEdges,
   fragmentPipelineUv,
   fullscreenPassVignette,

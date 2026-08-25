@@ -8,7 +8,7 @@ export const writingMeta = {
   category: 'UI',
   excerpt:
     'Codrops’ ColumnScroll couples Locomotive Scroll’s smooth container with a tiny scroll listener: outer columns get translateY(scroll.y) while the middle column rides the library’s own motion—cheap depth without a second scroll physics engine.',
-  titleLines: ['Alternate column scroll', 'Locomotive + outlier columns'],
+  titleLines: ['Alternate column scroll:', 'Locomotive + outlier columns'],
   asideParagraphs: [
     'Locomotive v4’s API differs from newer smooth-scroll stacks; if you paste this pattern into a greenfield app, compare against current Lenis + native `scroll` patterns and your framework’s lifecycle (destroy on unmount, `update` after layout shifts).',
     'The full Codrops repo pairs each grid cell with a “content item” for the open/zoom choreography; the snippet here is only the parallax spine—keep that separation in mind when diffing against GitHub.',
@@ -18,7 +18,7 @@ export const writingMeta = {
 
 Manoela Ilic’s Codrops tutorial [Alternate Column Scroll Animation](https://tympanus.net/codrops/2021/12/21/alternate-column-scroll-animation/) (December 2021) and the [ColumnScroll repo](https://github.com/codrops/ColumnScroll) show a three-column gallery where the **middle strip** and the **outer strips** do not move in lockstep. The production version layers image choreography on top; your snippet isolates the **spine**: one `LocomotiveScroll` instance on the scroll root, plus a few lines that retarget **only the first and third columns** whenever the library emits `scroll`.
 
-<WritingColumnScrollPreviewLazy />
+export const preview = <WritingColumnScrollPreviewLazy />
 
 The preview is lazy-loaded with `React.lazy` so this note’s client chunk stays small until you open the article. It uses **native** `scrollTop` in a local `overflow` box: outer columns use **`translateY(2×scrollTop)`** so they still move opposite the center—inside the same scroller, plain `translateY(scrollTop)` mostly **cancels** scroll painting for those nodes, which is why the live Codrops demo relies on Locomotive’s transform stack instead. Photos are from the [ColumnScroll repo](https://github.com/codrops/ColumnScroll); press **Play demo** for a full eased pass, or scroll inside the strip yourself.
 

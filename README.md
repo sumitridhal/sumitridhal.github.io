@@ -79,3 +79,17 @@ This repository deploys with [`.github/workflows/deploy-pages.yml`](.github/work
 **One-time setup on GitHub:** open **Settings → Pages → Build and deployment**, set **Source** to **GitHub Actions**, then save. Until that is set, the **deploy** job can fail while **build** succeeds.
 
 After enabling, push any commit or use **Actions → Deploy to GitHub Pages → Run workflow** to redeploy. The site URL is [https://0xTHAC0.github.io/](https://0xTHAC0.github.io/).
+
+## Social link previews
+
+Social crawlers do not run JavaScript, so `npm run build` ends with [`scripts/emit-social-html.mjs`](scripts/emit-social-html.mjs). It writes one static HTML entry per route into `dist` — including `writing/<slug>.html` and `writing/<slug>/index.html` for every published post — each carrying its own Open Graph and Twitter card tags. The files are the built SPA shell with the block between the `social-meta` markers in `index.html` replaced, so the app boots and routes exactly as before. Posts are read straight from `src/content/writings/*.mdx`, so a new article needs no registration.
+
+Card images are derived 1200x630 variants, not the source captures:
+
+```bash
+npm run social:images            # generate anything missing in public/media/social
+npm run social:images -- --force # rebuild all
+npm run social:images -- --only <slug>
+```
+
+Commit the generated JPEGs; the deploy build only reads them. Posts without a usable `coverSrc` fall back to `public/media/social/default.jpg`. All origin and default-copy constants live in [`scripts/site-meta.mjs`](scripts/site-meta.mjs).

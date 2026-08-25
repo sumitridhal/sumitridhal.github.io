@@ -3,6 +3,7 @@ import { WritingObjectArchiveInteriorStylePreviewLazy } from "@/components/writi
 import { WritingObjectArchiveLeftPanelPreviewLazy } from "@/components/writings/WritingObjectArchiveLeftPanelPreviewLazy";
 import { WritingObjectArchiveResourcesPreviewLazy } from "@/components/writings/WritingObjectArchiveResourcesPreviewLazy";
 import { WritingObjectArchiveScrollPreviewLazy } from "@/components/writings/WritingObjectArchiveScrollPreviewLazy";
+import { WritingPreviewCue } from "@/components/writings/WritingPreviewCue";
 
 export const writingMeta = {
   id: "object-and-archive-hero-opening",
@@ -13,8 +14,36 @@ export const writingMeta = {
   excerpt:
     "Five self-contained embeds from the Object & Archive storefront: CSS curtain keyframes, a GSAP scale ladder, viewport Lenis + ScrollTrigger scrubbed parallax on `/sections` (hero, obsessions strip, panel backgrounds), an alternate nested-shell `--oa-cover-p` scroll demo, a hover GSAP swap timeline, and a fixed-slot resource preview with instant DOM updates.",
   coverSrc: "/media/writings/object-and-archive-hero-reference.png",
-  titleLines: ["Object & Archive", "Five motion recipes"],
+  titleLines: ["Object & Archive:", "five motion recipes"],
 };
+
+export const previewSteps = [
+  {
+    id: "part-1",
+    label: "Hero curtain and split reveal",
+    node: <WritingObjectArchiveHeroRevealPreviewLazy />,
+  },
+  {
+    id: "part-2",
+    label: "Left column: scale ladder",
+    node: <WritingObjectArchiveLeftPanelPreviewLazy />,
+  },
+  {
+    id: "part-3",
+    label: "Composite scroll stack",
+    node: <WritingObjectArchiveScrollPreviewLazy />,
+  },
+  {
+    id: "part-4",
+    label: "Interior style rail",
+    node: <WritingObjectArchiveInteriorStylePreviewLazy />,
+  },
+  {
+    id: "part-5",
+    label: "Resource portrait swap",
+    node: <WritingObjectArchiveResourcesPreviewLazy />,
+  },
+];
 
 These notes pick apart motion from [Object & Archive](https://objectandarchive.com/) as **five standalone recipes**—each maps to one live preview below (Part 3 mirrors the **`/sections`** scroll stack in code). Together they cover **CSS `@keyframes`**, **GSAP timelines**, **ScrollTrigger** with **Lenis** on the document scroller, and **nested Locomotive Scroll** for embed-local smoothing plus **CSS variables**, plus a **layout-only** hover pattern with **no image tweening**. This article is complete as-is; there is no “Part 6” appendix.
 
@@ -29,6 +58,8 @@ These notes pick apart motion from [Object & Archive](https://objectandarchive.c
 ---
 
 ## Part 1 — Hero curtain and split reveal
+
+<WritingPreviewCue id="part-1" />
 
 **Target:** A full-bleed **curtain** over a split hero; **driver** is first paint (then optional replay); **runtime** is **CSS** only. `WritingObjectArchiveHeroRevealPreview` toggles classes (`is-lifting` → `is-open`) so the curtain runs `writing-oa-hero-curtain-up` once; reduced motion snaps the curtain off and disables replay.
 
@@ -55,11 +86,11 @@ Curtain rules and keyframes live under `.writing-oa-hero*` in `_writing.scss`:
 
 Stack (bottom → top): split halves, curtain, wordmark + scrim.
 
-<WritingObjectArchiveHeroRevealPreviewLazy />
-
 ---
 
 ## Part 2 — Left column: stacked plates and scale ladder
+
+<WritingPreviewCue id="part-2" />
 
 **Target:** Sixteen centered `<img>` plates, **uniform `scale` only**. **Driver:** **Next →** / **← Back** stepping `advanceCount`. **Runtime:** one **GSAP `timeline`** per step; every layer tweens in **parallel** at label time `0` (`power2.inOut`, duration `0` when reduced motion).
 
@@ -80,11 +111,11 @@ imgs.forEach((img, j) => {
 
 `targetScale` maps each index to **passed** (full-bleed), **focal** (mid), or **ahead** (hidden) scale constants.
 
-<WritingObjectArchiveLeftPanelPreviewLazy />
-
 ---
 
 ## Part 3 — Composite: viewport Lenis + scrubbed section motion (`/sections`)
+
+<WritingPreviewCue id="part-3" />
 
 **Target:** Several layers pick up **`transform`** from **`gsap.fromTo`** with **`scrub: true`**: hero **`#section-1`** (**`yPercent` `0 → 20`**), obsessions wrapper **`.obsessions__scroll-shift`** (**`y` `120 → 0`**), and full-bleed panel **`<img>`** backgrounds in sections **3, 5, and 7** (**`translate(0%, 25%)`** via **`yPercent: 25`**). **Driver:** vertical scroll (smooth Lenis path or native when reduced). **Runtime:** **Lenis** stepped from **GSAP’s ticker**, **`ScrollTrigger.scrollerProxy(document.documentElement)`** so scrubbed progress matches what Lenis shows, wrapped in **`gsap.context`** for clean teardown.
 
@@ -209,11 +240,11 @@ ScrollTrigger.create({
 })
 ```
 
-<WritingObjectArchiveScrollPreviewLazy />
-
 ---
 
 ## Part 4 — Interior style rail: hover / focus swaps the panel (GSAP timeline)
+
+<WritingPreviewCue id="part-4" />
 
 **Target:** `.writing-oa-style__panel-inner` opacity and **`yPercent`**. **Driver:** **`onPointerEnter`** / **`onFocus`** per style row. **Runtime:** **`gsap.timeline`**: ease out → **`call`** to swap `img.src` and caption → **`fromTo`** in; **`gsap.killTweensOf(inner)`** before each new hover so stacked timelines do not fight.
 
@@ -236,11 +267,11 @@ tl.fromTo(
 
 Reduced motion: **`writeDom`** only and **`gsap.set(..., { clearProps: 'transform,opacity' })`**.
 
-<WritingObjectArchiveInteriorStylePreviewLazy />
-
 ---
 
 ## Part 5 — Resources: idle list, then hover / focus swaps the portrait (instant, fixed slot)
+
+<WritingPreviewCue id="part-5" />
 
 **Target:** Same **`img`** element in a **fixed 3:4** box; caption and overlay title text. **Driver:** hover/focus on list buttons. **Runtime:** **immediate DOM** updates—no GSAP on the image. **`ul { display: contents }`** lets each **`li`** stack with a centered **`.writing-oa-res__float`** (`z-index: 2`, **`pointer-events: none`**) while the **active** row stays above the art; **`.is-idle`** hides float and caption dock until the first pick.
 
@@ -262,5 +293,3 @@ Fixed slot in `_writing.scss`:
   object-position: center;
 }
 ```
-
-<WritingObjectArchiveResourcesPreviewLazy />

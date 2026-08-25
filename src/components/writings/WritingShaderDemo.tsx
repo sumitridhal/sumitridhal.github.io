@@ -12,6 +12,7 @@ import {
   useMemo,
   useRef,
   useState,
+  type CSSProperties,
   type MutableRefObject,
   type PointerEvent,
   type ReactNode,
@@ -27,11 +28,13 @@ import {
   type WritingShaderPreset,
 } from '@/components/writings/writingShaderPresets'
 import { WRITING_SHADER_FULLSCREEN_VERT_THREE } from '@/components/writings/writingShaderFullscreenThreeVert'
+import { WritingPreviewControls } from '@/components/writings/WritingPreviewControls'
 
 export type WritingShaderDemoProps = {
   preset: WritingShaderPreset
   ariaLabel: string
   caption?: string
+  hint?: string
   animated?: boolean
   height?: number
   className?: string
@@ -51,6 +54,12 @@ type MosaicUniformCpuRef = {
   cellRngMode: number
 }
 
+type RorschachUniformCpuRef = {
+  warmInk: THREE.Color
+  darkInk: THREE.Color
+  paper: THREE.Color
+}
+
 const MOSAIC_CELL_RNG_OPTIONS = [
   { value: 0, label: 'Sin · dot (classic)' },
   { value: 1, label: 'Simplex 2D' },
@@ -58,6 +67,57 @@ const MOSAIC_CELL_RNG_OPTIONS = [
   { value: 3, label: 'Fract permute' },
   { value: 4, label: 'Hash product' },
 ] as const
+
+type RorschachPaletteKey = 'classic' | 'sepia' | 'monochrome' | 'cyanotype'
+
+type RorschachPalette = {
+  label: string
+  warmInk: string
+  darkInk: string
+  paper: string
+}
+
+const RORSCHACH_PALETTES: Record<RorschachPaletteKey, RorschachPalette> = {
+  classic: {
+    label: 'Classic',
+    warmInk: '#f53b13',
+    darkInk: '#0e0d16',
+    paper: '#fce8e0',
+  },
+  sepia: {
+    label: 'Sepia',
+    warmInk: '#c38a3c',
+    darkInk: '#35200f',
+    paper: '#f5eccf',
+  },
+  monochrome: {
+    label: 'Monochrome',
+    warmInk: '#686868',
+    darkInk: '#111111',
+    paper: '#f1efea',
+  },
+  cyanotype: {
+    label: 'Cyanotype',
+    warmInk: '#2d86a6',
+    darkInk: '#062c4c',
+    paper: '#e7f0ef',
+  },
+}
+
+const RORSCHACH_PALETTE_KEYS = Object.keys(RORSCHACH_PALETTES) as RorschachPaletteKey[]
+
+function rawShaderColor(value: string): THREE.Color {
+  return new THREE.Color().setStyle(value, THREE.LinearSRGBColorSpace)
+}
+
+const CONTROL_PANEL_LABELS: Partial<Record<WritingShaderPreset, string>> = {
+  ditherBanding: 'Dither controls',
+  lightFalloff: 'Falloff controls',
+  toneQuantize: 'Tone quantize controls',
+  gridTransform2d: 'Grid transform controls',
+  rorschachInkBlot: 'Ink blot controls',
+  paletteMosaicGrid: 'Palette mosaic controls',
+}
 
 function usePrefersReducedMotion(): boolean {
   const [reduced, setReduced] = useState(false)
@@ -99,11 +159,13 @@ function FullscreenShaderMesh({
   fragment,
   uniformRef,
   mosaicUniformRef,
+  rorschachUniformRef,
   shouldAnimate,
 }: {
   fragment: string
   uniformRef: MutableRefObject<UniformRef>
   mosaicUniformRef: MutableRefObject<MosaicUniformCpuRef> | null
+  rorschachUniformRef: MutableRefObject<RorschachUniformCpuRef> | null
   shouldAnimate: boolean
 }) {
   const dbScratch = useMemo(() => new THREE.Vector2(), [])
@@ -117,14 +179,24 @@ function FullscreenShaderMesh({
     }
   }, [mosaicUniformRef])
 
+  const rorschachGpuUniforms = useMemo(() => {
+    if (!rorschachUniformRef) return null
+    return {
+      u_ink_warm: new THREE.Uniform(new THREE.Color()),
+      u_ink_dark: new THREE.Uniform(new THREE.Color()),
+      u_paper: new THREE.Uniform(new THREE.Color()),
+    }
+  }, [rorschachUniformRef])
+
   const uniforms = useMemo(() => {
-    const base = {
+    return {
       u_time: new THREE.Uniform(0),
       u_resolution: new THREE.Uniform(new THREE.Vector2(1, 1)),
       u_mouse: new THREE.Uniform(new THREE.Vector4(0.5, 0.5, 0, 0.5)),
+      ...(mosaicGpuUniforms ?? {}),
+      ...(rorschachGpuUniforms ?? {}),
     }
-    return mosaicGpuUniforms ? { ...base, ...mosaicGpuUniforms } : base
-  }, [mosaicGpuUniforms])
+  }, [mosaicGpuUniforms, rorschachGpuUniforms])
 
   const material = useMemo(
     () =>
@@ -158,6 +230,12 @@ function FullscreenShaderMesh({
       mosaicGpuUniforms.u_noise_intensity.value = m.noiseIntensity
       mosaicGpuUniforms.u_grid_size.value = m.gridSize
       mosaicGpuUniforms.u_cell_rng_mode.value = m.cellRngMode
+    }
+    if (rorschachGpuUniforms && rorschachUniformRef) {
+      const palette = rorschachUniformRef.current
+      rorschachGpuUniforms.u_ink_warm.value.copy(palette.warmInk)
+      rorschachGpuUniforms.u_ink_dark.value.copy(palette.darkInk)
+      rorschachGpuUniforms.u_paper.value.copy(palette.paper)
     }
   })
 
@@ -327,12 +405,14 @@ function Scene({
   fragment,
   uniformRef,
   mosaicUniformRef,
+  rorschachUniformRef,
   shouldAnimate,
 }: {
   preset: WritingShaderPreset
   fragment: string | null
   uniformRef: MutableRefObject<UniformRef>
   mosaicUniformRef: MutableRefObject<MosaicUniformCpuRef> | null
+  rorschachUniformRef: MutableRefObject<RorschachUniformCpuRef> | null
   shouldAnimate: boolean
 }) {
   if (preset === 'pingPongFeedback') {
@@ -344,6 +424,7 @@ function Scene({
       fragment={fragment}
       uniformRef={uniformRef}
       mosaicUniformRef={mosaicUniformRef}
+      rorschachUniformRef={rorschachUniformRef}
       shouldAnimate={shouldAnimate}
     />
   )
@@ -352,7 +433,8 @@ function Scene({
 export function WritingShaderDemo({
   preset,
   ariaLabel,
-  caption,
+  caption = 'Move the pointer over the canvas.',
+  hint,
   animated = true,
   height = 240,
   className = '',
@@ -367,6 +449,11 @@ export function WritingShaderDemo({
     gridSize: 12,
     cellRngMode: 0,
   })
+  const rorschachUniformRef = useRef<RorschachUniformCpuRef>({
+    warmInk: rawShaderColor(RORSCHACH_PALETTES.classic.warmInk),
+    darkInk: rawShaderColor(RORSCHACH_PALETTES.classic.darkInk),
+    paper: rawShaderColor(RORSCHACH_PALETTES.classic.paper),
+  })
 
   const [ditherMode, setDitherMode] = useState<'banding' | 'dither'>('banding')
   const [falloffMode, setFalloffMode] = useState<'invSq' | 'smooth'>('invSq')
@@ -377,6 +464,23 @@ export function WritingShaderDemo({
   const [mosaicNoise, setMosaicNoise] = useState(0.08)
   const [mosaicGrid, setMosaicGrid] = useState(12)
   const [mosaicCellRngMode, setMosaicCellRngMode] = useState(0)
+  const [rorschachSpread, setRorschachSpread] = useState(0.56)
+  const [rorschachMirrored, setRorschachMirrored] = useState(true)
+  const [rorschachWarmInk, setRorschachWarmInk] = useState(
+    RORSCHACH_PALETTES.classic.warmInk,
+  )
+  const [rorschachDarkInk, setRorschachDarkInk] = useState(
+    RORSCHACH_PALETTES.classic.darkInk,
+  )
+  const [rorschachPaper, setRorschachPaper] = useState(RORSCHACH_PALETTES.classic.paper)
+  const activeRorschachPalette = RORSCHACH_PALETTE_KEYS.find((key) => {
+    const palette = RORSCHACH_PALETTES[key]
+    return (
+      palette.warmInk === rorschachWarmInk &&
+      palette.darkInk === rorschachDarkInk &&
+      palette.paper === rorschachPaper
+    )
+  })
 
   useEffect(() => {
     uniformRef.current.mz = ditherMode === 'dither' ? 1 : 0
@@ -404,6 +508,23 @@ export function WritingShaderDemo({
     r.cellRngMode = mosaicCellRngMode
   }, [preset, mosaicSeed, mosaicNoise, mosaicGrid, mosaicCellRngMode])
 
+  useEffect(() => {
+    if (preset !== 'rorschachInkBlot') return
+    uniformRef.current.mz = rorschachSpread
+    uniformRef.current.mw = rorschachMirrored ? 1 : 0
+    const palette = rorschachUniformRef.current
+    palette.warmInk.copy(rawShaderColor(rorschachWarmInk))
+    palette.darkInk.copy(rawShaderColor(rorschachDarkInk))
+    palette.paper.copy(rawShaderColor(rorschachPaper))
+  }, [
+    preset,
+    rorschachDarkInk,
+    rorschachMirrored,
+    rorschachPaper,
+    rorschachSpread,
+    rorschachWarmInk,
+  ])
+
   const syncUniformDefaults = useCallback(() => {
     const u = uniformRef.current
     u.mx = 0.5
@@ -417,6 +538,13 @@ export function WritingShaderDemo({
     } else if (preset === 'gridTransform2d') {
       u.mz = gridAngle
       u.mw = gridScale
+    } else if (preset === 'rorschachInkBlot') {
+      u.mz = rorschachSpread
+      u.mw = rorschachMirrored ? 1 : 0
+      const palette = rorschachUniformRef.current
+      palette.warmInk.copy(rawShaderColor(rorschachWarmInk))
+      palette.darkInk.copy(rawShaderColor(rorschachDarkInk))
+      palette.paper.copy(rawShaderColor(rorschachPaper))
     } else if (preset === 'paletteMosaicGrid') {
       const r = mosaicUniformRef.current
       r.seed = mosaicSeed
@@ -440,6 +568,11 @@ export function WritingShaderDemo({
     mosaicNoise,
     mosaicGrid,
     mosaicCellRngMode,
+    rorschachSpread,
+    rorschachMirrored,
+    rorschachWarmInk,
+    rorschachDarkInk,
+    rorschachPaper,
   ])
 
   useEffect(() => {
@@ -526,6 +659,89 @@ export function WritingShaderDemo({
           />
         </label>
       </div>
+    ) : preset === 'rorschachInkBlot' ? (
+      <div className="writing-shader-demo__control-stack">
+        <label className="writing-shader-demo__control-row">
+          <span>Ink spread</span>
+          <input
+            type="range"
+            min={0}
+            max={100}
+            value={Math.round(rorschachSpread * 100)}
+            onChange={(e) => setRorschachSpread(Number(e.target.value) / 100)}
+          />
+        </label>
+        <div
+          className="writing-shader-demo__controls writing-shader-demo__palette-controls"
+          role="group"
+          aria-label="Ink and paper color palette"
+        >
+          {RORSCHACH_PALETTE_KEYS.map((key) => {
+            const palette = RORSCHACH_PALETTES[key]
+            return (
+              <button
+                key={key}
+                type="button"
+                className={activeRorschachPalette === key ? 'is-active' : ''}
+                aria-pressed={activeRorschachPalette === key}
+                onClick={() => {
+                  setRorschachWarmInk(palette.warmInk)
+                  setRorschachDarkInk(palette.darkInk)
+                  setRorschachPaper(palette.paper)
+                }}
+              >
+                {palette.label}
+              </button>
+            )
+          })}
+        </div>
+        <label className="writing-shader-demo__control-row writing-shader-demo__color-row">
+          <span>Warm ink</span>
+          <input
+            type="color"
+            value={rorschachWarmInk}
+            aria-label="Warm ink color"
+            onChange={(event) => setRorschachWarmInk(event.target.value)}
+          />
+          <output>{rorschachWarmInk.toUpperCase()}</output>
+        </label>
+        <label className="writing-shader-demo__control-row writing-shader-demo__color-row">
+          <span>Dark ink</span>
+          <input
+            type="color"
+            value={rorschachDarkInk}
+            aria-label="Dark ink color"
+            onChange={(event) => setRorschachDarkInk(event.target.value)}
+          />
+          <output>{rorschachDarkInk.toUpperCase()}</output>
+        </label>
+        <label className="writing-shader-demo__control-row writing-shader-demo__color-row">
+          <span>Paper</span>
+          <input
+            type="color"
+            value={rorschachPaper}
+            aria-label="Paper color"
+            onChange={(event) => setRorschachPaper(event.target.value)}
+          />
+          <output>{rorschachPaper.toUpperCase()}</output>
+        </label>
+        <div className="writing-shader-demo__controls" role="group" aria-label="Blot symmetry">
+          <button
+            type="button"
+            className={rorschachMirrored ? 'is-active' : ''}
+            onClick={() => setRorschachMirrored(true)}
+          >
+            Mirrored
+          </button>
+          <button
+            type="button"
+            className={!rorschachMirrored ? 'is-active' : ''}
+            onClick={() => setRorschachMirrored(false)}
+          >
+            Raw field
+          </button>
+        </div>
+      </div>
     ) : preset === 'paletteMosaicGrid' ? (
       <div className="writing-shader-demo__control-stack">
         <label className="writing-shader-demo__control-row">
@@ -589,15 +805,21 @@ export function WritingShaderDemo({
   )
 
   const canMountCanvas = fragment !== null || preset === 'pingPongFeedback'
+  const controlsLabel = CONTROL_PANEL_LABELS[preset]
 
   return (
     <figure className={`writing-shader-demo ${className}`.trim()}>
-      {caption ? <figcaption className="writing-shader-demo__caption">{caption}</figcaption> : null}
-      {controls}
+      {controls && controlsLabel ? (
+        <WritingPreviewControls caption={caption} hint={hint} label={controlsLabel}>
+          {controls}
+        </WritingPreviewControls>
+      ) : caption ? (
+        <figcaption className="writing-shader-demo__caption">{caption}</figcaption>
+      ) : null}
       <div
         ref={wrapRef}
         className="writing-shader-demo__canvas-wrap"
-        style={{ height: `${height}px` }}
+        style={{ '--preview-h': `${height}px` } as CSSProperties}
         onPointerMove={onPointerMove}
         role="presentation"
       >
@@ -623,6 +845,9 @@ export function WritingShaderDemo({
                   fragment={fragment}
                   uniformRef={uniformRef}
                   mosaicUniformRef={preset === 'paletteMosaicGrid' ? mosaicUniformRef : null}
+                  rorschachUniformRef={
+                    preset === 'rorschachInkBlot' ? rorschachUniformRef : null
+                  }
                   shouldAnimate={shouldAnimate}
                 />
               </Canvas>

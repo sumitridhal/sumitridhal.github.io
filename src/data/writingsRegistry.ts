@@ -1,9 +1,11 @@
-import type { ComponentType } from 'react'
+import type { ComponentType, ReactNode } from 'react'
 
-import type { WritingMeta } from '@/data/writingTypes'
+import type { WritingMeta, WritingPreviewStep } from '@/data/writingTypes'
 
 type WritingModule = {
   writingMeta: WritingMeta
+  preview?: ReactNode
+  previewSteps?: WritingPreviewStep[]
   default: ComponentType
 }
 
@@ -13,6 +15,9 @@ const modules = import.meta.glob<WritingModule>('../content/writings/*.mdx', {
 
 export type WritingEntry = {
   meta: WritingMeta
+  /** Rendered in the article preview pane; absent when the post has no demo. */
+  preview?: ReactNode
+  previewSteps?: WritingPreviewStep[]
   Body: ComponentType
 }
 
@@ -20,6 +25,8 @@ function loadEntries(): WritingEntry[] {
   return Object.values(modules)
     .map((mod) => ({
       meta: mod.writingMeta,
+      preview: mod.preview,
+      previewSteps: mod.previewSteps,
       Body: mod.default,
     }))
     .sort((a, b) => {
@@ -37,11 +44,24 @@ export function isWritingDraft(meta: WritingMeta): boolean {
   return meta.keywords?.includes('draft') ?? false
 }
 
-export const writings: WritingMeta[] = entries
+function currentUtcDate(): string {
+  return new Date().toISOString().slice(0, 10)
+}
+
+export function isWritingScheduled(
+  meta: WritingMeta,
+  today = currentUtcDate(),
+): boolean {
+  return meta.date > today
+}
+
+const releasedEntries = entries.filter((entry) => !isWritingScheduled(entry.meta))
+
+export const writings: WritingMeta[] = releasedEntries
   .filter((e) => !isWritingDraft(e.meta))
   .map((e) => e.meta)
 
-const bySlug = new Map(entries.map((e) => [e.meta.id, e]))
+const bySlug = new Map(releasedEntries.map((e) => [e.meta.id, e]))
 
 export function getWritingEntryBySlug(slug: string | undefined): WritingEntry | undefined {
   if (!slug) return undefined

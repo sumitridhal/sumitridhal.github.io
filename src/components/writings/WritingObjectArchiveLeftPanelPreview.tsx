@@ -142,13 +142,6 @@ export function WritingObjectArchiveLeftPanelPreview() {
       className="writing-oa-left-panel"
       aria-label="Tween concept Part 2: sixteen stacked plates; GSAP parallel scale ladder; Next and Back step advanceCount"
     >
-      <figcaption className="writing-oa-left-panel__caption">
-        **Tween sheet — Part 2:** sixteen stacked plates (bg then mid × eight slides). Each <code>img</code> is centered (
-        <code>translate(-50%, -50%)</code>) and only <strong>scale</strong> tweens—passed layers → <strong>{BIG_SCALE}</strong>,
-        focal → <strong>{MID_SCALE}</strong>, ahead → <strong>{HIDDEN_SCALE}</strong>. One GSAP timeline per step; **Next →**
-        / **← Back** move <code>advanceCount</code>.
-      </figcaption>
-
       <div className="writing-oa-left-panel__stage">
         <div className="writing-oa-left-panel__split">
           <div className="writing-oa-left-panel__left" aria-hidden="true">

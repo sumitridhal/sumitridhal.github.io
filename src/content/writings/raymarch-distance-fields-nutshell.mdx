@@ -29,10 +29,9 @@ I keep coming back to raymarching whenever a shape feels easier to describe than
 
 A signed distance field answers one question: how far am I from the nearest surface, signed so the inside is negative and the outside is positive. March a ray in steps no larger than that distance and you rarely tunnel through thin geometry, which is why the technique loves organic shapes.
 
-<WritingShaderDemo
+export const preview = <WritingShaderDemo
   preset="raymarchSphere"
   ariaLabel="Ray-marched sphere distance field with simple lighting as the camera orbits"
-  caption="Fragment: sphere SDF march"
 />
 
 ```glsl

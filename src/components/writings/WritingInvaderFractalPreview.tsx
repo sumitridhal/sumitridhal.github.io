@@ -19,7 +19,7 @@ export type WritingInvaderFractalPreviewProps = {
 }
 
 export function WritingInvaderFractalPreview({
-  caption = 'Shuffle silhouettes in a 3×3 gallery: each invader keeps one hue with structured lightness grades (stripes, gradient, or split)—not random per-pixel colour.',
+  caption = 'Shuffle for new silhouettes.',
   className = '',
 }: WritingInvaderFractalPreviewProps) {
   const uid = useId()

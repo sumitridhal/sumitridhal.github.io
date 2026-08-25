@@ -1,14 +1,19 @@
 import { useMemo } from 'react'
 import { Navigate, useParams } from 'react-router-dom'
 
+import { WritingPreviewPane } from '@/components/writings/WritingPreviewPane'
+import { WritingPreviewStepsProvider } from '@/components/writings/WritingPreviewCue'
 import { useI18n } from '@/contexts/I18nContext'
 import {
   asideParagraphsForWriting,
   getWritingEntryBySlug,
-  titleLinesForWriting,
+  writingHeadline,
   type WritingFigureVariant,
 } from '@/data/writingsData'
 import { hrefWritings } from '@/i18n/routes'
+import { useMediaQuery } from '@/hooks/useMediaQuery'
+import { useActivePreviewStep } from '@/hooks/useActivePreviewStep'
+import { useSplitPane } from '@/hooks/useSplitPane'
 import { useViewTransitionNavigate } from '@/hooks/useViewTransitionNavigate'
 import { formatWritingDate } from '@/utils/formatWritingDate'
 
@@ -31,21 +36,23 @@ export function WritingPage() {
   const entry = useMemo(() => getWritingEntryBySlug(slug), [slug])
   const writing = entry?.meta
   const Body = entry?.Body
-  const titleLines = useMemo(
-    () => (writing ? titleLinesForWriting(writing) : []),
-    [writing],
-  )
+  const headline = useMemo(() => (writing ? writingHeadline(writing) : ''), [writing])
   const asideParagraphs = useMemo(
     () => (writing ? asideParagraphsForWriting(writing) : []),
     [writing],
   )
   const figureRows = writing?.figureRows ?? []
+  const previewSteps = useMemo(() => entry?.previewSteps ?? [], [entry])
+
+  const isStacked = useMediaQuery('(max-width: 900px)')
+  const { activeId, registerCue, scrollToCue } = useActivePreviewStep(previewSteps)
+  const { containerRef, dragging, percent, minPercent, maxPercent, separatorProps } =
+    useSplitPane({ disabled: isStacked })
 
   if (!slug || !writing || !Body) {
     return <Navigate to={hrefWritings} replace />
   }
 
-  const hasAside = asideParagraphs.length > 0
   const hasFigures = figureRows.length > 0
 
   return (
@@ -65,13 +72,7 @@ export function WritingPage() {
       </div>
 
       <header className="writing-page__hero">
-        <h1 className="writing-page__headline">
-          {titleLines.map((line, i) => (
-            <span key={i} className="writing-page__headline-line">
-              {line}
-            </span>
-          ))}
-        </h1>
+        <h1 className="writing-page__headline">{headline}</h1>
       </header>
 
       {hasFigures ? (
@@ -92,21 +93,41 @@ export function WritingPage() {
       ) : null}
 
       <div
-        className={`writing-page__grid${hasAside ? '' : ' writing-page__grid--single'}`}
+        ref={containerRef}
+        className={`writing-page__split${dragging ? ' is-dragging' : ''}`}
       >
         <div className="writing-page__main">
           <div className="writing-page__body">
-            <Body />
+            <WritingPreviewStepsProvider
+              steps={previewSteps}
+              isStacked={isStacked}
+              registerCue={registerCue}
+            >
+              <Body />
+            </WritingPreviewStepsProvider>
           </div>
         </div>
 
-        {hasAside ? (
-          <aside className="writing-page__aside" aria-label={t('pages.writing.asideLabel')}>
-            {asideParagraphs.map((p, i) => (
-              <p key={i}>{p}</p>
-            ))}
-          </aside>
-        ) : null}
+        <div
+          className="writing-page__resizer"
+          role="separator"
+          aria-orientation="vertical"
+          aria-label={t('pages.writing.resizerLabel')}
+          aria-valuenow={percent}
+          aria-valuemin={minPercent}
+          aria-valuemax={maxPercent}
+          tabIndex={isStacked ? -1 : 0}
+          {...separatorProps}
+        />
+
+        <WritingPreviewPane
+          preview={previewSteps.length > 0 ? undefined : entry?.preview}
+          coverSrc={previewSteps.length > 0 ? undefined : writing.coverSrc}
+          notes={asideParagraphs}
+          steps={isStacked ? undefined : previewSteps}
+          activeId={activeId}
+          onSelectStep={scrollToCue}
+        />
       </div>
     </article>
   )

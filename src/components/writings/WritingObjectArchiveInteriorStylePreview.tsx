@@ -136,10 +136,7 @@ export function WritingObjectArchiveInteriorStylePreview() {
       aria-label="Tween concept Part 4: hover or focus a style to swap the panel with GSAP"
     >
       <figcaption className="writing-oa-style__caption">
-        **Tween sheet — Part 4:** No nested scroll—**hover** (or **keyboard focus**) a style on the left and the right
-        **image + caption** update. **GSAP** runs a short **timeline**: ease out, swap DOM, then **fromTo** (`yPercent` +
-        opacity) so the panel reads as rising **from center toward rest**—same intent as the storefront rail, driven by
-        pointer/focus instead of `scrollTop`.
+        Hover a style to swap the panel.
       </figcaption>
 
       <div className="writing-oa-style__embed">

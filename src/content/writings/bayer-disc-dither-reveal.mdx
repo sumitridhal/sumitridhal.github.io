@@ -1,0 +1,186 @@
+import { WritingBayerDitherRevealPreviewLazy } from '@/components/writings/WritingBayerDitherRevealPreviewLazy'
+
+export const writingMeta = {
+  id: 'bayer-disc-dither-reveal',
+  order: -2,
+  title: 'A Bayer disc: ordered dithering as a reveal mask',
+  date: '2026-08-22',
+  category: 'Creative code',
+  excerpt:
+    'A radial field, a recursive Bayer threshold matrix, and a block-quantized grid turn one-bit decisions into a tactile circular image reveal.',
+  titleLines: ['A Bayer disc:', 'dithering as a reveal mask'],
+  coverSrc: '/media/writings/bayer-disc-dither-reveal.png',
+  keywords: ['webgl', 'shaders', 'dithering', 'compositing'],
+  asideParagraphs: [
+    'Ordered dithering does not create more values. It arranges binary decisions so a group of cells reads as a continuous tone from a distance.',
+    'The interesting unit is not the fragment but the block: quantize first, evaluate once at its centre, then let every pixel in that block agree.',
+  ],
+}
+
+Ordered dithering is usually introduced as a cure for banding: add a repeating threshold pattern before quantization and a coarse gradient appears smoother. That is useful, but it hides a more general idea. A threshold matrix can turn any continuous scalar field into spatial coverage. Feed it distance from a point and the matrix becomes a circular reveal mask whose edge dissolves into an ordered field of blocks.
+
+The live study below rebuilds a Godot `canvas_item` shader as one Three.js/WebGL pass. A pointer-driven radial field decides how much of a photograph may appear. A Bayer matrix decides which blocks carry that coverage. **Radius** and **Falloff** shape the field; **Block size** and **Matrix** expose its sampling structure; **Offset blocks** unions a second matrix phase; **Interpolate** averages four binary sub-samples; and **Invert** swaps the inside and outside.
+
+export const preview = <WritingBayerDitherRevealPreviewLazy />
+
+## A threshold matrix turns one bit into many tones
+
+Each output block makes a binary decision: reveal the photograph or keep the paper. On its own, one bit only gives zero or one. A Bayer matrix distributes different thresholds across a small repeating tile, so nearby blocks switch at different input values.
+
+For a matrix threshold `b` and radial coverage `c`, the entire decision is:
+
+```glsl
+float visible = step(b, c);
+```
+
+If coverage is high, most thresholds pass. As it falls, only low-threshold positions remain visible. The shader never emits a partially transparent block on this path, yet a group of black and paper-coloured blocks reads as an intermediate tone when viewed at normal size.
+
+That is ordered dithering's central trade: spend spatial resolution to suggest value resolution. The pattern is deterministic, parallel, and texture-free. It also advertises its grid more openly than blue-noise dithering. Here that is not a defect. The visible order is what makes the reveal feel printed rather than airbrushed.
+
+The implementation adds half a threshold step:
+
+```glsl
+return raw + 0.5 / cells;
+```
+
+Without that centring, the lowest matrix entry is exactly zero and always passes `step`, leaving immortal pixels even when coverage reaches zero. Centring every threshold inside its interval lets the reveal close completely.
+
+## Bayer matrices are recursive, so the table can disappear
+
+The source shader stores explicit 2×2, 4×4, and 8×8 integer arrays. That is readable in Godot, but computed indexing into constant arrays is not portable GLSL ES 1.00. The WebGL version computes the same order recursively:
+
+```glsl
+float bayer2(vec2 coord) {
+  vec2 a = floor(coord);
+  return fract(a.x * 0.5 + a.y * a.y * 0.75);
+}
+
+float bayer4(vec2 coord) {
+  return bayer2(coord * 0.5) * 0.25 + bayer2(coord);
+}
+
+float bayer8(vec2 coord) {
+  return bayer4(coord * 0.5) * 0.25 + bayer2(coord);
+}
+```
+
+The 2×2 function establishes the rank order. The 4×4 function repeats that order at two scales: the coarse quadrant contributes a quarter of the value, while the local coordinate supplies the dominant rank. The 8×8 function repeats the construction once more.
+
+This is more than a workaround. The closed form exposes why Bayer matrices retain an even distribution as they grow. Each larger matrix is the previous order embedded in a new phase structure, not a fresh list of arbitrary numbers.
+
+The shader selects the requested recursion depth, then offsets the normalized result to the centre of each threshold interval. No uniform array, texture lookup, or switch over 64 literals is needed.
+
+## The dither cell is a block, not a pixel
+
+The source exposes `pixel_size`, which means one dither decision should cover a square of device pixels. The shader derives a UV step from the real drawing buffer:
+
+```glsl
+vec2 stepUv =
+  vec2(max(uPixelSize, 1.0)) / max(uResolution, vec2(1.0));
+vec2 blockCoord = floor(uv / stepUv + 0.00001);
+vec2 blockCenter = blockCoord * stepUv + stepUv * 0.5;
+```
+
+`uResolution` comes from `gl.getDrawingBufferSize()`, not the CSS dimensions of the canvas. At device-pixel ratio two, a 700-pixel CSS canvas may have a 1400-pixel drawing buffer. Building the grid in CSS pixels would make blocks change size and phase across displays.
+
+The radial distance is evaluated at `blockCenter`. Sampling distance at every fragment and only using the block coordinate for the Bayer threshold produces curved gradients *inside* otherwise quantized blocks. Sampling the centre once makes every fragment in the block agree about both its field value and threshold.
+
+That agreement is why the edge looks intentionally pixelated instead of merely low resolution.
+
+## A radial ramp becomes coverage
+
+The reveal begins with Euclidean distance from the moving centre. The shader measures that distance in drawing-buffer pixels so the disc remains circular on a wide canvas:
+
+```glsl
+vec2 radial = (blockCenter - uCenter) * uResolution;
+float distancePx = length(radial);
+float radiusPx = uRadius * min(uResolution.x, uResolution.y);
+
+float t = pow(
+  clamp(distancePx / max(radiusPx, 1.0), 0.0, 1.0),
+  max(0.1, uFalloff)
+);
+float coverage = 1.0 - t;
+```
+
+`Radius` sets the distance where coverage reaches zero. `Falloff` changes the curve without moving that boundary. Values above one keep coverage high for longer and compress the transition toward the perimeter; values below one spend more of the disc in intermediate dither densities.
+
+The Bayer comparison then converts that continuous coverage into ordered binary blocks. Geometry defines the probability-like field; the matrix decides where each level appears.
+
+## Even and odd offsets land on different phases
+
+The source evaluates the mask twice and takes the maximum:
+
+```glsl
+float first = ditherAt(uv, stepUv);
+float second = ditherAt(uv - offsetUv, stepUv);
+float mask = max(first, second);
+```
+
+This is a union. Any block visible in either sample remains visible. It thickens the reveal, but the visual result depends sharply on whether the offset is even or odd.
+
+A Bayer tile repeats by powers of two. An even horizontal offset often lands on the same local matrix phase, especially in the 2×2 base pattern. The second sample then resembles a translated copy and mostly dilates existing islands. An odd offset lands on the complementary parity. High thresholds move onto positions that previously held low ones, so the second pass fills gaps much more aggressively.
+
+That is why adjacent values in **Offset blocks** can look vastly different even though their geometric displacement differs by one block. The parameter is changing phase as well as position.
+
+## Interpolate is supersampling, not interpolation
+
+The source calls its option `interpolate`, but it does not interpolate between neighbouring coverage values. It evaluates four binary samples at quarter positions and averages them:
+
+```glsl
+float v1 = maskAt(quantizedUv + q1, subStep, effectiveOffset);
+float v2 = maskAt(quantizedUv + vec2(q3.x, q1.y), subStep, effectiveOffset);
+float v3 = maskAt(quantizedUv + vec2(q1.x, q3.y), subStep, effectiveOffset);
+float v4 = maskAt(quantizedUv + q3, subStep, effectiveOffset);
+float coverage = (v1 + v2 + v3 + v4) * 0.25;
+```
+
+The result can be `0`, `0.25`, `0.5`, `0.75`, or `1`. That is 2×2 supersampling: four discrete observations integrated into one block-level value.
+
+The sub-samples use half the original step. This is important. Blurring one binary mask would soften its edge but preserve the same matrix phase. Sampling a finer grid allows more threshold decisions to contribute before averaging, which produces genuine intermediate coverage while retaining the ordered structure.
+
+Turn **Interpolate** off to see the uncompromising one-bit version. Turn it on and the transition becomes denser, not simply blurrier.
+
+## Alpha belongs to whatever sits beneath it
+
+The Godot shader outputs a solid colour with dither in its alpha channel. Alpha has no visible meaning by itself; it is a promise to the compositor about how this layer should combine with whatever comes later.
+
+The WebGL study makes that dependency explicit in one pass:
+
+```glsl
+vec3 photo = mix(PAPER, texture2D(uPhoto, photoUv).rgb, photoInside);
+vec3 color = mix(PAPER, photo, coverage);
+```
+
+Paper is the base layer, the photograph is the reveal layer, and Bayer coverage is the mask connecting them. **Invert** replaces `coverage` with `1.0 - coverage`, so the image moves from inside the disc to outside it without changing either source.
+
+The photograph is contain-fitted rather than stretched. Letterboxed pixels become paper before compositing, which keeps the mask useful across responsive aspect ratios.
+
+## What the Godot original left to the host
+
+Godot shader syntax bundles rendering code with editor metadata. `hint_range`, `hint_enum`, and `source_color` create inspector controls but do not participate in fragment math. In React they become explicit range inputs, a matrix `<select>`, checkboxes, and state values copied into uniforms.
+
+Other host assumptions need translation:
+
+- `UV` becomes the varying `vUv` emitted by the fullscreen vertex shader.
+- `COLOR` becomes `gl_FragColor`.
+- A hand-entered `resolution = vec2(400.0)` becomes the real drawing-buffer size every frame.
+- Godot's brace-initialized integer arrays become recursive Bayer functions compatible with GLSL ES 1.00.
+- The alpha-only output becomes an explicit paper/photo composite.
+- The static `center` uniform becomes a damped pointer target, while reduced-motion mode snaps directly to that target.
+
+The mathematics survives the move. What changes is who owns resource loading, controls, resolution, pointer state, and compositing.
+
+## What I would copy
+
+- Treat a threshold matrix as a general scalar-to-coverage converter, not only a banding fix.
+- Centre ordered-dither thresholds so zero coverage can produce zero visible cells.
+- Quantize the field sample and threshold lookup to the same block coordinate.
+- Read drawing-buffer dimensions when a grid must align with physical pixels.
+- Measure circles in pixel space on non-square canvases.
+- Expect parity-sensitive offsets when the pattern period is a power of two.
+- Call four-sample averaging supersampling; naming the operation correctly makes its cost and benefit clearer.
+- Keep masks separate from their visual subjects until the compositing step.
+- Replace lookup tables with a closed form when the recurrence is both cheaper and more portable.
+
+Ordered dithering is commonly associated with Bryce Bayer's 1973 threshold matrix. The supplied Godot shader carried no author or license header, so this article does not claim or reproduce a documented source lineage; the live study is an independent WebGL implementation of the described radial-mask technique. The revealed artwork is not mine: illustration via [X](https://pbs.twimg.com/media/HQae8cUXcAAo0EI), vendored locally so the shader can upload it as a texture.

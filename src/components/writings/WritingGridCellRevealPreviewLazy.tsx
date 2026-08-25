@@ -20,7 +20,7 @@ function PreviewSkeleton({ height }: { height: number }) {
 }
 
 export function WritingGridCellRevealPreviewLazy(props: WritingGridCellRevealPreviewProps) {
-  const height = props.height ?? 310
+  const height = props.height ?? 560
   return (
     <Suspense fallback={<PreviewSkeleton height={height} />}>
       <WritingGridCellRevealPreview {...props} />

@@ -1,0 +1,251 @@
+import { WritingBurnDissolvePreviewLazy } from '@/components/writings/WritingBurnDissolvePreviewLazy'
+
+export const writingMeta = {
+  id: '2d-burn-dissolve-from-point',
+  order: -3,
+  title: '2D burn/dissolve from a point: Godot shader as a WebGL study',
+  date: '2026-08-19',
+  category: 'Creative code',
+  excerpt:
+    'A click becomes a UV origin, one noisy distance field becomes two thresholds, and a radius tween turns six lines of Godot shader code into a complete burn transition.',
+  titleLines: ['2D burn/dissolve', 'from a point'],
+  coverSrc: '/media/writings/2d-burn-dissolve-from-point.png',
+  keywords: ['webgl', 'shaders', 'godot', 'dissolve', 'noise'],
+  asideParagraphs: [
+    'The effect does not simulate fire. It classifies pixels against a growing, noise-perturbed distance field, then colors the narrow difference between two classifications.',
+    'The click handler matters as much as the fragment shader: a screen-space event has to become the same zero-to-one coordinate used by the texture.',
+  ],
+}
+
+export const preview = (
+  <WritingBurnDissolvePreviewLazy
+    className="writing-generative-play-preview--burn"
+    caption="Click the card to set a new burn origin."
+    hint="Click or tap the card to set a UV origin and restart the burn. One noisy distance field drives both the hole and its colored border."
+    height={520}
+  />
+)
+
+A convincing burn transition sounds like a simulation problem: heat should spread, paper should curl, and ash should break away. This Godot shader takes the opposite route. It reduces the image to a scalar distance field, perturbs that field with noise, and asks the same yes-or-no question twice. One answer removes the card; the slightly larger answer colors its frontier.
+
+The result is short enough to read in one glance, but it contains several reusable shader ideas. Click or tap the study below to choose a new origin. **Border width** exposes the gap between the two thresholds, **Noise amount** moves the frontier away from a perfect circle, and **Edge softness** can be set to zero to recover the hard comparison in the original.
+
+## The whole effect is one distance test, twice
+
+The original fragment function is only four statements:
+
+```glsl
+float dist =
+  length(position - UV) +
+  texture(noiseTexture, UV).b * burnMult;
+
+COLOR.rgb = mix(
+  COLOR.rgb,
+  burnColor.rgb,
+  float(dist < radius + borderWidth)
+);
+COLOR.a *= 1.0 - float(dist < radius);
+```
+
+`length(position - UV)` is the Euclidean distance from this fragment to the chosen origin. Every fragment computes its own value. Together those values form concentric circles: zero at the click, larger toward the outside.
+
+The first comparison includes `borderWidth`, so it classifies a slightly larger region and paints it `burnColor`. The second comparison uses the smaller `radius` and clears alpha. Subtract the smaller region from the larger one and what remains is a thin ring.
+
+There is no independently animated flame, outline, or particle layer. The apparent burning edge is the difference between two contours of one field.
+
+## Why the radius ends at two
+
+UV coordinates occupy a unit square. If the origin sits in one corner, the opposite corner is:
+
+```glsl
+length(vec2(1.0, 1.0)) == sqrt(2.0); // about 1.414
+```
+
+A radius of `1.0` is therefore not enough to guarantee that every pixel has crossed the threshold. The noise term makes the required radius larger again, and the border adds one more small margin.
+
+The Godot script avoids calculating a tight upper bound and simply tweens from zero to two:
+
+```gdscript
+tween.tween_method(update_radius, 0.0, 2.0, 1.5)
+```
+
+Two is deliberately generous. It clears the normalized square from any click position with room for the displacement. A production effect could derive a smaller end value from the origin and the farthest corner, but the saved fraction of a second rarely justifies the extra host logic.
+
+The WebGL study keeps the same `0.0 -> 2.0` contract. Changing **Duration** alters how quickly it travels, not the field it travels through.
+
+## Noise perturbs distance, not the image
+
+This line is the organic part:
+
+```glsl
+dist += texture(noiseTexture, UV).b * burnMult;
+```
+
+The texture lookup does not move UVs, distort the card, or choose a random color. It adds a local delay to the distance value. A bright noise texel needs a larger radius before it passes the comparison; a dark texel burns earlier.
+
+That distinction separates a ragged transition from image displacement:
+
+```glsl
+// Ragged frontier: sample the image normally, perturb its classification.
+float dist = length(UV - position) + noise * burnMult;
+vec4 image = texture(TEXTURE, UV);
+
+// Distorted image: perturb where the image itself is sampled.
+vec4 warped = texture(TEXTURE, UV + noise * offset);
+```
+
+The first version leaves every surviving feature stable while the boundary eats into it. The second makes the picture swim. Both can be useful, but only the first reads as material disappearing.
+
+## A blue channel is just a scalar field
+
+Godot samples `.b` from `noiseTexture`, but blue has no special dissolve behavior. The shader needs one scalar in the zero-to-one range, and any channel can provide it. A grayscale texture stores approximately the same value in red, green, and blue.
+
+The browser study generates that scalar with four octaves of value noise:
+
+```glsl
+float noise = fbm(vUv * 9.0 + vec2(4.7, 12.3));
+float distanceValue =
+  length(delta) +
+  noise * uNoiseAmount;
+```
+
+That removes an asset and makes the demo self-contained. It is not automatically better. A supplied texture gives an art director exact control, costs one texture lookup, and can encode fibers, cracks, typography, or a hand-painted breakup. Procedural fbm costs several hash evaluations per fragment but scales without an image file.
+
+The transferable idea is not “always use noise.” It is “add a stable scalar field to distance.” The source of that field is a separate design decision.
+
+## The border is an offset contour
+
+Both masks are evaluated from `distanceValue`:
+
+```glsl
+float burned = insideThreshold(distanceValue, radius);
+float outer = insideThreshold(
+  distanceValue,
+  radius + borderWidth
+);
+float burnEdge = max(outer - burned, 0.0);
+```
+
+The region below `radius` is already gone. The region between `radius` and `radius + borderWidth` is still present in `outer`, so subtraction isolates it.
+
+This is the same construction used for outlines around signed distance fields: compare one field at two nearby levels, then take the band between them. It remains coherent under noise because both contours inherit exactly the same perturbation.
+
+Large border values expose that relationship. The effect stops looking like a hot rim and starts looking like a separately colored annulus. Small values preserve the illusion that the material itself is glowing at the moment it disappears.
+
+## A boolean cast is a step function
+
+Godot permits:
+
+```glsl
+float(dist < radius)
+```
+
+The comparison is either false or true; the cast converts that to zero or one. In GLSL terms, it is a hard step. Neighboring pixels can land on opposite sides with no partial coverage between them.
+
+That is faithful to the reference and cheap, but diagonal and noisy contours can staircase. The WebGL version optionally spends a narrow interval on antialiasing:
+
+```glsl
+float insideThreshold(float dist, float threshold) {
+  return 1.0 - smoothstep(
+    threshold - softness,
+    threshold + softness,
+    dist
+  );
+}
+```
+
+At **Edge softness = 0**, the helper switches back to `step`. At a few thousandths of UV distance, the frontier gains partial pixels without turning into a blurred glow. Softness is a coverage budget, not another border.
+
+## A click has to become the shader's UV
+
+The Godot script receives a mouse event in viewport space, converts the pointer into the sprite's local space, and rejects clicks outside the sprite:
+
+```gdscript
+var world_pos = get_global_mouse_position()
+var local_pos = to_local(world_pos)
+if get_rect().has_point(local_pos):
+    var uv = get_uv_from_click(local_pos)
+    burnCard(uv)
+```
+
+For a centered `Sprite2D`, local coordinates place the texture center at zero. Adding half the texture size moves the top-left to zero; dividing by the texture size normalizes the result:
+
+```gdscript
+var top_left_pos = local_click_pos + texture_size / 2
+var uv = top_left_pos / texture_size
+```
+
+That helper assumes the default centered sprite and an untrimmed texture region. If the sprite is not centered, uses a region, or applies atlas coordinates, the conversion needs to follow that geometry instead.
+
+The browser receives pointer coordinates relative to the DOM element. Horizontal normalization is direct. Vertical normalization includes one inversion:
+
+```tsx
+origin.x = (event.clientX - bounds.left) / bounds.width
+origin.y = 1 - (event.clientY - bounds.top) / bounds.height
+```
+
+DOM Y grows downward from the element's top edge. The plane UV used by the fragment shader grows upward from its bottom edge. The subtraction from one reconciles those conventions.
+
+## The tween belongs to the host
+
+The shader does not know that a burn is happening. It only knows the current `radius`. Godot owns the timeline:
+
+```gdscript
+func burnCard(uv):
+    material.set_shader_parameter("position", uv)
+    var tween = create_tween()
+    tween.tween_method(update_radius, 0.0, 2.0, 1.5)
+```
+
+The React Three Fiber version keeps elapsed time in the render loop and writes the corresponding radius every frame:
+
+```tsx
+elapsed = Math.min(elapsed + delta, duration)
+const progress = elapsed / duration
+uniforms.uRadius.value = smoothstep(progress) * 2
+```
+
+Clicking changes the origin and resets elapsed time. The shader remains stateless in both hosts; neither implementation compiles a new material for each burn.
+
+When `prefers-reduced-motion` is active, the preview holds a mid-burn frame instead of running the transition. The frozen contour still explains the technique without requiring continuous motion.
+
+## A UV circle may be a screen ellipse
+
+`length(UV - position)` measures in normalized texture space. If the displayed sprite is twice as wide as it is tall, a UV unit in X covers twice as many screen pixels as a UV unit in Y. Equal UV distance therefore appears elliptical on screen.
+
+Sometimes that is correct: the field belongs to the texture, and stretching the sprite should stretch the burn with it. If the intent is a physically circular front on the display, scale the delta by drawing-buffer dimensions first:
+
+```glsl
+vec2 pixelAspect =
+  resolution / min(resolution.x, resolution.y);
+vec2 delta = (vUv - origin) * pixelAspect;
+float dist = length(delta);
+```
+
+The **Aspect correct** switch toggles between those interpretations. There is no universal answer—the right metric depends on whether the dissolve belongs to the asset or to the screen.
+
+## What the WebGL translation had to change
+
+- Godot's `UV` becomes the interpolated `vUv` supplied by the fullscreen vertex shader.
+- `COLOR` becomes `gl_FragColor`; because this article canvas is opaque, burned pixels reveal the study's blue canvas color instead of transparent page content.
+- `noiseTexture` becomes procedural value-noise fbm, while preserving the zero-to-one scalar role of its blue channel.
+- `position`, `radius`, `borderWidth`, and `burnColor` become Three.js uniforms updated without rebuilding the material.
+- DOM pointer coordinates are normalized against the canvas bounds and flipped vertically.
+- The original boolean casts remain available at zero softness; `smoothstep` adds an optional antialiased frontier.
+- Drawing-buffer resolution supports an optional pixel-aspect correction.
+- React Three Fiber's frame loop replaces Godot's tween, but the shader still receives only the current radius.
+
+The port changes the host contract, not the underlying construction. A noisy radial field, two nearby thresholds, and one animated scalar still do all the visual work.
+
+## What I would copy
+
+- Animate a threshold through a distance field when an effect should spread from a point.
+- Perturb the field, not the texture coordinates, when the image should stay still while its boundary breaks up.
+- Build a colored frontier from the difference between two nearby thresholds.
+- Use a radius larger than the farthest possible corner distance; normalized coordinates do not imply a maximum distance of one.
+- Treat a boolean comparison as a deliberately hard edge, and add only enough `smoothstep` width to cover visible stair-stepping.
+- Convert pointer coordinates at the host boundary, then keep the shader entirely in one declared coordinate system.
+- Decide whether distance belongs to texture space or pixel space before adding aspect correction.
+- Keep animation state outside the fragment shader when every pixel only needs the same current progress value.
+
+This study is based on [enekoassets' “2D Burn/dissolve from point (V 1.0)”](https://godotshaders.com/shader/2d-burn-dissolve-from-point-v-1-0/) for Godot. The source shader and code snippets on that page are published under [CC0](https://creativecommons.org/publicdomain/zero/1.0/). The WebGL implementation here is an independent translation with procedural noise, optional antialiasing, and pixel-aspect correction added to make the original mechanics inspectable.

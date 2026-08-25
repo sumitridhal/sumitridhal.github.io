@@ -1,11 +1,15 @@
 /// <reference types="vite/client" />
 
 declare module '*.mdx' {
-  import type { ComponentType } from 'react'
-  import type { WritingMeta } from '@/data/writingTypes'
+  import type { ComponentType, ReactNode } from 'react'
+  import type { WritingMeta, WritingPreviewStep } from '@/data/writingTypes'
 
   /** Present on `src/content/writings/*.mdx`. */
   export const writingMeta: WritingMeta
+  /** Pinned artifact for the article's preview pane; omit for text-only posts. */
+  export const preview: ReactNode | undefined
+  /** Ordered demos swapped into the preview pane as their prose cues pass. */
+  export const previewSteps: WritingPreviewStep[] | undefined
   const MDXComponent: ComponentType
   export default MDXComponent
 }

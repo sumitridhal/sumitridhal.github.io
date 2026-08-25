@@ -4,22 +4,22 @@ export const writingMeta = {
   id: 'grid-cell-reveal-shader',
   order: -1,
   title: 'Moving the grid-cell image reveal onto the GPU',
-  date: '2026-08-15',
+  date: '2026-08-14',
   category: 'Creative code',
   excerpt:
-    'The DOM version proved the threshold model. A fullscreen quad makes the dense version cheap, but introduces a more interesting choice: should the cell grid live in screen space or restart inside every card?',
+    'The DOM version proved the threshold model. A fullscreen quad makes the dense version cheap, but introduces a more interesting choice: should the cell grid belong to the screen, or restart inside the card?',
   titleLines: ['Moving the grid reveal', 'onto one GPU quad'],
-  coverSrc: 'https://picsum.photos/seed/grid-cell-reveal-shader/960/640',
+  coverSrc: '/media/writings/grid-cell-reveal/illustration.jpg',
   keywords: ['webgl', 'glsl', 'interaction', 'motion'],
   asideParagraphs: [
-    'The preview generates both source textures on a 2D canvas, then uploads each once. No cross-origin images or per-frame texture work are involved.',
+    'The preview loads two locally vendored images and uploads each once. No cross-origin fetch and no per-frame texture work are involved.',
     'The hover target and range input share one uniform. Under reduced motion, the shader jumps to the requested state instead of damping toward it.',
   ],
 }
 
-My [DOM grid-pixel reveal](/writing/grid-pixel-image-reveal) ended with a promise: a few hundred tiles are fine for an article embed, but a dense mask belongs on one canvas or GPU quad. Haoqi Wen’s [HAOQI.DESIGN case study](https://tympanus.net/codrops/2026/08/15/inside-haoqi-design-letting-dom-and-webgl-share-a-retro-futurist-stage/) supplies the useful next step—a cell reveal that is not just denser, but continuous across the screen.
+My [DOM grid-pixel reveal](/writing/grid-pixel-image-reveal) ended with a promise: a few hundred tiles are fine for an article embed, but a dense mask belongs on one canvas or GPU quad. Haoqi Wen’s [HAOQI.DESIGN case study](https://tympanus.net/codrops/2026/08/15/inside-haoqi-design-letting-dom-and-webgl-share-a-retro-futurist-stage/) supplies the useful next step—a cell reveal that is not just denser, but continuous across the screen. The two frames below are an illustration and its photoreal counterpart, composed in register, so the cells appear to open the render out of the drawing.
 
-<WritingGridCellRevealPreviewLazy />
+export const preview = <WritingGridCellRevealPreviewLazy />
 
 ## One progress value, no tile nodes
 
@@ -50,7 +50,7 @@ That keeps the edge readable as device pixel ratio, canvas size, and cell size c
 
 ## Screen space is a design decision
 
-The preview has two adjacent virtual cards. In **screen** mode, both cards divide the same viewport coordinate system:
+The preview holds one card, and it sits deliberately off-centre. That offset is the whole experiment. In **screen** mode the lattice is anchored to the canvas, not to the card:
 
 ```glsl
 vec2 screenCellUv = fract(
@@ -58,9 +58,9 @@ vec2 screenCellUv = fract(
 );
 ```
 
-The grid continues through the gap. A vertical cell boundary that starts in the left card lands at the same x-coordinate in the right card. The cards feel like windows cut into one display.
+The grid runs edge to edge underneath everything. Because the card does not start on a cell boundary, its own edges slice cells in half — you can see partial cells along the left and right borders. Those sliced cells are the tell that the lattice belongs to the page rather than to the element: the card is a window onto one continuous dot matrix, not a panel carrying a texture of its own. Move it anywhere on the canvas and the cells stay where they are.
 
-In **card** mode, each card converts to local UV before dividing into cells:
+In **card** mode, the card converts to local UV before dividing into cells:
 
 ```glsl
 vec2 localUv = (screenUv - rect.xy) / rect.zw;
@@ -70,7 +70,7 @@ vec2 cardCellUv = fract(
 );
 ```
 
-Now the first cell starts at every card’s top-left corner. That can be correct for independent components, but it breaks the page-wide dot-matrix language.
+Now the first cell starts cleanly at the card’s top-left corner and the sliced border cells disappear. That can be correct for independent components, but it breaks the page-wide dot-matrix language. Toggling between the two at the card's edge is the fastest way to see the difference.
 
 Neither coordinate space is universally right. The important part is choosing it deliberately instead of accepting whichever UV was easiest to reach.
 
@@ -122,3 +122,5 @@ The mental model stayed intact—one scalar drives many cells—but responsibili
 - Coordinate space becomes an explicit visual-system choice.
 
 That last point is the reason to make the GPU version. Performance gets the technique onto the canvas; screen-space continuity turns it into a language the rest of the page can share.
+
+The two frames the shader morphs between are not mine: illustration via [X](https://pbs.twimg.com/media/HPn14qyX0AAc3p2) and its [photoreal counterpart](https://pbs.twimg.com/media/HPn14rzXMAAOTDN), vendored locally so the shader can upload them as textures.

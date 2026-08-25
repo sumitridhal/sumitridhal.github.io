@@ -34,7 +34,6 @@ The demo below renders a small synthetic colour scene (glows that follow the poi
 <WritingShaderDemo
   preset="grayscaleLuma"
   ariaLabel="Fullscreen shader: synthetic colour scene converted to Rec.709 luminance"
-  caption="Fragment pass: RGB scene → single luma channel"
   height={260}
 />
 
@@ -52,10 +51,9 @@ float ink = drawGlyph(idx, cellUv);
 
 Here `drawGlyph` is whatever typographic substrate you use: atlas lookups, signed-distance letters, or—like the live preview—**procedural ink masks** (dots, strokes, crosses, blocks) that mimic a ramp from space → `.` → `:` → `-` → … → filled tile. The perceptual goal is monotonic coverage: higher index should never look lighter than a lower one at the same viewing distance.
 
-<WritingShaderDemo
+export const preview = <WritingShaderDemo
   preset="asciiGrayscale"
   ariaLabel="Fullscreen shader: luminance quantized to procedural ASCII-style glyph tiles"
-  caption="Same scene: cell-centre luma → glyph index → procedural mark in each tile"
   height={320}
 />
 

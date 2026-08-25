@@ -9,7 +9,7 @@ export const writingMeta = {
   excerpt:
     'A fixed camera viewport and five inline SVG depth groups scrub on one timeline: Locomotive Scroll v5 smooths the embed while ScrollTrigger.scrollerProxy keeps GSAP in sync—foreground scales past the frame, sky barely moves.',
   coverSrc: '/media/writings/landscape-flythrough/reference.png',
-  titleLines: ['SVG fly-through parallax', 'Locomotive + ScrollTrigger'],
+  titleLines: ['SVG fly-through parallax:', 'Locomotive + ScrollTrigger'],
   keywords: ['draft'],
 }
 
@@ -17,7 +17,7 @@ Scroll a flat illustration and it feels like a poster. Give each depth plane its
 
 This note wires that pattern for a writing embed: **Locomotive Scroll v5** on `#smooth-wrapper` / `#smooth-content`, **GSAP ScrollTrigger** with **`scrollerProxy`**, and an **inline SVG** whose groups are named for depth.
 
-<WritingLandscapeFlythroughPreviewLazy />
+export const preview = <WritingLandscapeFlythroughPreviewLazy />
 
 Scroll **inside** the stage above (roughly four viewport heights of travel). The article body around it still uses the site’s page-level Lenis instance.
 

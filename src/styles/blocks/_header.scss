@@ -1,6 +1,15 @@
 @use '../variables' as *;
 
 .site-header {
+  --glass-blur: 16px;
+  --glass-edge-thickness: 3px;
+  /* Matches `--editorial-page`; used for the tint and the anti-flicker cap. */
+  --glass-page-rgb: 30 42 26;
+  --glass-cap-alpha: 0.85;
+  /* Thick enough that nav text stays readable over bright blurred content. */
+  --glass-tint: rgb(var(--glass-page-rgb) / 0.62);
+  --glass-sheen: rgb(255 255 255 / 0.07);
+
   position: fixed;
   inset: 0 0 auto;
   z-index: 40;
@@ -8,26 +17,117 @@
   align-items: center;
   justify-content: space-between;
   height: $header-h;
+  width: 100%;
   padding: 0 1.5rem;
   gap: clamp(1rem, 3vw, 2rem);
-  mix-blend-mode: difference;
-  color: #fff;
-  width: max-content;
+  color: var(--editorial-ink);
+  /* Opaque fallback; the feature queries below thin it out to real glass. */
+  background: rgb(var(--glass-page-rgb) / 0.94);
+}
+
+html[data-theme='light'] .site-header {
+  --glass-page-rgb: 244 241 234;
+  --glass-sheen: rgb(255 255 255 / 0.5);
 }
 
 .site-header--home {
-  mix-blend-mode: normal;
-  color: var(--home-fg, #2a2330);
-  width: 100%;
+  /*
+    Home has no bar at all, only the theme chip floating over the artwork. The
+    `@supports` block below re-declares `background` at the same specificity, so
+    the tint has to be neutralised through the custom property as well.
+  */
+  --glass-tint: transparent;
+
+  justify-content: flex-end;
   height: 64px;
   padding-inline: clamp(0.8rem, 2.4vw, 1.4rem);
+  background: none;
+  /* An empty transparent bar must not intercept clicks on the artwork below. */
+  pointer-events: none;
 }
 
-.site-header__brand {
-  font-family: $font-writing-mono;
-  font-weight: 600;
-  letter-spacing: -0.02em;
-  font-size: 1.15rem;
+.site-header--home .site-header__controls {
+  pointer-events: auto;
+}
+
+.site-header__backdrop,
+.site-header__backdrop-edge {
+  display: none;
+}
+
+@supports (backdrop-filter: blur(1px)) or (-webkit-backdrop-filter: blur(1px)) {
+  .site-header {
+    background: var(--glass-tint);
+  }
+
+  .site-header__backdrop {
+    display: block;
+    position: absolute;
+    inset: 0;
+    pointer-events: none;
+    background: linear-gradient(
+      to bottom,
+      rgb(var(--glass-page-rgb) / var(--glass-cap-alpha)) 0%,
+      transparent 50%
+    );
+    -webkit-backdrop-filter: blur(var(--glass-blur)) saturate(1.4);
+    backdrop-filter: blur(var(--glass-blur)) saturate(1.4);
+  }
+
+  .site-header__backdrop-edge {
+    display: block;
+    position: absolute;
+    right: 0;
+    bottom: 0;
+    left: 0;
+    height: var(--glass-edge-thickness);
+    transform: translateY(100%);
+    pointer-events: none;
+    background: var(--glass-sheen);
+    -webkit-backdrop-filter: blur(calc(var(--glass-blur) * 0.5)) brightness(1.18)
+      saturate(1.2);
+    backdrop-filter: blur(calc(var(--glass-blur) * 0.5)) brightness(1.18) saturate(1.2);
+  }
+}
+
+/*
+  Overshoot both layers and mask the excess away, so content approaching the
+  header feeds the blur before it is actually behind the glass. Masking runs
+  after filtering in every browser, which `overflow` and `clip-path` do not.
+*/
+@supports (mask-image: none) or (-webkit-mask-image: none) {
+  .site-header__backdrop {
+    height: 200%;
+    -webkit-mask-image: linear-gradient(
+      to bottom,
+      black 0% 50%,
+      transparent 50% 100%
+    );
+    mask-image: linear-gradient(to bottom, black 0% 50%, transparent 50% 100%);
+  }
+
+  .site-header__backdrop-edge {
+    inset: 0;
+    height: 100%;
+    -webkit-mask-image: linear-gradient(
+      to bottom,
+      black 0,
+      black var(--glass-edge-thickness),
+      transparent var(--glass-edge-thickness)
+    );
+    mask-image: linear-gradient(
+      to bottom,
+      black 0,
+      black var(--glass-edge-thickness),
+      transparent var(--glass-edge-thickness)
+    );
+  }
+}
+
+/* Positioned so they paint above the absolutely positioned glass layers. */
+.site-header__nav,
+.site-header__controls {
+  position: relative;
 }
 
 .site-header__nav {
@@ -71,7 +171,7 @@
   border-radius: 999px;
   color: inherit;
   opacity: 0.8;
-  transition: opacity 0.2s ease, transform 0.2s $ease-out;
+  transition: opacity 0.2s ease, background 0.2s ease, transform 0.2s $ease-out;
 
   &:hover,
   &:focus-visible {
@@ -86,13 +186,32 @@
   display: block;
 }
 
+/*
+  Home panel themes live on `.home-panels` and swing from near-white to near-black
+  as you scroll, and this fixed header cannot read them. So the chip carries its
+  own light surface and fixed ink instead of relying on whatever is behind it.
+*/
+.theme-toggle--chip {
+  color: #1b1a20;
+  background: rgb(255 255 255 / 0.74);
+  border: 1px solid rgb(8 8 7 / 0.14);
+  box-shadow: 0 1px 6px rgb(8 8 7 / 0.12);
+  opacity: 1;
+
+  &:hover,
+  &:focus-visible {
+    background: rgb(255 255 255 / 0.94);
+  }
+
+  &:focus-visible {
+    outline: 2px solid #0a0a0a;
+    outline-offset: 3px;
+  }
+}
+
 @media (min-width: 880px) {
   .site-header__burger {
     display: none;
-  }
-
-  .site-header--home .site-header__burger {
-    display: flex;
   }
 }
 

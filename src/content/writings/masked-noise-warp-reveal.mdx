@@ -1,0 +1,226 @@
+import { WritingMaskedNoiseWarpPreviewLazy } from '@/components/writings/WritingMaskedNoiseWarpPreviewLazy'
+
+export const writingMeta = {
+  id: 'masked-noise-warp-reveal',
+  order: -1,
+  title: 'Masked noise warp: a pointer-carried reveal',
+  date: '2026-08-16',
+  category: 'Creative code',
+  excerpt:
+    'A polygon aperture dissolves through a tiled shape while turbulent coordinates carry a registered illustration into its photoreal counterpart.',
+  titleLines: ['Masked noise warp:', 'a pointer-carried reveal'],
+  coverSrc: '/media/writings/masked-noise-warp-reveal.png',
+  keywords: ['webgl', 'shaders', 'noise', 'compositing', 'reveal'],
+  asideParagraphs: [
+    'A mask is not merely a crop. Here it decides which pixels may be displaced, where the second rendering may appear, and where the illustration must remain untouched.',
+    'Both renderings share one composition. Registration, not noise strength, is what keeps the column, horizon, figure, and flowers from jumping at the reveal edge.',
+  ],
+}
+
+[“Fish-ray glasses” by @goodbytes](https://www.warpkit.xyz/w/fish-ray-glasses-9f68cd08-2229-4011-802c-b252e2656b88) is a good reminder that a playful image can hide a precise compositing graph. A flat polygon creates a local change in the picture, turbulent coordinates keep the interior from feeling pasted on, and the untouched field stays perfectly clean.
+
+WarpKit publishes the recipe, which is more useful than the finished pixels. Seven layers, WebGPU with TSL, a six-second seamless loop, and — the detail that matters most — `Animated 00`, with every single layer reporting `Motion: static`. The same stack ships as a square 1080 × 1080 specimen and a wide 1920 × 1080 one. The interactive study below keeps that graph but gives it a different job: revealing a second rendering of the same scene in one Three.js/GLSL fragment pass.
+
+The base is a flat seaside illustration; the reveal is a photoreal interpretation registered to the same frame. Move the aperture over the sun, water, figure, or flowers and the painted shapes trade places with photographic light without the composition shifting underneath.
+
+export const preview = <WritingMaskedNoiseWarpPreviewLazy />
+
+## Read the layer panel as a graph
+
+The layers do not all do the same kind of work. Background, images, and text **draw**. Noise Warp **transforms**. The polygon is used as a **mask** by the two layers above it. Reading the list only as back-to-front paint order misses those side connections.
+
+Top to bottom, with the reported blend modes:
+
+- **07 Text**, EB Garamond Regular — draws, normal at 30%
+- **06 Text**, EB Garamond Bold — draws, normal
+- **05 Image** — draws, **multiply**, clipped to layer 03
+- **04 Noise Warp**, Turbulent — **transforms**, normal, clipped to layer 03
+- **03 Polygon**, Solid — draws, normal, and acts as the stencil for the two layers above
+- **02 Image** — draws, normal
+- **01 Background**, solid color — draws, normal
+
+Layer 03 does double duty: it paints as a normal solid shape *and* its opacity decides where the two layers above it may act. Layer 07 sitting at 30% is why the small caption reads as a whisper rather than a label.
+
+The useful mental model is:
+
+1. Draw the illustration.
+2. Evaluate the aperture as a scalar field.
+3. Distort source coordinates only where that field is white.
+4. Sample the registered photoreal rendering at those distorted coordinates.
+5. Composite the reveal through the same mask.
+6. Draw typography after the effect, so its edges stay undistorted.
+
+That shared mask is the load-bearing part. Turn **Polygon mask** off in the demo and the operation spreads across the full scene instead of staying inside the pointer-carried window. The warp is still mathematically valid; the reveal no longer has a readable boundary. Any typography from the source graph would remain clean because it is composited after the warped layers.
+
+## A warp moves coordinates, not finished pixels
+
+A fragment shader cannot reach sideways and push a neighboring pixel. It asks a texture for a different location instead. The apparent displacement comes from perturbing `uv` before sampling:
+
+```glsl
+vec2 noiseUv = uv * uFrequency;
+vec2 warp = vec2(
+  layeredNoise(noiseUv + loopPoint),
+  layeredNoise(noiseUv + vec2(7.13, -3.71) - loopPoint)
+);
+
+vec2 warpedUv = uv + warp * uAmount;
+vec3 displaced = texture2D(uBase, warpedUv).rgb;
+vec3 base = mix(texture2D(uBase, uv).rgb, displaced, mask);
+```
+
+The two noise calls use different offsets. Reusing one value for both axes only moves samples along a diagonal; decorrelated calls produce a two-dimensional flow. `uAmount` should stay small. Once the offset becomes larger than the visual feature being bent, “soft tissue” quickly turns into a broken collage.
+
+## Turbulence folds smooth noise into ridges
+
+Ordinary fractal Brownian motion adds smooth noise at increasing frequencies and decreasing amplitudes. Turbulence folds each octave around zero with `abs()`. Valleys become peaks, producing the sharper creases that make this effect feel fibrous instead of cloudy.
+
+```glsl
+float signedNoise = valueNoise(p) - 0.5;
+float ridge = abs(signedNoise) * 2.0 - 0.5;
+sum += amplitude * mix(signedNoise, ridge, uTurbulent);
+
+p = mat2(1.6, 1.2, -1.2, 1.6) * p;
+amplitude *= 0.5;
+```
+
+The matrix scales and rotates between octaves. Without that rotation, value-noise grid directions begin to line up and the displacement reveals its lattice. Use the **Noise character** toggle to compare the rounded drift of signed noise with the pinched contours of turbulence.
+
+Octaves buy detail, not strength. Frequency sets the size of the folds; amount sets their travel; octaves fill smaller frequencies into the silhouette. Keeping those controls separate makes tuning predictable.
+
+## The aperture is a distance field, and it holds still
+
+The aperture does not need geometry or a stencil buffer. It needs a scalar field that is negative inside, positive outside, and zero at the edge. WarpKit describes layer 03 as a polygon "drawn mathematically so its edges stay razor-sharp at any size," which is a signed distance function in all but name:
+
+```glsl
+vec2 p = uv - uCenter;
+p.x *= uResolution.x / uResolution.y;
+
+float sector = 6.28318531 / uSides;
+float angle = atan(p.x, p.y) + 3.14159265;
+float edgeIndex = floor(0.5 + angle / sector);
+
+float irregular = 1.0 + uIrregularity * (valueNoise(vec2(edgeIndex * 1.37, 4.21)) - 0.5);
+float distanceToPolygon = cos(edgeIndex * sector - angle) * length(p) - 0.145 * irregular;
+```
+
+Quantizing the angle into `edgeIndex` is what produces flat facets instead of a circle. Because the perturbation is indexed per edge rather than per pixel, it changes each face's distance from the center without curving any of them — the outline stays asymmetric and hand-cut while every edge remains dead straight.
+
+Nothing in that function reads `uTime`, and that is deliberate. An earlier revision animated the outline with angular harmonics whose phases advanced over the loop, and it was wrong twice over: the shape visibly crawled like a lava lamp, and it contradicted the reference, where all seven layers report static motion. A distorted edge and a *moving* edge are different decisions, and only the first one is in the source.
+
+Correcting `p.x` for the canvas aspect ratio keeps the polygon from stretching with the viewport. What the field does *not* do is decide how its zero crossing becomes a mask. The obvious `smoothstep(-feather, feather, distance)` is one option; the next section spends that decision on something more interesting.
+
+Because the aperture center is a uniform rather than a constant, it can still follow the pointer without any of the layers animating on their own. The demo damps the cursor position toward `uCenter` and drifts the noise domain by the same displacement, so moving across the canvas both relocates the window and reshuffles the turbulence inside it:
+
+```ts
+center.x = THREE.MathUtils.damp(center.x, targetX, 7, delta)
+uniforms.uCenter.value.set(center.x, center.y)
+uniforms.uPointerDrift.value.set(
+  (center.x - RESTING_CENTER.x) * 1.8,
+  (center.y - RESTING_CENTER.y) * 1.8,
+)
+```
+
+Damping matters more than it looks. Assigning the raw pointer position makes the aperture snap and stutter at the frame rate; an exponential approach gives it the small lag that reads as a physical object being carried. When the pointer leaves, the same damping returns the window to its resting position instead of teleporting it. The target is clamped just inside the shared artwork, leaving enough range to inspect the sun, sea glitter, column, figure, and flowers without letting the reveal drift into the letterbox.
+
+That clamp lives in image UV rather than canvas UV. The portrait art is contained inside whatever shape the canvas takes, so a rectangle expressed in canvas coordinates slides off the scene the moment the viewport changes proportion. The bounds are converted per frame by inverting the same contain fit the shader uses, which is the only way JS and GLSL can agree on where the artwork actually is.
+
+## The edge dissolves through a tiled shape
+
+A `smoothstep` across the zero crossing gives a clean edge, and a clean edge is the one thing this reveal does not need — it announces that a shape has been pasted on top. The alternative is a dissolve: keep the distance field as the *order* in which pixels open, and let a tiled texture decide which of them open first.
+
+The pattern is a direct port of a Godot `canvas_item` shader. The original drives a black overlay's alpha, so `factor` tweens a wipe from covered to clear; here the same scalar becomes the stencil that clips both the warp and the second rendering.
+
+```glsl
+float gradient = -distanceToPolygon / POLYGON_RADIUS;
+float progress = mix(-REVEAL_WIDTH, 1.0, uFactor);
+float value = clamp((gradient - progress) / REVEAL_WIDTH, 0.0, 1.0);
+
+vec2 aspectUv = (uv - vec2(0.0, 0.5)) * vec2(1.0, uResolution.y / uResolution.x) + vec2(0.0, 0.5);
+vec2 tiledUv = fract(rotateUv(aspectUv, vec2(0.5), SHAPE_ROTATION) * uTiling + scroll);
+
+float shape = 1.0 - texture2D(uShape, tiledUv).r;
+shape = mix(feathering * 0.5, 1.0 - feathering * 0.5, shape);
+
+float hidden = smoothstep(value - feathering * 0.5, value + feathering * 0.5, 1.0 - shape);
+float aperture = 1.0 - hidden;
+```
+
+Three moves are doing the work, and the middle one is easy to skip past.
+
+Dividing the polygon's signed distance by its base radius turns it into a gradient that reads 1 at the center and 0 on the outline — the equivalent of the grayscale gradient texture the original samples. `progress` then sweeps a threshold from just below the darkest value to above the brightest, which is why it interpolates from `-width` rather than from `0`: at `factor = 0` the band has to start *outside* the image's value range or the first frame would already be partly dissolved.
+
+Dividing by `width` is the move worth pausing on. Without it you get a hard wipe: every pixel is simply above or below the threshold. With it, each pixel gets a local reveal amount in 0–1 describing how far the wipe has passed *it* specifically, and that number is what the shape texture is compared against. The band is the whole effect; the threshold alone is just a cut.
+
+The tile then breaks the band apart. Dark pixels in the shape texture cross first, so a dark-centred dot opens as a growing circle and the outline scallops before it detaches into loose specks. The feathering remap looks redundant but is not: it compresses the shape's range so the smoothstep window always overlaps it, which is what keeps very small feather values from snapping to a hard-edged stencil. It also cannot reach zero — `smoothstep` requires `edge0 < edge1` and is undefined otherwise — so the control clamps just above it.
+
+Two details differ from the Godot source, both for reasons worth stating. It rotates inside each tile, which is invisible for a symmetric dot and shears the cell against its neighbours for anything else; rotating the plane *before* tiling turns the whole lattice instead and never seams. And it scrolls the coordinates before multiplying by the tiling factor, which makes the scroll speed depend on the tiling — raise the tile count and the pattern accelerates. Scrolling in tile space instead moves exactly one cell per six-second loop no matter how finely it is tiled, so the loop stays seamless while **Shape tiling** is dragged around.
+
+That scroll is the dissolve's only use of `uTime`, and with **Layer motion** on `STATIC` it is a constant zero. The dissolve is a static reading of a shape, not an animation of one.
+
+## Borrow photographic light without losing the illustration
+
+A normal blend gives the clearest reveal: inside the aperture, the illustration becomes the photoreal rendering. The optional shading blend asks a different question — what if the flat palette stayed in place while the photograph supplied only the light?
+
+```glsl
+vec3 revealed = texture2D(uReveal, warpedUv).rgb;
+float baseLuma = max(dot(base, LUMA), 0.08);
+float revealLuma = dot(revealed, LUMA);
+vec3 shadingBlend = clamp(base * (revealLuma / baseLuma), 0.0, 1.0);
+vec3 composite = mix(revealed, shadingBlend, uShading);
+vec3 color = mix(base, composite, mask * 0.94);
+```
+
+The luminance ratio says how much brighter or darker the photograph is than the illustration at the same coordinate. Multiplying the illustrated color by that ratio imports the sunset's highlights and shadows while preserving the base hue. Clamping avoids over-bright values, and the floor under `baseLuma` prevents dark blue water from producing an explosive ratio. Toggle **Reveal blend** to compare the literal photoreal rendering with this light-only transfer.
+
+The same warped UV samples both renderings. That makes the column, horizon, hair, and flowers buckle together. Warping only one would create sliding at the mask boundary — the fastest way to reveal that the two images are separate files.
+
+## Registration is what sells the reveal
+
+The shader does not know that one texture is an illustration and the other is photoreal. It only knows that the same coordinate must identify the same point in both images. Matching dimensions, scale, and crop turn two separate renderings into one registered pair.
+
+If the crops differ by even a few pixels, the column splits, the horizon jumps, and the woman's face doubles. No amount of noise tuning fixes that. Alignment is not polish added after the effect; it is the condition that makes the effect possible.
+
+Layers 06 and 07 in the WarpKit source sit above the warp and are not clipped to the polygon, so they would be composited last at untouched coordinates. This study intentionally omits both text layers: the scene and moving aperture remain unobstructed while the layer analysis above still records the source stack.
+
+## The six-second loop is a container, not a motion
+
+It is tempting to read "6s seamless loop" as a promise that something moves. Next to `Animated 00` and seven layers of `Motion: static`, it means the opposite: the piece is exported as a looping realtime clip, and every frame of that clip is identical. The renderer runs continuously; the composition does not change.
+
+So the demo defaults **Layer motion** to `STATIC` and feeds `uTime` a constant zero. Only the pointer moves anything.
+
+The loop is still worth keeping available, because it demonstrates a real technique. Linear time never returns to its starting coordinate, so a warp driven by `uTime` drifts forever and can never close. Walking a circle through the noise domain closes it:
+
+```glsl
+float phase = 6.28318531 * mod(uTime / 6.0, 1.0);
+vec2 loopPoint = vec2(cos(phase), sin(phase)) * 0.34;
+float n = layeredNoise(uv * uFrequency + loopPoint);
+```
+
+At zero and six seconds `phase` differs by exactly one turn, so the noise input is identical and the motion cannot seam. Switch the toggle to `6s LOOP` to watch it, then switch back to see how much calmer the static reading is. `prefers-reduced-motion` forces the static path regardless.
+
+## TSL and GLSL describe the same graph
+
+WarpKit renders with WebGPU and Three Shader Language. This study uses the repository’s established Three.js/WebGL path and writes GLSL directly. The syntax differs, but the graph does not:
+
+`source UV → turbulence → offset UV → sample illustration → sample photoreal reveal → blend → dissolved polygon mix`
+
+That is the portable part. Once the data flow is understood, moving between visual nodes, TSL, GLSL, WGSL, or a compositor is mostly a translation exercise.
+
+## What I would copy
+
+- Treat layer stacks as dependency graphs, especially when masks and transforms point sideways.
+- Distort sampling coordinates and composite through the same mask.
+- Use turbulence for ridges; use signed fbm for clouds.
+- Keep amount, frequency, and octave count as independent controls.
+- Transfer luminance when one rendering should lend its lighting to another without replacing its palette.
+- Perturb a polygon per edge, not per pixel, when you want irregular facets that stay straight.
+- Feed a distance field into a dissolve rather than a `smoothstep` when the edge should belong to a texture instead of announcing itself.
+- Normalize a wipe threshold into a per-pixel 0–1 band before comparing it to anything; the band is what separates a dissolve from a cut.
+- Read "static" in a layer panel as a constraint, not an omission; a distorted edge and a moving edge are separate decisions.
+- Keep the aperture center a uniform so a static composition can become a pointer-driven instrument.
+- Express interaction bounds in the artwork's coordinate space, not the canvas's, whenever the artwork is letterboxed into the canvas.
+- Register alternate renderings before writing the shader; matching coordinates matter more than clever blending.
+- Build loops in the noise domain instead of hoping linear time wraps cleanly.
+- When typography is present, draw it after the distortion pass rather than baking it into the artwork.
+
+The compositing reference is [“Fish-ray glasses” by @goodbytes on WarpKit](https://www.warpkit.xyz/w/fish-ray-glasses-9f68cd08-2229-4011-802c-b252e2656b88), whose photographic source is attributed there to [Laker on Pexels](https://www.pexels.com/@laker/). This preview does not copy that photograph. Its paired artwork is by [@craftian_keskin](https://x.com/craftian_keskin): the [illustration](https://pbs.twimg.com/media/HPXBNunXoAAMtAP) and [photoreal counterpart](https://pbs.twimg.com/media/HPXBO_OXEAAQ88b) are vendored locally so WebGL can upload them as registered textures.

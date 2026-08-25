@@ -1,4 +1,4 @@
-# Build on every PR to main; deploy to GitHub Pages on push to main (and manual runs).
+# Build on every PR to main; deploy on main pushes and the daily release check.
 name: Deploy to GitHub Pages
 
 on:
@@ -6,6 +6,8 @@ on:
     branches: [main]
   pull_request:
     branches: [main]
+  schedule:
+    - cron: '15 0 * * *'
   workflow_dispatch:
 
 permissions:
@@ -35,13 +37,13 @@ jobs:
         run: npm run build
 
       - name: Upload Pages artifact
-        if: github.event_name == 'push' && github.ref == 'refs/heads/main'
+        if: (github.event_name == 'push' && github.ref == 'refs/heads/main') || github.event_name == 'schedule'
         uses: actions/upload-pages-artifact@v3
         with:
           path: dist
 
   deploy:
-    if: github.event_name == 'push' && github.ref == 'refs/heads/main'
+    if: (github.event_name == 'push' && github.ref == 'refs/heads/main') || github.event_name == 'schedule'
     needs: build
     runs-on: ubuntu-latest
     permissions:

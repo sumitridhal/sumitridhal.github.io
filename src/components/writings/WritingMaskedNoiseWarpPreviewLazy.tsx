@@ -1,4 +1,4 @@
-import { lazy, Suspense } from 'react'
+import { lazy, Suspense, type CSSProperties } from 'react'
 
 import type { WritingMaskedNoiseWarpPreviewProps } from '@/components/writings/WritingMaskedNoiseWarpPreview'
 
@@ -14,12 +14,12 @@ function PreviewSkeleton({ height }: { height: number }) {
       className="writing-generative-play-preview writing-generative-play-preview--skeleton"
       aria-busy="true"
     >
-      <figcaption className="writing-generative-play-preview__caption">
-        Loading masked noise warp…
+      <figcaption className="writing-preview-controls__bar">
+        <span className="writing-preview-controls__caption">Loading masked noise warp…</span>
       </figcaption>
       <div
         className="writing-generative-play-preview__canvas-wrap"
-        style={{ height: `${height}px` }}
+        style={{ '--preview-h': `${height}px` } as CSSProperties}
       >
         <div className="writing-generative-play-preview__skeleton-panel" />
       </div>

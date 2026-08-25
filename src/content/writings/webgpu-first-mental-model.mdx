@@ -21,10 +21,9 @@ I wrote this for the moment where a WebGL habit stops helping. In WebGL, a small
 
 WebGPU asks you to think in explicit queues, bind groups, and pipelines instead of the implicit state machine many of us grew up with in immediate-mode GL. That verbosity is the contract: the driver gets a smaller decision surface, which tends to mean more predictable performance on integrated GPUs and laptops.
 
-<WritingShaderDemo
+export const preview = <WritingShaderDemo
   preset="webgpuMentalModel"
   ariaLabel="Abstract scrolling bands suggesting buffers and passes; implemented with WebGL2 for portability, not WebGPU"
-  caption="Same idea as the article: buffers in, draw out (WebGL2 stand-in)"
 />
 
 ```wgsl

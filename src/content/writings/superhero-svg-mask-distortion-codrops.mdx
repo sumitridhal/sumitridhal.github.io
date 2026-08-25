@@ -32,7 +32,7 @@ The write-up shows two timelines. First, a **yoyo** timeline repeats forever: `t
 
 You can swap throttle for a **single `requestAnimationFrame` gate** around `progress` updates so each frame coalesces at most one sample, which matches how many sites already tame noisy pointer streams.
 
-<WritingSuperheroSvgMaskPreviewLazy />
+export const preview = <WritingSuperheroSvgMaskPreviewLazy />
 
 The preview above uses **stacked raster portraits** (civilian under hero) like the article’s `<image>` layers, with the same three ideas: paired mask rects, displacement only on mask content groups, and GSAP scrubbing **vertical pointer position** against a paused timeline. Leaving the frame eases progress back to zero; with `prefers-reduced-motion: reduce`, it pins a mid-blend still.
 

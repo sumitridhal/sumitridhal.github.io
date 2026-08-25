@@ -17,11 +17,10 @@ export const writingMeta = {
 
 A **fullscreen triangle** (or quad) gives every pixel a pair of coordinates. Treat those coordinates as lying on a checkerboard: each **cell** gets one index into a short list of colours. The pattern looks random because the index comes from a **hash** of the cell id, but it is fully **deterministic**: the same inputs yield the same tile, which is what you want for art direction, thumbnails, and reproducible demos.
 
-<WritingShaderDemo
+export const preview = <WritingShaderDemo
   preset="paletteMosaicGrid"
   animated={false}
   ariaLabel="Palette mosaic: square grid with film grain; controls for PRNG method, seed, grain, and grid size"
-  caption="Fragment: palette cells (switchable cell PRNG) plus grain overlay"
 />
 
 ## Square cells from pixel space

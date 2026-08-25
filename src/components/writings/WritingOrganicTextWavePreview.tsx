@@ -39,7 +39,7 @@ export type WritingOrganicTextWavePreviewProps = {
 }
 
 export function WritingOrganicTextWavePreview({
-  caption = 'Two rails: left translates up, right down; sin vs cos on translateX.',
+  caption,
   className = '',
   amplitudePx = 14,
   autoScrollPxPerSec = 22,
@@ -186,7 +186,10 @@ export function WritingOrganicTextWavePreview({
   }, [reduced, applyWave, autoScrollPxPerSec, clearWave, measureStrips])
 
   return (
-    <figure className={`writing-organic-wave ${className}`.trim()}>
+    <figure
+      className={`writing-organic-wave ${className}`.trim()}
+      aria-label="Two counter-scrolling columns of body copy whose lines wave sideways"
+    >
       {caption ? <figcaption className="writing-organic-wave__caption">{caption}</figcaption> : null}
       <div className="writing-organic-wave__body">
         <div ref={stageRef} className="writing-organic-wave__stage">

@@ -31,9 +31,11 @@ The fix was not better easing. It was fewer actors:
 - No decorative parallax in flows where the user is trying to read numbers.
 - Instant swaps or cross-fades when `prefers-reduced-motion` is set.
 
-<figure className="writing-inline-figure">
-  <img src="/media/writings/layout-motion-with-budgets.png" alt={writingMeta.title} loading="lazy" decoding="async" />
-</figure>
+export const preview = (
+  <figure className="writing-inline-figure">
+    <img src="/media/writings/layout-motion-with-budgets.png" alt={writingMeta.title} loading="lazy" decoding="async" />
+  </figure>
+)
 
 My rough rule: record the interaction twice, once while admiring the animation and once while trying to complete the task quickly. If the second recording makes the motion feel like furniture in the hallway, delete something.
 

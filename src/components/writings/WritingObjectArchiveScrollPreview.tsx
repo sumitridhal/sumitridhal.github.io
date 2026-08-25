@@ -174,12 +174,7 @@ export function WritingObjectArchiveScrollPreview() {
       aria-label="Tween concept Part 3: Locomotive Scroll smooths the shell; scroll position drives cover progress via CSS variable"
     >
       <figcaption className="writing-oa-scroll__caption">
-        **Tween sheet — Part 3:** **Locomotive Scroll v5** (Lenis-backed) smooths vertical wheel on the shell;{' '}
-        **`scrollCallback`** maps **`scroll` → `--oa-cover-p`** over the first viewport height (same 0→1 window the old
-        **`ScrollTrigger`** scrub used). **GSAP `ticker`** runs Locomotive’s frame loop so scrub stays aligned with other
-        tweens. **`allowNestedScroll`** keeps the horizontal strip usable. **`data-lenis-prevent`** still isolates the
-        embed from the page Lenis. **Reduced motion:** native **`overflow-y: auto`** + **`ScrollTrigger`** only (
-        **`scrub: 0`**).
+        Scroll inside the embed.
       </figcaption>
 
       <div className="writing-oa-scroll__embed">

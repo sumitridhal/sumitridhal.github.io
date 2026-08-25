@@ -19,10 +19,9 @@ export const writingMeta = {
 
 Most fragment work is built from a small toolbox: remap ranges with mix and smoothstep, clamp into valid intervals, normalize directions before dot products, and raise cosines to a power when you need a tight specular lobe—the same vocabulary behind falloff, rim, and sharpness as a lighting vocabulary, without turning this note into another lighting tutorial.
 
-<WritingShaderDemo
+export const preview = <WritingShaderDemo
   preset="smoothstepDerivatives"
   ariaLabel="Side by side: fixed smoothstep edge versus derivative-aware smoothing using fwidth"
-  caption="Left: smoothstep band · Right: fwidth anti-aliased edge"
 />
 
 ```glsl

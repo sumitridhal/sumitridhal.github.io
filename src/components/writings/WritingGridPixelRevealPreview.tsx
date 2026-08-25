@@ -72,7 +72,7 @@ export type WritingGridPixelRevealPreviewProps = {
 }
 
 export function WritingGridPixelRevealPreview({
-  caption = 'Scrub reveal: each tile has a seeded threshold biased toward the bottom, like editorial “pixel rain.”',
+  caption = 'Scrub to reveal the photo.',
   imageSrc = DEFAULT_IMAGE_SRC,
   imageAlt = 'Placeholder photograph for the grid reveal demo',
   className = '',

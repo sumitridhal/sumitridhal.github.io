@@ -1,9 +1,13 @@
-import { Canvas, useFrame, useThree } from '@react-three/fiber'
+import { Canvas, useFrame, useLoader, useThree } from '@react-three/fiber'
 import { Suspense, useEffect, useId, useMemo, useRef, useState } from 'react'
 import * as THREE from 'three'
 
 import { useWritingPreviewReducedMotion } from '@/components/writings/useWritingPreviewReducedMotion'
 import { WritingPlayWebglBoundary } from '@/components/writings/writingPlayWebglBoundary'
+import { WritingPreviewControls } from '@/components/writings/WritingPreviewControls'
+
+const ILLUSTRATION_SRC = '/media/writings/grid-cell-reveal/illustration.jpg'
+const PHOTOREAL_SRC = '/media/writings/grid-cell-reveal/photoreal.jpg'
 
 const FULLSCREEN_VERT = /* glsl */ `
 varying vec2 vUv;
@@ -22,8 +26,14 @@ uniform float uProgress;
 uniform float uPixelSize;
 uniform float uCardSpace;
 uniform float uCircle;
+uniform float uArtAspect;
 
 varying vec2 vUv;
+
+/* The card sits left of centre so its edges cut the screen lattice mid-cell. */
+const float CARD_ORIGIN_X = 0.12;
+const float CARD_HEIGHT = 0.84;
+const float CARD_MAX_WIDTH = 0.76;
 
 float revealShape(vec2 cellUv, float extent, float aa) {
   float squareDistance = max(abs(cellUv.x - 0.5), abs(cellUv.y - 0.5));
@@ -34,17 +44,16 @@ float revealShape(vec2 cellUv, float extent, float aa) {
 
 void main() {
   vec2 uv = vUv;
-  vec2 leftOrigin = vec2(0.045, 0.12);
-  vec2 cardSize = vec2(0.435, 0.76);
-  vec2 rightOrigin = vec2(0.52, 0.12);
 
-  float isLeft = step(leftOrigin.x, uv.x) * step(uv.x, leftOrigin.x + cardSize.x)
-    * step(leftOrigin.y, uv.y) * step(uv.y, leftOrigin.y + cardSize.y);
-  float isRight = step(rightOrigin.x, uv.x) * step(uv.x, rightOrigin.x + cardSize.x)
-    * step(rightOrigin.y, uv.y) * step(uv.y, rightOrigin.y + cardSize.y);
-  float inside = max(isLeft, isRight);
+  /* Height is fixed; width follows the art, then shrinks if a narrow pane cannot hold it. */
+  float rawWidth = CARD_HEIGHT * uArtAspect * (uResolution.y / max(uResolution.x, 1.0));
+  float fit = min(1.0, CARD_MAX_WIDTH / max(rawWidth, 0.0001));
+  vec2 cardSize = vec2(rawWidth, CARD_HEIGHT) * fit;
+  vec2 origin = vec2(CARD_ORIGIN_X, (1.0 - cardSize.y) * 0.5);
 
-  vec2 origin = mix(rightOrigin, leftOrigin, isLeft);
+  float inside = step(origin.x, uv.x) * step(uv.x, origin.x + cardSize.x)
+    * step(origin.y, uv.y) * step(uv.y, origin.y + cardSize.y);
+
   vec2 localUv = (uv - origin) / cardSize;
   vec4 base = texture2D(uBase, clamp(localUv, 0.0, 1.0));
   vec4 hover = texture2D(uHover, clamp(localUv, 0.0, 1.0));
@@ -68,53 +77,10 @@ void main() {
   vec3 cardColor = mix(base.rgb, hover.rgb, mask);
 
   vec3 background = vec3(0.035, 0.04, 0.055);
-  vec3 divider = vec3(0.16, 0.18, 0.22) * (1.0 - smoothstep(0.0, 0.006, abs(uv.x - 0.5)));
-  vec3 color = mix(background + divider, cardColor, inside);
+  vec3 color = mix(background, cardColor, inside);
   gl_FragColor = vec4(color, 1.0);
 }
 `
-
-function makeTexture(kind: 'base' | 'hover') {
-  const canvas = document.createElement('canvas')
-  canvas.width = 512
-  canvas.height = 512
-  const context = canvas.getContext('2d')
-  if (!context) throw new Error('Could not create procedural texture')
-
-  const gradient = context.createLinearGradient(0, 0, 512, 512)
-  if (kind === 'base') {
-    gradient.addColorStop(0, '#f4c95d')
-    gradient.addColorStop(0.5, '#ef6f6c')
-    gradient.addColorStop(1, '#8b5cf6')
-  } else {
-    gradient.addColorStop(0, '#132238')
-    gradient.addColorStop(0.48, '#2dd4bf')
-    gradient.addColorStop(1, '#78e3fd')
-  }
-  context.fillStyle = gradient
-  context.fillRect(0, 0, 512, 512)
-
-  context.globalAlpha = 0.5
-  context.strokeStyle = kind === 'base' ? '#fff6d6' : '#d6fffb'
-  context.lineWidth = 14
-  for (let index = -4; index < 10; index += 1) {
-    context.beginPath()
-    context.moveTo(index * 74, 0)
-    context.lineTo(index * 74 + 360, 512)
-    context.stroke()
-  }
-  context.globalAlpha = 1
-  context.fillStyle = kind === 'base' ? '#251b35' : '#ffdf6c'
-  context.beginPath()
-  context.arc(kind === 'base' ? 350 : 160, kind === 'base' ? 170 : 330, kind === 'base' ? 90 : 110, 0, Math.PI * 2)
-  context.fill()
-
-  const texture = new THREE.CanvasTexture(canvas)
-  texture.colorSpace = THREE.SRGBColorSpace
-  texture.minFilter = THREE.LinearFilter
-  texture.magFilter = THREE.LinearFilter
-  return texture
-}
 
 type RevealControls = {
   progress: number
@@ -130,7 +96,22 @@ function RevealMesh({ controls }: { controls: RevealControls }) {
   const [hovered, setHovered] = useState(false)
   const { gl, size } = useThree()
   const resolution = useMemo(() => new THREE.Vector2(1, 1), [])
-  const textures = useMemo(() => ({ base: makeTexture('base'), hover: makeTexture('hover') }), [])
+  const [loadedIllustration, loadedPhotoreal] = useLoader(THREE.TextureLoader, [
+    ILLUSTRATION_SRC,
+    PHOTOREAL_SRC,
+  ])
+  const textures = useMemo(() => {
+    const prepare = (source: THREE.Texture) => {
+      const texture = source.clone()
+      texture.colorSpace = THREE.SRGBColorSpace
+      texture.minFilter = THREE.LinearFilter
+      texture.magFilter = THREE.LinearFilter
+      texture.needsUpdate = true
+      return texture
+    }
+    return { base: prepare(loadedIllustration), hover: prepare(loadedPhotoreal) }
+  }, [loadedIllustration, loadedPhotoreal])
+
   const uniforms = useMemo(
     () => ({
       uBase: { value: textures.base },
@@ -140,10 +121,17 @@ function RevealMesh({ controls }: { controls: RevealControls }) {
       uPixelSize: { value: controls.pixelSize },
       uCardSpace: { value: controls.cardSpace ? 1 : 0 },
       uCircle: { value: controls.circle ? 1 : 0 },
+      uArtAspect: { value: 1 },
     }),
     // eslint-disable-next-line react-hooks/exhaustive-deps -- Three uniform map identity is stable.
     [],
   )
+
+  const artAspect = useMemo(() => {
+    const image = textures.base.image as { width?: number; height?: number } | undefined
+    if (!image?.width || !image.height) return 1
+    return image.width / image.height
+  }, [textures])
 
   useEffect(
     () => () => {
@@ -163,6 +151,7 @@ function RevealMesh({ controls }: { controls: RevealControls }) {
     material.current.uniforms.uPixelSize.value = controls.pixelSize
     material.current.uniforms.uCardSpace.value = controls.cardSpace ? 1 : 0
     material.current.uniforms.uCircle.value = controls.circle ? 1 : 0
+    material.current.uniforms.uArtAspect.value = artAspect
     gl.getDrawingBufferSize(resolution)
     material.current.uniforms.uResolution.value.copy(resolution)
   })
@@ -215,8 +204,8 @@ export type WritingGridCellRevealPreviewProps = {
 }
 
 export function WritingGridCellRevealPreview({
-  caption = 'Hover the canvas or scrub progress. Compare one continuous screen grid with cells that restart inside each card.',
-  height = 310,
+  caption = 'Hover the canvas, or scrub progress.',
+  height = 560,
   className = '',
 }: WritingGridCellRevealPreviewProps) {
   const uid = useId()
@@ -230,8 +219,7 @@ export function WritingGridCellRevealPreview({
 
   return (
     <figure className={`writing-generative-play-preview ${className}`.trim()}>
-      {caption ? <figcaption className="writing-generative-play-preview__caption">{caption}</figcaption> : null}
-      <div className="writing-generative-play-preview__hud">
+      <WritingPreviewControls caption={caption} label="Grid-cell reveal controls">
         <RangeRow id={`${uid}-progress`} label="Reveal" min={0} max={1} step={0.01} value={progress} onChange={setProgress} />
         <RangeRow id={`${uid}-pixels`} label="Cell size" min={5} max={54} step={1} value={pixelSize} onChange={setPixelSize} />
         <div className="writing-generative-play-preview__control-row">
@@ -247,21 +235,21 @@ export function WritingGridCellRevealPreview({
           <input id={`${uid}-shape`} type="checkbox" checked={circle} onChange={(event) => setCircle(event.target.checked)} />
           <span className="writing-generative-play-preview__control-value">{circle ? '○' : '□'}</span>
         </div>
-      </div>
+      </WritingPreviewControls>
       <div className="writing-generative-play-preview__canvas-wrap" style={{ height: `${height}px` }}>
         <WritingPlayWebglBoundary fallback={fallback}>
-          <Suspense fallback={null}>
-            <Canvas
-              className="writing-generative-play-preview__canvas"
-              role="img"
-              aria-label="Interactive GPU grid-cell image reveal across two adjacent cards"
-              dpr={[1, 1.5]}
-              gl={{ antialias: false, alpha: false, powerPreference: 'high-performance' }}
-              camera={{ position: [0, 0, 1] }}
-            >
+          <Canvas
+            className="writing-generative-play-preview__canvas"
+            role="img"
+            aria-label="Interactive GPU grid-cell reveal where a lattice of cells opens a photoreal frame out of an illustration"
+            dpr={[1, 1.5]}
+            gl={{ antialias: false, alpha: false, powerPreference: 'high-performance' }}
+            camera={{ position: [0, 0, 1] }}
+          >
+            <Suspense fallback={null}>
               <RevealMesh controls={controls} />
-            </Canvas>
-          </Suspense>
+            </Suspense>
+          </Canvas>
         </WritingPlayWebglBoundary>
       </div>
     </figure>

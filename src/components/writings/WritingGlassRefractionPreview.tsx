@@ -6,6 +6,7 @@ import * as THREE from 'three'
 
 import { useWritingPreviewReducedMotion } from '@/components/writings/useWritingPreviewReducedMotion'
 import { WritingPlayWebglBoundary } from '@/components/writings/writingPlayWebglBoundary'
+import { WritingPreviewControls } from '@/components/writings/WritingPreviewControls'
 
 const BACKDROP_LAYERS = 1 << 0
 const ALL_LAYERS = (1 << 0) | (1 << 1)
@@ -384,7 +385,7 @@ export type WritingGlassRefractionPreviewProps = {
 }
 
 export function WritingGlassRefractionPreview({
-  caption = 'Move the lens across the type, tune its spectral fringe, then raise tint to compare the light- and dark-theme blends.',
+  caption = 'Drag the lens across the type.',
   height = 330,
   className = '',
 }: WritingGlassRefractionPreviewProps) {
@@ -400,8 +401,7 @@ export function WritingGlassRefractionPreview({
 
   return (
     <figure className={`writing-generative-play-preview ${className}`.trim()}>
-      {caption ? <figcaption className="writing-generative-play-preview__caption">{caption}</figcaption> : null}
-      <div className="writing-generative-play-preview__hud">
+      <WritingPreviewControls caption={caption} label="Glass refraction controls">
         <RangeRow id={`${uid}-ior`} label="IOR" min={1} max={1.8} step={0.01} value={ior} onChange={setIor} />
         <RangeRow id={`${uid}-dispersion`} label="Dispersion" min={0} max={0.22} step={0.005} value={dispersion} onChange={setDispersion} />
         <RangeRow id={`${uid}-tint`} label="Tint" min={0} max={1} step={0.02} value={tint} onChange={setTint} />
@@ -411,7 +411,7 @@ export function WritingGlassRefractionPreview({
           <input id={`${uid}-theme`} type="checkbox" checked={dark} onChange={(event) => setDark(event.target.checked)} />
           <span className="writing-generative-play-preview__control-value">{dark ? 'Hard' : 'Beer'}</span>
         </div>
-      </div>
+      </WritingPreviewControls>
       <div className="writing-generative-play-preview__canvas-wrap" style={{ height: `${height}px` }}>
         <WritingPlayWebglBoundary fallback={fallback}>
           <Suspense fallback={null}>

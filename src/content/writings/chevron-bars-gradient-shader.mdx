@@ -36,10 +36,9 @@ float feather = smoothstep(-0.02, 0.11, distBelow);
 
 Motion is cheap: add a low-frequency sine to `th` for the whole **V to breathe**, and a second sine with phase per `colId` so bars drift slightly out of sync (equaliser energy without audio). A high-frequency **hash** on `floor(uv * resolution)` tints luminance for grain; rehashing with `floor(time)` gives a subtle **flicker**. A tight Gaussian bump on the red band approximates **bloom** in one additive line—enough for thumbnails, not a full HDR pipeline.
 
-<WritingShaderDemo
+export const preview = <WritingShaderDemo
   preset="chevronGradientBars"
   ariaLabel="Animated shader: chevron bar gradients with grain and pointer-influenced depth"
-  caption="Live pass: column thresholds, soft frontier, grain, mild red glow. Move the pointer to bias the chevron."
   height={860}
 />
 

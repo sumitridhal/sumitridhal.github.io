@@ -8,7 +8,21 @@ import {
   hrefReading,
   hrefWritings,
 } from '@/i18n/routes'
-import { Link, useLocation } from 'react-router-dom'
+import { useLocation } from 'react-router-dom'
+
+/**
+ * Frosted glass layers. The backdrop extends past the header and is masked back
+ * so nearby content still feeds the blur; the edge is a second, differently
+ * filtered sliver that reads as the thickness of the glass.
+ */
+function HeaderGlass() {
+  return (
+    <>
+      <div className="site-header__backdrop" aria-hidden="true" />
+      <div className="site-header__backdrop-edge" aria-hidden="true" />
+    </>
+  )
+}
 
 export function SiteHeader() {
   const { t } = useI18n()
@@ -20,20 +34,8 @@ export function SiteHeader() {
   if (isHomeRoute) {
     return (
       <header className="site-header site-header--home">
-        <Link className="site-header__brand" to={hrefHome} aria-label={t('nav.home')}>
-          {t('common.brand')}
-        </Link>
         <div className="site-header__controls">
-          <ThemeToggle />
-          <button
-            type="button"
-            className="site-header__burger"
-            aria-expanded={menuOpen}
-            aria-controls="mobile-menu-panel"
-            onClick={toggleMenu}
-          >
-            {t('nav.menu')}
-          </button>
+          <ThemeToggle className="theme-toggle--chip" />
         </div>
       </header>
     )
@@ -41,6 +43,7 @@ export function SiteHeader() {
 
   return (
     <header className="site-header">
+      <HeaderGlass />
       <nav className="site-header__nav" aria-label="Primary">
         <button type="button" className="site-header__link" onClick={() => navigate(hrefHome)}>
           {t('nav.home')}

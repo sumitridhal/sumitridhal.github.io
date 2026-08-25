@@ -1,0 +1,286 @@
+import { WritingBillboardGrassPreviewLazy } from '@/components/writings/WritingBillboardGrassPreviewLazy'
+
+export const writingMeta = {
+  id: 'billboard-grass-wind-instancing',
+  order: -4,
+  title: 'Billboard grass with wind: buying variation from an instance ID',
+  date: '2026-08-29',
+  category: 'Creative code',
+  excerpt:
+    'One quad, one integer, and one world-space noise lookup. A Godot grass shader rebuilt as a WebGL study, where every difference between blades is derived rather than authored.',
+  titleLines: ['Billboard grass:', 'variation from an instance ID'],
+  keywords: ['webgl', 'shaders', 'godot', 'instancing', 'dithering'],
+  asideParagraphs: [
+    'A grass field is not a modelling problem. It is the problem of buying variation as cheaply as possible, and only two currencies are available: the instance index and the world position.',
+    'The billboard matrix and the forced-up normal are both deliberate lies. One stops a flat quad turning sideways; the other makes thousands of quads shade like a single surface.',
+  ],
+}
+
+export const preview = <WritingBillboardGrassPreviewLazy />
+
+Ten thousand blades of grass sounds like an asset problem. Model a few blades, scatter them, vary the scatter, and hope the repetition hides in the density. binbun's Godot shader takes a stricter position: there is exactly one quad, and every difference between one blade and the next is computed from two inputs the renderer already has. The instance index supplies identity. The world position supplies context. Nothing else is stored per blade.
+
+That constraint is what makes the shader worth reading. It is not a grass shader so much as a catalogue of ways to manufacture variety for free. Drag the study below to orbit it, then open the controls: **Wind speed** and **Wind angle** drive the world-space lookup, **Tip bias** exposes what plants the base, **Wind wrap** reproduces and then fixes a real seam artifact, **Billboard** swaps the blade's orientation basis for the camera's, **Alpha** switches between blending, dithering and cutting, and **Shapes** and **Highlight cut** show how much variation an integer can buy.
+
+## Two inputs, four kinds of variety
+
+Read the fragment and vertex functions looking only for where difference enters, and the whole design collapses into a short list. Shape comes from `INSTANCE_ID` through a texture-atlas index. Colour comes from a world-space noise lookup feeding a gradient. Sway phase comes from a world-space wind lookup. Highlights come from `INSTANCE_ID` again, through a cheap hash.
+
+None of those consult a per-blade record. There is no array of blade colours, no authored sway offset, no per-instance rotation beyond the transform that placed the quad. `MultiMeshInstance3D` hands the shader a transform and an index, and the shader manufactures the rest.
+
+This matters more than it sounds. A per-blade attribute buffer for ten thousand blades is cheap in bytes but expensive in pipeline: something has to author it, ship it, keep it in sync with the scatter, and re-author it when the scatter changes. A derived value costs a few instructions and stays correct when you move the field, resize it, or repopulate the surface. The study here keeps four instanced attributes — position, scale, yaw, index — and computes shape, colour, bend and highlight from those.
+
+## World space is what turns jitter into wind
+
+The single most important decision in the shader is where the wind lookup is sampled:
+
+```glsl
+float wind_noise(){
+	float value = texture(wind_texture, (world_pos.xz*0.03) - (vec2(TIME * 0.01) * wind_velocity)).r;
+	return value;
+}
+```
+
+`world_pos.xz`, not a per-instance coordinate. Two blades standing next to each other have nearly identical world positions, so they read nearly identical values from the texture, so they lean nearly the same amount. Two blades ten metres apart read unrelated values and lean independently.
+
+Swap that for a per-instance seed — hash the instance index into a phase offset — and every blade moves on its own schedule. The field still animates. It reads as noise, not weather, because wind is a property of *space* and a per-instance phase is a property of *identity*. Coherence over short distances is the entire signal.
+
+The WebGL study keeps the same contract, substituting three octaves of value-noise fbm for the texture and sampling at the blade's base:
+
+```glsl
+float windNoise(vec2 worldXz) {
+  vec2 uv = worldXz * 0.19 - uWindDir * uWindPhase;
+  vec2 wrapped = mix(fract(uv), tentMap(uv), uMirrorWrap);
+  return fbm(wrapped * 3.0);
+}
+```
+
+The ground plane samples the same noise function at the same scale for its own colour, which is why the darker patches under the field line up with the darker blades above them. One world-space field, two consumers, automatic agreement.
+
+Note also that `wind_noise` returns a value in zero-to-one. The displacement is always in the `+wind_velocity` direction; the noise modulates its *strength*, never its sign. The field never gusts back against itself. That is a simplification, and a defensible one — it costs one texture channel instead of two and no viewer notices.
+
+## An exponent is what keeps the base planted
+
+The bend is scaled before it is applied:
+
+```glsl
+float wind_affect = pow(1.0 - uv.y, 2.0);
+```
+
+Godot's UV origin is top-left, so `uv.y` is one at the bottom of the quad and zero at the top. `1.0 - uv.y` is therefore zero at the base and one at the tip. Three.js puts the UV origin at the bottom, so the same curve is `pow(uv.y, ...)`; that axis flip is the kind of detail that silently uproots an entire field.
+
+```glsl
+float affect = pow(max(uv.y, 0.0001), uTipBias);
+float bend = windNoise(aOffset.xz) * uWindSpeed * 0.34 * affect;
+worldPos += vec3(uWindDir.x, 0.0, uWindDir.y) * bend;
+```
+
+The exponent is doing two jobs. Multiplying by zero at the base is what makes the blade look rooted rather than sliding. Squaring the ramp is what makes the deflection accelerate toward the tip, which is a passable stand-in for a cantilever without any physics.
+
+Set **Tip bias** to zero and `pow(x, 0.0)` returns one everywhere. Every vertex receives the same offset, so each blade stays perfectly straight and translates sideways as a rigid card. The field slides. Return the exponent to two and the blades bow. The quality people describe as "springy" is one `pow` call, and the `max(uv.y, 0.0001)` guard exists only because `pow(0.0, 0.0)` is undefined in GLSL.
+
+The number of height subdivisions on the quad sets how smooth that bow can be. binbun's usage notes say to raise the subdivision count "to improve the quality of bending in the wind," which is the honest framing: the exponent describes a curve, and the mesh can only sample it. This study uses five height segments.
+
+## Scrolling a wrapped lookup drags a seam through the field
+
+In the comments on the original post, LJ reports something that only appears once you turn the wind up: "very obvious seams at the edges of the wind noise texture, particularly visible with fast wind speeds," attributed to the fact that "the default behavior for UV coordinates exceeding 1.0 is simply to wrap them back around to 0."
+
+That diagnosis is exactly right, and it generalises well beyond grass. The lookup coordinate is `world_pos.xz * 0.03` minus a term proportional to time. The scroll term grows without bound, so the sample coordinate marches steadily across the texture and past its edge. A repeating sampler wraps: the coordinate jumps from just under one back to zero. Unless the texture happens to be seamless, the value on either side of that jump is unrelated, and the discontinuity is a line in world space where neighbouring blades suddenly disagree about the wind.
+
+Faster wind means a faster scroll, which means the seam sweeps through the field more often. That is why the artifact hides at low speeds and becomes obvious at high ones.
+
+LJ's fix replaces wrapping with mirroring:
+
+```glsl
+// Maps given UV coordinates to a periodic sawtooth pattern,
+// with inflections every 1.0 units, allowing for endless and
+// seamless tiling by symmetrically flipping.
+vec2 tent_map(vec2 uv) {
+    uv *= vec2(0.5, 0.5);
+    return vec2(2.0,2.0)*min(mod(uv,1), vec2(1,1)-mod(uv,1));
+}
+```
+
+Halve the coordinate, take its fractional part, then fold the upper half back down. The output rises from zero to one and falls back to zero with period two in the original coordinate, and it is continuous at every inflection — at the fold, `f` and `1.0 - f` meet at the same value. No jump, so no seam.
+
+The study implements the same map with `fract`, which is what `mod(x, 1.0)` reduces to:
+
+```glsl
+/* Periodic tent map: mirrors at every inflection instead of wrapping. */
+vec2 tentMap(vec2 uv) {
+  vec2 f = fract(uv * 0.5);
+  return 2.0 * min(f, 1.0 - f);
+}
+```
+
+Turn **Wind wrap** to `REPEAT` and raise **Wind speed**, and a crease travels through the field: blades on one side of a line lean one way, blades on the other lean another, with nothing in between. Switch to `MIRROR` and the crease is gone.
+
+LJ followed up with the observation that closes the loop: there is also the option to make the noise texture seamless in the first place.
+
+Both fixes are correct and they are not equivalent. A seamless texture removes the discontinuity at the source and costs nothing at runtime. The tent map removes it at the sample site and works on any texture you were handed, including ones you cannot regenerate — at the price of two extra instructions and a periodic mirror symmetry in the result, since the field now repeats every two units instead of one and reflects at each fold. If you control the asset, make it seamless. If you do not, fold the coordinate.
+
+The general rule is worth keeping: any time an animated term is added to a texture coordinate, the sampler's wrap mode becomes part of the visual design.
+
+## Per-instance variety is arithmetic on an integer
+
+Two mechanisms extract variation from `INSTANCE_ID`, and both have a caveat.
+
+The first is the atlas index:
+
+```glsl
+vec2 atlas_uv(vec2 uv, int index, int size){
+	int tile_count = size * size;
+	int i = index % tile_count;
+	...
+}
+```
+
+That is a modulus, not a hash. `id % 4` cycles `0, 1, 2, 3, 0, 1, 2, 3`. It only looks random because `MultiMesh > Populate Surface` scatters instances in an order uncorrelated with position. Populate in a scanline order instead and `id % 4` becomes a visible four-column stripe across the field. The study reproduces the structure with `mod(aId, uShapeVariants)` over four procedural blade profiles; set **Shapes** to `One blade` and the silhouette repetition becomes obvious, which is the whole reason the atlas exists.
+
+The second is the highlight test:
+
+```glsl
+float randomf(int index, int seed){
+	float value = sin(float(index + seed)) * 0.5 + 0.5;
+	return value;
+}
+```
+
+`sin` of consecutive integers works as a hash because one radian is an irrational fraction of a full turn, so the sequence never repeats and neighbouring indices land far apart. It is genuinely cheap: one transcendental, no large multiplier, no `fract`.
+
+It is not uniform. Mapping a sine into zero-to-one gives an arcsine distribution, whose density piles up at both ends, so a threshold does not behave like a probability:
+
+```glsl
+if(randomf(id,1) < random_variation) noise_value += 0.4;
+```
+
+With the shader's default `random_variation = 0.002`, a uniform hash would brighten one blade in five hundred. The arcsine distribution's cumulative function is `(2 / PI) * asin(sqrt(t))`, which at `t = 0.002` is about 2.85 per cent. Evaluating the actual expression over 5,200 indices selects 147 of them — 2.83 per cent, fourteen times what the number suggests.
+
+That is not a bug; the default was presumably tuned by eye, and tuning by eye is fine. But the parameter reads like a probability and is not one, and the error grows as the threshold shrinks. If you want a threshold you can reason about, use a hash with a flat distribution and keep the sine for cases where only the ordering matters. **Highlight cut** in the study drives the unmodified expression, so the value shown is the threshold, not the fraction.
+
+## Dithered alpha buys an ordering guarantee
+
+The shader offers three ways to get a blade silhouette out of a rectangle, and the interesting one is the middle:
+
+```glsl
+if(alpha_mode == 1){
+    alpha = step(bayer4(FRAGCOORD.xy) + 0.01, alpha);
+}
+if(alpha < 0.1) discard;
+```
+
+Straight alpha blending gives the best edges and the worst behaviour. A blended surface either writes depth, in which case its soft edges punch holes in whatever is behind them, or it does not, in which case correctness depends on drawing far surfaces before near ones. Thousands of instanced blades in a single draw call cannot be sorted. They render in buffer order, which has nothing to do with distance from the camera.
+
+Set **Alpha** to `Smooth` in the study to see the consequence. Rectangular quad boundaries appear where a blade drawn later blends over a blade genuinely in front of it. The silhouettes are soft and the depth is wrong.
+
+Dithering trades that away. The Bayer comparison converts fractional coverage into a binary decision per pixel, so the surface becomes fully opaque: it writes depth, sorts by the depth buffer, and needs no ordering at all. The cost is that partial coverage is now expressed as a screen-space pattern, and a screen-space pattern does not move with the geometry. Blades are small enough here that the pattern reads as a stipple along the silhouette rather than as a grid.
+
+The threshold matrix is the same construction as in [A Bayer disc: dithering as a reveal mask](/writing/bayer-disc-dither-reveal), where it converts a radial field into a printed-looking image reveal. Here the same recursion converts a blade's coverage into a depth-correct cutout:
+
+```glsl
+float bayer2(vec2 coord) {
+  vec2 a = floor(coord);
+  return fract(a.x * 0.5 + a.y * a.y * 0.75);
+}
+
+float bayer4(vec2 coord) {
+  return bayer2(coord * 0.5) * 0.25 + bayer2(coord);
+}
+```
+
+Identical function, unrelated job. In the disc it is an artistic choice about how a photograph should appear. Here it is a rendering-architecture choice that removes a sort from the frame. The `+ 0.01` in the original serves the same purpose as the half-step centring in that piece: it stops the matrix's zero entry from passing `step` unconditionally.
+
+The third mode, `Cut`, discards below a threshold and keeps the surviving pixels opaque. Same depth guarantee, no pattern, and hard aliased edges — visible as stair-stepping along every blade in the study. Between the two, dithering spends a visible pattern to buy back the coverage that cutting throws away.
+
+All three modes read from the same remap:
+
+```glsl
+alpha = clamp((shape_value - alpha_cut_start) / (alpha_cut_end - alpha_cut_start), 0.0, 1.0);
+```
+
+This is a levels adjustment on the shape's alpha before it is thresholded. Raising `alpha_cut_start` erodes the blade; lowering `alpha_cut_end` dilates it. It exists because a soft-edged shape texture rarely has its useful contour at exactly the value the threshold wants.
+
+## Two useful lies
+
+Everything above is a technique. The two remaining pieces are misrepresentations, and both earn their place.
+
+The first is the billboard matrix:
+
+```glsl
+mat4 billboard_matrix = mat4(
+        MAIN_CAM_INV_VIEW_MATRIX[0],
+        MAIN_CAM_INV_VIEW_MATRIX[1],
+        MAIN_CAM_INV_VIEW_MATRIX[2],
+        MODEL_MATRIX[3]);
+MODELVIEW_MATRIX = VIEW_MATRIX * billboard_matrix;
+```
+
+Three columns of orientation from the camera, one column of translation from the model. The blade keeps where it is and borrows which way it faces. Without this, a quad seen edge-on is a line: a field with random yaw loses a fraction of its blades to near-zero screen coverage from every angle, and appears to thin out and thicken as you turn. Toggle **Billboard** to `CAMERA` in the study and the field visibly fills in, because every blade is now presenting its full width.
+
+The lie has a tell. Taking all three columns means inheriting the camera's pitch as well as its yaw, so orbiting up and down tips the blades with the camera instead of leaving them standing. Grass usually wants a cylindrical billboard — camera yaw only, world up preserved — and this is a spherical one. The study is faithful to the source, so you can find the artifact by orbiting toward the top of the field.
+
+There is also a translation subtlety here that is easy to mis-copy. In billboard mode the original transforms the wind offset before applying it:
+
+```glsl
+VERTEX += (VIEW_MATRIX * vec4(wind(UV), 0.0)).xyz;
+```
+
+That extra transform is not something billboarding inherently requires. It is a consequence of having overwritten `MODELVIEW_MATRIX`: `VERTEX` is now interpreted through a matrix built from camera columns, so a world-space offset added directly would be rotated by the camera. The view transform pre-compensates. The WebGL study builds world positions explicitly from a basis it chooses per blade, so the wind offset is added in world space in both modes and no correction is needed. If you port this by copying the two branches, you will carry a fix for a problem you no longer have.
+
+The second lie is one line:
+
+```glsl
+NORMAL = vec3(0.0,1.0,0.0);
+```
+
+with a matching light function:
+
+```glsl
+void light(){
+	float ndotl = dot(LIGHT, NORMAL) * ATTENUATION;
+	DIFFUSE_LIGHT += ndotl;
+}
+```
+
+Every fragment of every blade claims to face straight up. Follow that through: for a directional light, `dot(LIGHT, NORMAL)` is then the same number for the entire field. The lighting term is a constant. In the study it evaluates to `0.44 + 0.56 * 0.7504`, or about `0.86` — a single multiplier applied uniformly:
+
+```glsl
+float ndotl = max(dot(LIGHT, UP), 0.0);
+vec3 color = vTint * (0.44 + 0.56 * ndotl);
+```
+
+That is the point. Shade the quads honestly and each one becomes a flat card catching light according to its own arbitrary yaw, so the field reads as thousands of individually lit billboards. Force the normal up and the lighting stops describing individual blades and starts describing the ground they grow from. Every visible variation in the rendered field then comes from the colour ramp and the world-space noise driving it — never from geometry.
+
+Which is a neat closing of the loop. The shader spends its effort manufacturing variation from an index and a position, then deliberately removes the one source of variation it would have got for free.
+
+## What the Three.js translation had to change
+
+- `MultiMeshInstance3D` becomes an `InstancedBufferGeometry` carrying `aOffset`, `aScale`, `aYaw` and `aId`, drawn from one quad with five height segments.
+- `INSTANCE_ID` becomes the `aId` instanced attribute rather than `gl_InstanceID`, which keeps the shader on GLSL ES 1.00 and makes the index available as a float.
+- `MAIN_CAM_INV_VIEW_MATRIX` has no equivalent, so the camera basis is reconstructed from Three's `viewMatrix`: its first two columns transposed give the camera's right and up vectors in world space.
+- Rather than overwrite a model-view matrix, the vertex shader composes a world position from a chosen right/up basis, so `mix()` between the fixed and camera bases is all that billboarding costs.
+- Godot's `light()` override has no counterpart, so flat shading is written out explicitly as a constant diffuse term. No Three.js lights are added to the scene.
+- `shape_texture` and the 2×2 `shape_atlas` become four procedural blade profiles — base half-width, taper exponent and tip lean — evaluated in the fragment shader.
+- `color_gradient` and `noise_texture` become a four-stop ramp function and value-noise fbm. No assets are loaded.
+- The gradient is sampled per instance from the blade's base position rather than per fragment from the interpolated world position. At this lookup scale the difference is invisible across a single blade and the saving is one fbm evaluation per fragment.
+- `TIME * wind_velocity` becomes an integrated `uWindPhase`, so moving the wind-speed slider changes the rate without teleporting the field to a new phase.
+- `render_mode blend_mix, depth_prepass_alpha` becomes explicit material state: `transparent` with `depthWrite` off for smooth alpha, opaque with `depthWrite` on for the dithered and cut paths.
+- Godot's `hint_range` and `hint_enum` inspector metadata become React range inputs, checkboxes and selects writing into uniforms.
+- Reduced motion freezes `uWindPhase` at a value with visible bend rather than at zero, so the composition stays complete without moving.
+
+One thing did not need translating, and it is the comment thread's other good catch. breadpack pointed out that the gradient and noise samplers should be declared `source_color`, because that flag tells Godot to treat the texture as sRGB and linearise it on read. Without it, an sRGB gradient is interpreted as linear data and the colours come out wrong — a real correctness issue, not a cosmetic one, and easy to miss because the uniform is a texture rather than a colour. The study has no textures to mis-tag; its ramp is computed in the shader in the space it is written in.
+
+## What I would copy
+
+- Derive per-instance variety from the index and the position before adding a per-instance attribute buffer.
+- Sample anything that should look like a shared environmental force in world space; reserve per-instance seeds for properties that belong to the individual.
+- Multiply a displacement by a ramp that reaches zero at the anchor, and use the ramp's exponent to shape the falloff.
+- Treat a sampler's wrap mode as part of the design whenever an animated term is added to a texture coordinate.
+- Prefer a seamless texture when you own the asset; fold the coordinate through a tent map when you do not.
+- Remember that a modulus over an instance index is only random if the instance order is.
+- Check the distribution of a cheap hash before treating its threshold as a probability.
+- Reach for ordered dithering when a transparent surface would otherwise need a sort the draw call cannot provide.
+- Consider flattening a normal when a crowd of small surfaces should read as one mass, and accept that this removes shading as a source of variation.
+- Reconstruct a host engine's convenience matrices from what your renderer exposes, then drop the compensating transforms that existed only to serve them.
+
+This study is based on [binbun's "Billboard Grass with Wind"](https://godotshaders.com/shader/billboard-grass-with-wind/) for Godot. The shader code and snippets on that page are published under [CC0](https://creativecommons.org/publicdomain/zero/1.0/); the images, videos and depicted assets on it are not, and none are reproduced here. The WebGL implementation is an independent translation with procedural blade shapes, a procedural colour ramp and procedural wind noise in place of the original's textures, so it loads no assets from that project. The tent-map seam fix and the `source_color` observation are LJ's and breadpack's respectively, from the comment thread on the same post.

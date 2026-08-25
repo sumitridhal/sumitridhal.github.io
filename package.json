@@ -5,8 +5,9 @@
   "type": "module",
   "scripts": {
     "dev": "vite --port 3630",
-    "build": "tsc -b && vite build && node -e \"require('node:fs').copyFileSync('dist/index.html','dist/404.html')\"",
+    "build": "tsc -b && vite build && node -e \"require('node:fs').copyFileSync('dist/index.html','dist/404.html')\" && node scripts/emit-social-html.mjs",
     "experiments:ingest": "node scripts/ingest-experiments.mjs",
+    "social:images": "node scripts/generate-social-images.mjs",
     "lint": "eslint .",
     "preview": "vite preview"
   },
@@ -39,6 +40,7 @@
     "eslint-plugin-react-hooks": "^7.1.1",
     "eslint-plugin-react-refresh": "^0.5.2",
     "globals": "^17.5.0",
+    "sharp": "^0.35.3",
     "tailwindcss": "^4.3.0",
     "typescript": "~6.0.2",
     "typescript-eslint": "^8.58.2",

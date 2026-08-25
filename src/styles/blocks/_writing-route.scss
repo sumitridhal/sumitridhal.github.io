@@ -9,12 +9,6 @@ body.route-writing .app__main {
 }
 
 body.route-writing .site-header:not(.site-header--home) {
-  mix-blend-mode: normal;
-  width: 100%;
-  max-width: none;
-  justify-content: space-between;
-  background: transparent;
-  color: var(--editorial-ink);
   border-top: 6px solid var(--editorial-accent);
 }
 

@@ -146,7 +146,7 @@ export type WritingInfiniteCanvasPreviewProps = {
 }
 
 export function WritingInfiniteCanvasPreview({
-  caption = 'Pan the window: nine chunks stay hot; colors are deterministic per slot.',
+  caption = 'Drag to pan the grid, scroll to zoom.',
   height = 300,
   className = '',
 }: WritingInfiniteCanvasPreviewProps) {

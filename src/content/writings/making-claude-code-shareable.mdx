@@ -34,9 +34,11 @@ The useful packet is small:
 
 I try to write that while the session is still warm. Waiting until the next morning means I have the transcript but not the shape of the investigation. The model can remember the words; it cannot know which moment made me change direction unless I leave that note.
 
-<figure className="writing-inline-figure">
-  <img src="/media/writings/making-claude-code-shareable.png" alt={writingMeta.title} loading="lazy" decoding="async" />
-</figure>
+export const preview = (
+  <figure className="writing-inline-figure">
+    <img src="/media/writings/making-claude-code-shareable.png" alt={writingMeta.title} loading="lazy" decoding="async" />
+  </figure>
+)
 
 For commits, I like pulling the high-signal parts into the message: why the fix went this way, what test proved it, and any caveat the next reviewer should not have to rediscover. For a teammate, a short markdown note in the branch is usually enough.
 

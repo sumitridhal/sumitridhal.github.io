@@ -17,10 +17,9 @@ export const writingMeta = {
 
 At a point `p`, a **signed distance function** reports how far you are from the nearest surface, with one sign convention: **outside positive, inside negative**. That single scalar is enough to shade a silhouette, anti-alias an edge, or—when you promote `p` to three dimensions and march along a ray—walk through empty space in large steps. The marching story lives in [Raymarching signed distance fields without the hype](/writing/raymarch-distance-fields-nutshell); here the focus is the **library of shapes and operators** you feed into `map(p)`.
 
-<WritingShaderDemo
+export const preview = <WritingShaderDemo
   preset="sdfPrimitives2d"
   ariaLabel="2D distance field: smooth union of a circle and a rounded rectangle, teal fill and coral rim, drifting with time and pointer"
-  caption="2D fragment: round box, circle, smooth minimum, isolines"
 />
 
 ## Primitives (small and stable)

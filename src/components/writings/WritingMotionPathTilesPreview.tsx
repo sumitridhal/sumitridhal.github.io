@@ -82,7 +82,7 @@ function zForTile(u: number, y: number, index: number): number {
 }
 
 export function WritingMotionPathTilesPreview({
-  caption = 'Hand-sampled SVG path: equal arc-length spacing, finite-difference tangent, z-index heuristic on the loop’s rear strand.',
+  caption,
   className = '',
 }: WritingMotionPathTilesPreviewProps) {
   const reduced = useWritingPreviewReducedMotion()

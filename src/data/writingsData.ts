@@ -17,10 +17,10 @@ export function getWritingBySlug(slug: string | undefined): WritingMeta | undefi
   return getWritingEntryBySlug(slug)?.meta
 }
 
-export function titleLinesForWriting(item: WritingMeta): string[] {
+export function writingHeadline(item: WritingMeta): string {
   const lines = item.titleLines
-  if (lines && lines.length > 0) return lines
-  return [writingTitle(item)]
+  if (lines && lines.length > 0) return lines.join(' ')
+  return writingTitle(item)
 }
 
 export function asideParagraphsForWriting(item: WritingMeta): string[] {

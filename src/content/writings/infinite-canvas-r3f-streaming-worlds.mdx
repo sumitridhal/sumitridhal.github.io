@@ -21,7 +21,7 @@ In January 2026, [Edoardo Lunardi](https://www.edoardolunardi.dev/) published [*
 
 This note is not a reprint. It is a compressed mental model so future me remembers *why* the system works, with pointers to the source, the [lab demo](https://www.edoardolunardi.dev/lab/infinite-canvas), and the [MIT-licensed repo](https://github.com/edoardolunardi/infinite-canvas).
 
-<WritingInfiniteCanvasPreviewLazy />
+export const preview = <WritingInfiniteCanvasPreviewLazy />
 
 The figure above is loaded with `React.lazy` so the drei / WebGL chunk is not on the critical path for the rest of the writings bundle. The live block only models the **near** shell (every chunk gets the same slot grid); a second ring is where you swap to cheaper **far** blocks so the horizon still reads continuous without paying full plane cost.
 

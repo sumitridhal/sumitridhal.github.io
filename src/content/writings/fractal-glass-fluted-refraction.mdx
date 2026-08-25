@@ -1,0 +1,218 @@
+import { WritingFractalGlassPreviewLazy } from '@/components/writings/WritingFractalGlassPreviewLazy'
+
+export const writingMeta = {
+  id: 'fractal-glass-fluted-refraction',
+  order: -1,
+  title: 'Fractal glass: fluted refraction in one pass',
+  date: '2026-09-02',
+  category: 'Creative code',
+  excerpt:
+    'Quantize the horizontal coordinate into columns and treat each column as its own cylindrical lens: one fragment pass re-images a procedural scene through a sheet of poured fluted glass, with no second render target.',
+  titleLines: ['Fractal glass:', 'fluted refraction in one pass'],
+  coverSrc: '/media/writings/fractal-glass-fluted-refraction.png',
+  keywords: ['webgl', 'shaders', 'refraction', 'noise'],
+  asideParagraphs: [
+    'A flute is not a stripe. A stripe decides a colour from its column index; a flute decides a coordinate, then asks the scene behind it what lives there.',
+    'Lens gain of exactly one is the algebraic identity: each flute re-images its own slice at its own width, so the image passes through untouched and only the surface shading survives. Every visible bend is the ratio between a flute and the slice it borrows.',
+  ],
+}
+
+Fluted glass looks like a modelling problem. The reference images that circulate as "fractal glass" are usually built from real geometry: a row of half-cylinders, a transmissive material, an environment to refract. In a fragment shader none of that is necessary, because a lens is not an object. A lens is a rule that says *sample the scene somewhere other than where you are standing*.
+
+That reduction makes the whole sheet cheap. Quantize the horizontal coordinate into columns, use each column's local coordinate to offset the sample position, and every flute becomes an independent little lens re-imaging a squeezed slice of whatever sits behind the pane. Perturb the quantization with turbulence and the flutes stop looking machined.
+
+export const preview = <WritingFractalGlassPreviewLazy />
+
+The study above is one fullscreen pass over four procedural environments. **Lens gain** sets how wide a slice each flute borrows, **Fluid influence** and **Turbulence** bend the columns and vary their thickness, **Glass amount** dissolves the sheet, and **Wall edge** switches between three ways of antialiasing a flute boundary — including the wrong one.
+
+## Two numbers from one coordinate
+
+The entire structure of the sheet comes from splitting a scaled coordinate into its integer and fractional parts:
+
+```glsl
+float xScaled = (uv.x + bend) * uColumns;
+float columnIndex = floor(xScaled);
+float local = fract(xScaled);
+float lens = local * 2.0 - 1.0;
+```
+
+`columnIndex` answers *which* flute this fragment belongs to, and `local` answers *where inside it*. Those two answers do different jobs and should not be confused. The index is a per-flute identity: constant across the flute's width, useful as a seed for anything that must vary between flutes but not within one. The local coordinate is a position: continuous inside the flute, discontinuous at its walls.
+
+Remapping `local` to `lens` in the range `-1` to `1` puts zero at the flute's centre line and `±1` at its walls, which is the natural frame for a symmetric lens.
+
+This is the same `floor`/`fract` partition that [Chevron bars](/writing/chevron-bars-gradient-shader) uses to give each column its own threshold, and the same lattice that [Perlin noise as a field of vertical bars](/writing/perlin-noise-vertical-bars) samples once per cell. The difference is what the column index is spent on. Those studies map a column to a *colour*. Here the column maps to a *coordinate*, and the colour arrives afterwards from somewhere else on the screen. Once the output of the quantization is a sample position, the effect stops being a pattern and starts being an optic.
+
+## A flute is a slice-borrowing rule
+
+Each flute occupies a slice of the pane `1.0 / uColumns` wide. The lens decides how much of the scene gets compressed into that slice:
+
+```glsl
+float sliceHalf = 0.5 / uColumns;
+float lensOffset = lens * sliceHalf * uLensGain + thickness * uFluid * sliceHalf * 2.6;
+
+vec2 sampleUv = vec2(
+  (columnIndex + 0.5) * sliceHalf * 2.0 + lensOffset,
+  uv.y + thickness * uFluid * 0.05
+);
+```
+
+The sample starts at the flute's centre and walks outward proportionally to `lens`. With `uLensGain` at one, that walk exactly retraces the coordinate the fragment came from: `centre + lens * sliceHalf` reconstructs `uv.x + bend`. The sampled image becomes the identity, and the only thing left of the pane is its shading. Set **Lens gain** to one with **Fluid influence** at zero and the **Spectrum bars** stand up perfectly straight under a corrugated highlight — no distortion at all. That is worth doing once, because it establishes what the effect actually is: every visible bend is the *ratio* between a flute's width on screen and the width of the slice it borrows.
+
+Above one, the walk overshoots the flute's own slice. A gain of six means each flute compresses six slices' worth of scene into its own width, so neighbouring flutes overlap in content and the scene appears repeated and squeezed across the pane. Below one, each flute magnifies a sliver of the scene into a broad smear. Both directions read as glass because both are what a cylindrical section does to an image.
+
+Only the horizontal axis carries the lens. A flute is a cylinder with a vertical axis, so it has no optical power along its length, and the vertical term in `sampleUv` is deliberately tiny — it exists only to keep the sheet from looking perfectly extruded.
+
+## Turbulence goes into the quantization, not on top of it
+
+Perturbing the finished image would smear the flutes. The interesting place to inject noise is *before* the `floor`, where it moves the walls themselves:
+
+```glsl
+vec2 creaseDomain = vec2(uv.x * aspect, uv.y) * mix(1.4, 5.2, uTurbulence)
+  + vec2(time * 0.7, time)
+  + (uPointer - 0.5) * 2.4;
+float creases = turbulence(creaseDomain) - 0.42;
+
+float bend = creases * uFluid * 0.28 - reach * grip.x * 0.55;
+```
+
+Because `bend` is added before scaling by `uColumns`, a smooth horizontal displacement becomes a smooth wander of every wall. Flutes drift wider and narrower down their length, exactly the way a poured sheet varies where the glass cooled unevenly. Nothing about the quantization changed; the coordinate it consumes did.
+
+The second half of `bend` is the pointer. `grip` is the aspect-corrected vector from the pointer to the fragment and `reach` is a Gaussian falloff around it, so dragging squeezes the walls toward the cursor and leaves the rest of the pane alone. It enters through the same coordinate as the noise, which is why a local drag bends flutes rather than sliding a finished image.
+
+The noise primitive matters here. Ordinary fbm sums signed octaves and produces rounded hills. Turbulence sums their absolute values:
+
+```glsl
+float turbulence(vec2 p) {
+  float value = 0.0;
+  float amplitude = 0.5;
+  for (int octave = 0; octave < 4; octave++) {
+    value += abs(valueNoise(p) * 2.0 - 1.0) * amplitude;
+    p = p * 2.11 + vec2(5.2, 19.4);
+    amplitude *= 0.5;
+  }
+  return value;
+}
+```
+
+Each `abs()` folds the field at its zero crossing, leaving a crease with a sharp minimum instead of a smooth trough. Creases are the right shape for this: real fluted glass has ridges and pinch lines, not sinusoids. **Turbulence** raises the domain frequency, which multiplies those creases; **Fluid influence** scales how far they are allowed to move the walls, and it also drives a second, per-flute term.
+
+That second term is where `columnIndex` earns its keep:
+
+```glsl
+float thickness = fbm(vec2(columnIndex * 0.37, uv.y * 2.8 + time * 1.6)) - 0.5;
+```
+
+The first noise axis is the flute's index, so the value is constant across a flute and independent between neighbours. The second axis is vertical position, so it varies down the flute's length. The result is per-flute lens strength that changes as you look up the pane — one flute momentarily thicker than the two beside it. Sampling this from `uv.x` instead of `columnIndex` would blur variation across walls and lose the sense that each flute is a separate piece of glass.
+
+## Antialiasing a quantized coordinate
+
+Every flute needs a visible wall, or the effect reads as a broken image rather than a surface. The wall is a narrow band near `abs(lens) == 1`, and how wide that band should be turns out to be a real question with two defensible answers and one wrong one.
+
+```glsl
+float columnDerivative = fwidth(xScaled);
+float aa = 2.0 * columnDerivative;
+if (uWallEdge < 0.5) {
+  aa = 0.06;
+} else if (uWallEdge > 1.5) {
+  aa = 2.0 * fwidth(local);
+}
+
+float wall = smoothstep(1.0 - clamp(aa, 0.0005, 1.0), 1.0, abs(lens));
+```
+
+`fwidth` estimates how much a value changes across one pixel by differencing it against the other fragments in the same 2×2 quad. `xScaled` is continuous, so its derivative is small and meaningful: roughly "flutes per pixel". Doubling it converts to the units of `lens`, which spans two per flute, so the band stays about one pixel wide at any flute count. That is the antialiasing answer — the wall is as wide as the sampling grid can resolve and no wider.
+
+**Fixed band** is the other defensible answer, and it is worth being fair to. A constant `0.06` makes the wall six percent of a flute at any density, which is the *geometric* reading: a real ridge is a fraction of the flute, not a fraction of a pixel. At six flutes it looks better than the derivative version — a soft bevel instead of a hairline. At two hundred flutes it is a third of a pixel wide, and the walls dissolve into faint moiré because there is no longer a sample to put them in. Production code should take `max` of the two, so the bevel holds until the pixel budget takes over; this study keeps them apart only so each failure stays visible.
+
+**fwidth, post-fract** is not an answer at all, and it is the mistake worth seeing. `fract(xScaled)` drops from nearly one to zero at every wall, so any quad straddling a wall reports a derivative of about one. The band widens far enough to swallow the whole flute and both of those fragments clamp to full wall darkness, while quads that miss a wall keep the correct narrow band. The walls become hard, aliased hairlines whose weight depends on where the 2×2 quads happen to fall, and they crawl as the flutes bend. This is the rule that [shader builtins from interpolation to derivatives](/writing/shader-builtins-from-interpolation-to-derivatives) argues for, sharpened by the quantization: take the derivative of the coordinate you built the discontinuity *from*, never of the discontinuity.
+
+The same derivative gives an honest place to stop:
+
+```glsl
+float flutePixels = 1.0 / max(columnDerivative, 1e-5);
+float resolvable = smoothstep(1.6, 3.6, flutePixels);
+```
+
+Below roughly two device pixels per flute there is no sampling rate left to represent one, and the sheet would dissolve into crawling moiré. Fading the effect out is not a workaround; it is the same decision a mip chain makes, expressed by hand. Drag **Flutes** toward its maximum and the pane retires into the plain scene rather than sparkling.
+
+## The scene is a function, so there is no second pass
+
+The offsets above are only useful if something can answer for the sample position. In [Glass refraction, dispersion, and tinting](/writing/glass-refraction-dispersion-tinting) that answer comes from a `WebGLRenderTarget`: the world renders once without the lens, the lens renders second and samples the result. That is the correct architecture when the thing being refracted is real geometry, and it costs a framebuffer, a layer mask, and a resolution policy.
+
+Here the scene is a pure function of a coordinate:
+
+```glsl
+vec3 scene(vec2 uv) {
+  if (uScene < 0.5) return sceneDeepField(uv);
+  if (uScene < 1.5) return sceneRuleGrid(uv);
+  if (uScene < 2.5) return sceneNebula(uv);
+  return sceneSpectrumBars(uv);
+}
+```
+
+Three consequences follow, and all three are why the pass stays single.
+
+It can be evaluated more than once per fragment. The final composite calls `scene` twice — once at the refracted position, once at the unrefracted one — which a framebuffer approach cannot do without a second sample of a finite image.
+
+It has no borders. A lens offset that leaves the unit square still returns a valid colour, so the shader contains no `clamp` and no wrap mode on the sample coordinate. The flutes at the edges of the pane borrow from outside it and nobody notices.
+
+It has no feedback problem. Sampling a framebuffer that already contains the glass produces recursion; the two-pass setup exists mostly to prevent it. A function of coordinates cannot see its own output.
+
+The cost is that the "environment" must be expressible in closed form. The four scenes here are chosen for what they reveal: **Deep field** is a smooth radial gradient where the flutes read as tone; **Rule grid** and **Spectrum bars** carry hard vertical edges, which is the only kind of detail a horizontal lens can actually show you; **Nebula** is broadband fbm that turns the sheet into something closer to water.
+
+## Where the seams are real, and what shading can do about them
+
+Two different discontinuities live at a flute wall, and only one of them is an antialiasing problem.
+
+The geometric one is the wall band itself, and `fwidth` handles it. The other is the content: the flute to the left ends its walk at one part of the scene, the flute to the right begins its walk at another, and those two colours are unrelated. No amount of edge smoothing removes that jump, because the smoothing operates on the mask, not on the two samples the mask is choosing between.
+
+That is not entirely a defect. A real fluted pane also cuts the image at each ridge, and the demo leans into it by shading the wall rather than hiding it:
+
+```glsl
+vec3 glass = refracted * (0.86 + 0.3 * pow(centre, 0.7));
+glass = mix(glass, glass * 0.52, wall * 0.85);
+glass += vec3(0.62, 0.76, 1.0) * pow(smoothstep(0.6, 1.0, centre), 3.0) * 0.07;
+```
+
+The centre of each flute is lifted, the wall is darkened, and a faint cool sheen sits along the centre line. The darkened wall is doing double duty: it is the surface's own shading *and* the reason the content jump stops looking like a bug. The eye accepts a hard change in image across a visible edge.
+
+Removing the jump properly costs a third scene sample: extrapolate the neighbouring flute's lens offset near the wall and cross-fade over the same pixel-wide band. That is a real fix rather than a cosmetic one, and it triples the most expensive operation in the shader for a feature that is one pixel wide. This study spends the budget on shading instead, which is a choice worth making consciously.
+
+There is one more seam that is easy to miss. `bend` is added before the quantization, so it moves the walls *and* changes which slice each flute borrows — the two effects share a coordinate and cannot be separated. Raising **Fluid influence** therefore never merely bends the pane; it also re-aims every lens. Keeping them independent would require quantizing the warped coordinate while computing the slice centre from the unwarped one, which unwarps the sheet's optical distortion but leaves its ridges bent.
+
+## Glass amount mixes results, not offsets
+
+The last control is one `mix`:
+
+```glsl
+vec3 color = mix(scene(uv), glass, uGlass * resolvable);
+```
+
+There are two defensible places for that scalar. Scaling the lens offset toward zero relaxes the optics while the pane keeps its ridges: the walls stay put and the image behind them straightens. Mixing the finished colours dissolves the pane entirely, shading and all.
+
+The second is the right one here, because the wall shading is not a property of the scene. It belongs to the sheet, so it should leave with the sheet. At `0.5` the flutes read as an overlay rather than a surface, which is a useful state for design work and a dishonest one for optics; the same scalar also carries the `resolvable` fade, so the too-thin case and the deliberately-absent case exit through the same door.
+
+## What would change with a texture
+
+Swapping `scene()` for `texture2D(uScene, sampleUv)` costs more than one line.
+
+- Edge behaviour becomes explicit. `CLAMP_TO_EDGE` smears the outermost pixel column into every flute that borrows from outside the image; mirrored wrap is usually the better answer for a lens.
+- Mip selection breaks. The hardware picks a level from the same per-quad derivatives that go wrong at every seam, so flute walls get a blurry level chosen from a garbage footprint. The fix is `textureGrad` with the analytic gradient — `sliceHalf * uLensGain * 2.0` horizontally — rather than letting the quad guess.
+- Compression starts to alias. A gain of six samples the image at six times the screen rate, which is minification; without a correct mip level that is the classic shimmer, and it is why the analytic gradient matters more than the wrap mode.
+- The second sample stops being free. `mix(scene(uv), glass, ...)` becomes two texture fetches from different places, which is a cache pattern rather than an arithmetic cost.
+- A live scene needs the render target back, and with it the layer isolation and feedback discipline the two-pass study describes.
+
+## What I would copy
+
+- Split a scaled coordinate into index and local parts, then keep them honest: index for what must vary between cells, local for what varies within one.
+- Spend the local coordinate on a sample position when you want an optic; spend the index on a colour when you want a pattern.
+- Look for the identity setting of a distortion, and use it to define what the effect actually is.
+- Inject noise before the quantization when the cells themselves should move.
+- Reach for absolute-value octaves when the material has creases rather than swells.
+- Seed per-cell variation from the cell index and let a second axis vary along the cell.
+- Take `fwidth` of the continuous coordinate you quantized, never of `fract` of it.
+- Convert a derivative into a resolution budget and fade an effect out when its features fall below two pixels.
+- Prefer a procedural scene when a distortion needs more than one sample of what is behind it.
+- Decide whether a strength scalar mixes offsets or results, and pick based on where the shading belongs.
+
+The study was prompted by Indicium AI's Fractal Glass Generator, whose panel puts Environment scene presets alongside Fluid influence, Turbulence, and Glass amount sliders over a blue fluted field. I worked from a screenshot of that interface and know nothing about how it is built; the shader here is an independent WebGL reconstruction of the effect it shows, not a port of their code. The control names are kept close to theirs so the two are easy to compare.

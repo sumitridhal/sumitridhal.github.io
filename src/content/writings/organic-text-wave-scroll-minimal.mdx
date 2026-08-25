@@ -77,7 +77,7 @@ tick()
 
 That is the whole idea: **layout stays in the browser**, scroll stays native, motion stays bounded. Pair with `@media (prefers-reduced-motion: reduce)` to clear transforms in CSS so you do not depend on JS running first.
 
-<WritingOrganicTextWavePreviewLazy />
+export const preview = <WritingOrganicTextWavePreviewLazy />
 
 The preview lazy-loads so the writings route stays lighter until you open this note. Two rails echo the Codrops sides: the **left** translates **up** with **sine** horizontal drift, the **right** **down** with **cosine** (filler copy is about measure and margins, not the original film layout). Vertical motion is a seamless `translateY` loop on duplicated strips; reduced motion freezes both axes.
 

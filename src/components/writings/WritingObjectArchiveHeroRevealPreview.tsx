@@ -41,11 +41,6 @@ export function WritingObjectArchiveHeroRevealPreview() {
       className={`writing-oa-hero${reduced ? ' writing-oa-hero--reduced' : ''}`}
       aria-label="Tween concept Part 1: curtain translateY off split hero; wordmark fixed in overlay stack"
     >
-      <figcaption className="writing-oa-hero__caption">
-        **Tween sheet — Part 1:** CSS keyframes move the curtain from closed → open over the split CDN diptych; the wordmark
-        stays in the overlay stack (no separate position tween in this embed).
-      </figcaption>
-
       <div className="writing-oa-hero__stage">
         <div className="writing-oa-hero__split" aria-hidden="true">
           <div className="writing-oa-hero__half writing-oa-hero__half--left">

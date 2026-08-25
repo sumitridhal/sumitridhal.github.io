@@ -97,7 +97,7 @@ function segmentBot() {
 }
 
 export function WritingGsapHorizontalMarqueePreview({
-  caption = 'Three overflow-clipped tracks; each inner strip is duplicated once so GSAP can loop translateX by exactly half the scroll width with linear ease.',
+  caption,
   className = '',
 }: WritingGsapHorizontalMarqueePreviewProps) {
   const reduced = useWritingPreviewReducedMotion()
@@ -152,7 +152,10 @@ export function WritingGsapHorizontalMarqueePreview({
   const segments = [segmentTop(), segmentMid(), segmentBot()]
 
   return (
-    <figure className={rootClass}>
+    <figure
+      className={rootClass}
+      aria-label="Three offset rows of words and portrait ellipses looping horizontally in alternating directions"
+    >
       {caption ? (
         <figcaption className="writing-gsap-marquee-preview__caption">{caption}</figcaption>
       ) : null}

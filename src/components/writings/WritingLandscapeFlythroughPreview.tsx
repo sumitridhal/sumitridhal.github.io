@@ -63,7 +63,7 @@ function IconCollapse() {
 }
 
 export function WritingLandscapeFlythroughPreview({
-  caption = 'Scroll inside the stage: Locomotive smooths the shell; ScrollTrigger scrubs differential layer scale for a 2.5D fly-through.',
+  caption = 'Scroll inside the stage.',
   className = '',
 }: WritingLandscapeFlythroughPreviewProps) {
   const reduced = useWritingPreviewReducedMotion()

@@ -22,7 +22,7 @@ export type WritingSuperheroSvgMaskPreviewProps = {
  * on mask geometry only (Codrops pattern: filter on a wrapper group inside each mask).
  */
 export function WritingSuperheroSvgMaskPreview({
-  caption = 'Move the pointer vertically: timeline progress maps to mask rect Y and the background wash.',
+  caption = 'Move the pointer up and down.',
   className = '',
   civilianSrc = CIVILIAN_SRC,
   heroSrc = HERO_SRC,

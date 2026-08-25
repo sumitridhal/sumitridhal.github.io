@@ -92,7 +92,7 @@ export type WritingScrollSyncPreviewProps = {
 }
 
 export function WritingScrollSyncPreview({
-  caption = 'Fast-scroll both panes: yellow is DOM layout; the canvas reads either the previous frame (left) or the shared snapshot (right).',
+  caption = 'Press Play to fast-scroll both panes.',
   className = '',
 }: WritingScrollSyncPreviewProps) {
   const reduced = useWritingPreviewReducedMotion()

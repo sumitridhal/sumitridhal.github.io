@@ -5,6 +5,7 @@ import * as THREE from 'three'
 
 import { WritingPlayWebglBoundary } from '@/components/writings/writingPlayWebglBoundary'
 import { useWritingPreviewReducedMotion } from '@/components/writings/useWritingPreviewReducedMotion'
+import { WritingPreviewControls } from '@/components/writings/WritingPreviewControls'
 
 const KALEI_VERT = /* glsl */ `
 varying vec2 vUv;
@@ -201,7 +202,7 @@ export type WritingKaleidoscopeR3fPreviewProps = {
 }
 
 export function WritingKaleidoscopeR3fPreview({
-  caption = 'Orbit the plane: polar fold in the fragment shader, sliders for folds, spin, scale, and pattern density.',
+  caption = 'Drag to orbit the plane.',
   height = 300,
   className = '',
 }: WritingKaleidoscopeR3fPreviewProps) {
@@ -221,8 +222,7 @@ export function WritingKaleidoscopeR3fPreview({
 
   return (
     <figure className={`writing-generative-play-preview ${className}`.trim()}>
-      {caption ? <figcaption className="writing-generative-play-preview__caption">{caption}</figcaption> : null}
-      <div className="writing-generative-play-preview__hud">
+      <WritingPreviewControls caption={caption} label="Kaleidoscope symmetry controls">
         <RangeRow
           id={`${uid}-folds`}
           label="Folds N"
@@ -244,7 +244,7 @@ export function WritingKaleidoscopeR3fPreview({
           value={pattern}
           onChange={setPattern}
         />
-      </div>
+      </WritingPreviewControls>
       <div className="writing-generative-play-preview__canvas-wrap" style={{ height: `${height}px` }}>
         {webglFailed ? fallback : null}
         {!webglFailed ? (
