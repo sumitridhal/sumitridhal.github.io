@@ -1,0 +1,136 @@
+import { WritingFisheyeImagePreviewLazy } from '@/components/writings/WritingFisheyeImagePreviewLazy'
+
+export const writingMeta = {
+  id: 'fisheye-hover-image-shader',
+  order: -1,
+  title: 'Fisheye image hover with vignette-weighted UVs',
+  date: '2026-09-17',
+  category: 'Creative code',
+  excerpt:
+    'Bend an image near its edges, split colour channels radially, and keep pointer distortion local in one fragment pass.',
+  titleLines: ['Fisheye image hover', 'with vignette-weighted UVs'],
+  coverSrc: '/media/writings/fisheye-hover-image-shader.png',
+  keywords: ['webgl', 'fragment shader', 'fisheye', 'chromatic aberration', 'hover'],
+  asideParagraphs: [
+    'The interesting part is not the portfolio grid. It is the image pipeline: aspect-correct distance, an edge mask, warped UVs, radial RGB offsets, noise, and vignette.',
+    'The vignette mask does double duty. It decides where distortion begins and later darkens the same outer region.',
+  ],
+}
+
+[Filip Zrnzevic’s grid portfolio study](https://codepen.io/filipz/pen/dPoyMVB) combines Lenis, GSAP, a twelve-column layout, debug controls, and several Three.js canvases. This article deliberately ignores that surrounding page and isolates the image hover.
+
+At rest, the image is flat, monochrome, and high contrast. Hovering crossfades to a shader pass that bends it near the edges, separates red and blue radially, adds fine noise, follows the pointer locally, and darkens the perimeter.
+
+export const preview = (
+  <WritingFisheyeImagePreviewLazy
+    className="writing-generative-play-preview--fisheye-image"
+    caption="Hover or focus the image to bend its outer field."
+    hint="An aspect-correct vignette mask weights fisheye UV distortion, radial RGB separation, pointer displacement, noise, and edge darkening."
+    height={600}
+  />
+)
+
+## The image has two visual states
+
+The original keeps a normal `<img>` and places a transparent WebGL canvas over it. On hover, GSAP fades the image out while fading the canvas in. A separate tween moves `uFisheyeIntensity` from zero to one.
+
+That separation is practical. The document image appears immediately, remains the fallback if WebGL initialization fails, and does not wait for shader setup. The canvas only becomes visible when its richer state is needed.
+
+The preview here renders both states in one fragment pass so the construction is easier to inspect. The shader samples the undistorted texture, converts it to a contrasty grayscale base, samples the distorted colour version, and blends between them with one damped intensity uniform.
+
+## Correct distance before bending UVs
+
+A radial effect starts with distance from the centre, but raw UV distance is circular only when the image is square. A non-square image would stretch the field unless the shorter axis is corrected:
+
+```glsl
+vec2 delta = uv - 0.5;
+delta.x *= imageAspect;
+float distanceFromCenter = length(delta);
+```
+
+The same correction must be undone after the radial operation. Otherwise the distortion calculation and the sampling coordinates disagree about shape.
+
+The fisheye function converts distance into a nonlinear angle:
+
+```glsl
+float percent = distanceFromCenter / radius;
+float theta = percent * percent * intensity * strength;
+delta = normalize(delta) * tan(theta) * distanceFromCenter;
+```
+
+Squaring `percent` keeps the centre relatively stable and accelerates the bend toward the chosen radius. `tan` adds the characteristic expansion as the angle increases.
+
+## Weight the distortion with the edge mask
+
+The CodePen does not replace every UV with its fisheye result. It builds a soft outer mask:
+
+```glsl
+float edgeMask = smoothstep(vignetteStart, vignetteEnd, distanceFromCenter);
+vec2 finalUv = mix(uv, distortedUv, edgeMask);
+```
+
+The centre therefore retains the original composition while the perimeter carries most of the bend. This is less like a literal lens and more like a controlled editorial treatment: faces and focal details remain readable, while the frame feels unstable.
+
+The same mask returns near the end of the shader to darken the image. Reusing one field ties the UV bend and the vignette together instead of letting two unrelated radial effects compete.
+
+## Separate channels along the radial direction
+
+After distortion, the shader points away from the image centre and samples red and blue on opposite sides:
+
+```glsl
+vec2 direction = normalize(finalUv - 0.5);
+float red = texture2D(image, finalUv + direction * aberration).r;
+float green = texture2D(image, finalUv).g;
+float blue = texture2D(image, finalUv - direction * aberration).b;
+```
+
+This differs from a pointer-directed chromatic split. The offset rotates around the centre, so every edge receives a locally radial fringe. Multiplying the distance by hover intensity keeps the inactive state clean.
+
+Safe sampling matters because fisheye coordinates can leave the texture. A hard clamp smears the outermost texel. A pure discard creates a visible cut. The preview clamps samples and softly fades coordinates that exceed the valid range, preserving an edge without pretending the texture continues forever.
+
+## Add pointer distortion as a local field
+
+The broad fisheye remains centred, but the pointer creates a second, smaller displacement:
+
+```glsl
+float pointerDistance = distance(uv, pointerUv);
+float pointerField = smoothstep(pointerRadius, 0.0, pointerDistance);
+finalUv += normalize(uv - pointerUv) * pointerField * pointerStrength;
+```
+
+This field is intentionally weak. Its role is to make the image acknowledge the pointer, not drag the subject around. Damping pointer coordinates on the React side removes event-level jitter before they reach the shader.
+
+Under reduced motion, the preview freezes the pointer at the centre and snaps to a readable active state on focus. Noise time also stops.
+
+## Noise belongs after resampling
+
+Fine noise is added after the RGB samples are assembled. Placing it before the texture lookup would distort coordinates rather than texture values, producing a different and much rougher effect.
+
+The source uses a compact hash driven by UV and time. The useful constraint is amplitude: enough to disturb smooth grayscale regions, not enough to erase the image.
+
+The final order is:
+
+1. build aspect-correct radial distance;
+2. derive the edge mask;
+3. calculate fisheye and local pointer displacement;
+4. sample separated colour channels;
+5. add fine noise;
+6. apply the vignette;
+7. blend from the flat grayscale state.
+
+## One image is a good boundary
+
+The original portfolio creates a renderer, scene, material, texture, observer, and animation loop for each image. That keeps each item independent, but many WebGL contexts are expensive and browsers impose context limits.
+
+For one hero image or one article preview, the isolated renderer is straightforward. For a large image grid, I would prefer one shared renderer that tracks visible image rectangles, or one canvas that renders a texture atlas. The visual shader can stay the same while the ownership model changes.
+
+## What I would copy
+
+- Protect the image centre by weighting fisheye distortion toward the perimeter.
+- Correct radial math for image aspect before measuring distance.
+- Reuse the edge field for both distortion and vignette.
+- Keep radial chromatic separation small and intensity-dependent.
+- Treat pointer displacement as a local accent, not the primary warp.
+- Preserve a normal image fallback when applying the effect across content.
+
+Reference image treatment: [Grid Portfolio with Canvas Effects on Hover by Filip Zrnzevic](https://codepen.io/filipz/pen/dPoyMVB).
