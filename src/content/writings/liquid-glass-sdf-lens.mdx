@@ -1,0 +1,219 @@
+import { WritingLiquidGlassPreviewLazy } from '@/components/writings/WritingLiquidGlassPreviewLazy'
+
+export const writingMeta = {
+  id: 'liquid-glass-sdf-lens',
+  order: -1,
+  title: 'Liquid glass: a distance field standing in for a lens',
+  date: '2026-09-21',
+  category: 'Creative code',
+  excerpt:
+    'A rounded slab whose interior stays perfectly clear and whose edge carries every bend and colour fringe is not geometry. It is a signed distance field, a bevel profile, and the derivative of that profile used as a sample offset.',
+  titleLines: ['Liquid glass:', 'a distance field as a lens'],
+  coverSrc: '/media/writings/liquid-glass-sdf-lens.png',
+  keywords: ['webgl', 'shaders', 'sdf', 'refraction', 'chromatic aberration'],
+  asideParagraphs: [
+    'The height of a bevel is invisible. Only its slope reaches the image, which is why two profiles that end at the same place can look like glass and like moulded plastic.',
+    'A distance field gives up two things for free: a mask, and a normal. The mask is the sign, the normal is the gradient, and the number in between is the coordinate the whole material is built on.',
+  ],
+}
+
+A clip went past me captioned *liquid glass WebGL shader + subtle chromatic aberration, running at 120 FPS*: a rounded slab drifting over a blue gradient image on a pale lavender page. The detail worth stopping on is not the highlight or the fringe. It is that the middle of the slab is **completely undistorted**. The image reads through it unchanged, and every bend, every colour separation, and every specular streak lives in a narrow band around the perimeter.
+
+That is the signature of an effect with no geometry in it. A real lens has optical power across its whole face; you cannot look through the centre of a thick bead of glass and see an unmoved image. But a shader that derives its surface from a **signed distance field** gets the flat interior for free, because the quantity that drives the distortion is zero everywhere except near the edge.
+
+export const preview = (
+  <WritingLiquidGlassPreviewLazy
+    className="writing-generative-play-preview--liquid-glass"
+    caption="Move the pointer to carry the slab across the backdrop."
+    hint="A rounded-box SDF supplies the mask, its gradient supplies the normal, and the slope of a bevel profile supplies the sample offset. Bevel profile is the material control: compare Circular bead against Smoothstep."
+    height={600}
+  />
+)
+
+The study above is one fullscreen fragment pass. **Bevel profile** switches the height curve of the edge, **Bevel width** sets how far in from the silhouette that curve reaches, **Thickness** scales the resulting offset, and **Frost** and **Aberration** add the two effects that usually get credited with the look but are the least of it. **Corner radius** takes the shape from a rounded square to a circle without touching the rest of the shader.
+
+## The shape is a field, and the field is a coordinate
+
+The slab is a rounded box, evaluated with Inigo Quilez's standard primitive:
+
+```glsl
+float sdRoundedBox(vec2 p, vec2 b, float r) {
+  vec2 q = abs(p) - b + r;
+  return min(max(q.x, q.y), 0.0) + length(max(q, vec2(0.0))) - r;
+}
+```
+
+The useful thing about this function is not that it answers *am I inside*. `step` would do that. It is that it answers *how far am I from the boundary*, as a smooth signed number that keeps varying long after the inside/outside question has been settled. The sign is a mask. The magnitude is a coordinate, and it is the only coordinate this material needs.
+
+That is a different relationship to an SDF than [SDF primitives and blends](/writing/sdf-primitives-and-blends-shaders) sets up. There the distance is a route to a silhouette: threshold it, blend two of them, and the field's job is done once the shape exists. Here the shape is almost incidental and the field survives into the shading, because everything that follows is a function of distance.
+
+Normalizing that distance into the edge band gives the working parameter:
+
+```glsl
+float t = clamp(1.0 + d / rim, 0.0, 1.0);
+```
+
+Inside the slab `d` is negative, so `t` is zero at depth `rim` below the surface and one at the silhouette. `rim` is the bevel width, and `t` is the bevel's own local coordinate. Note what the `clamp` does: the entire interior collapses to `t = 0`. Everything downstream reads `t`, so the interior gets one uniform answer no matter how large the slab is, which is exactly the flat middle from the reference clip.
+
+## The gradient of a distance field is already a normal
+
+A 2D field has no normal in the geometric sense, but a distance field has something better than an approximation. A true SDF satisfies the eikonal condition — the length of its gradient is exactly one everywhere, so moving one unit in the direction of steepest increase raises the distance by one unit. Its gradient is therefore already a unit vector pointing directly out of the surface, everywhere except on the medial axis where the field creases.
+
+Central differences are enough to read it:
+
+```glsl
+vec2 sdfNormal(vec2 p, vec2 b, float r) {
+  vec2 e = vec2(0.0012, 0.0);
+  float dx = sdRoundedBox(p + e.xy, b, r) - sdRoundedBox(p - e.xy, b, r);
+  float dy = sdRoundedBox(p + e.yx, b, r) - sdRoundedBox(p - e.yx, b, r);
+  vec2 g = vec2(dx, dy);
+  float len = length(g);
+  return len > 1e-6 ? g / len : vec2(0.0, 1.0);
+}
+```
+
+Four extra evaluations of a cheap analytic function, and the result is a normal that runs perpendicular to the silhouette along every straight run and fans out correctly around every corner. No geometry, no vertex normals, no interpolation.
+
+The `len > 1e-6` guard is not defensive boilerplate. The centre of the shape is the medial axis, where the field's gradient genuinely does not exist — distance increases in no single direction there. `normalize` on that vector returns `NaN`, and one `NaN` in a colour channel is a black or transparent pixel that survives every subsequent `mix`. The fallback direction is never visible, because the slope that scales it is zero over the entire interior, but it has to exist.
+
+There is a subtler trap around aspect correction. The field is evaluated in a square space, built by stretching UV coordinates by the canvas aspect:
+
+```glsl
+vec2 p = (uv - 0.5) * vec2(aspect, 1.0);
+```
+
+An exact SDF stays exact under uniform scaling and rigid motion, and this is neither — it is anisotropic. Evaluating the box in the stretched space is correct, and the normal *in that space* is correct, but the offset it produces has to be converted back before it can index the image:
+
+```glsl
+vec2 offsetUv = offset / vec2(aspect, 1.0);
+```
+
+Skip that division and the refraction is subtly wrong in one axis, in a way that looks like an art-direction choice rather than a bug and survives review for a long time.
+
+## What you see is the slope, not the height
+
+Here is the part that decides whether the result reads as glass. The bevel is a height profile `h(t)` over the edge band, and it is tempting to reason about its shape: a quarter-circle bead, a flat chamfer, a soft S-curve. But height never enters the shader. Refraction is a *direction* change, and direction comes from the surface's tilt, so what actually reaches the image is the derivative `h'(t)`:
+
+```glsl
+float bevelSlope(float t) {
+  if (uProfile < 0.5) {
+    return min(t / sqrt(max(1.0 - t * t, 1e-4)), 6.0);
+  }
+  if (uProfile < 1.5) return 1.0;
+  if (uProfile < 2.5) return 6.0 * t * (1.0 - t);
+  return 2.0 * t;
+}
+```
+
+Four profiles, and their differences are entirely differences in slope:
+
+**Circular bead** is `h = sqrt(1 - t*t)`, so its slope is `t / sqrt(1 - t*t)` — zero at the inner boundary and *divergent* at the silhouette. That divergence is the whole effect. It compresses an unbounded amount of the surroundings into the last fraction of a pixel at the edge, which is what the rim of real glass does and what no amount of highlight painting will fake. It also needs the `min(..., 6.0)` clamp, because an infinite offset samples an arbitrary point of the image and produces edge confetti.
+
+**Linear chamfer** has constant slope. The band bends uniformly, which reads as a machined bevel rather than a bead, and it exposes something worth seeing: the slope drops from one to zero *discontinuously* at the inner boundary, leaving a visible seam ring where the offset stops. That gate is explicit in the shader, because a clamped `t` cannot distinguish the inner edge of the bevel from the middle of the slab:
+
+```glsl
+float slope = bevelSlope(t) * step(-rim, d);
+```
+
+**Smoothstep** is the interesting failure. Its slope `6t(1 - t)` is zero at *both* ends, so it has no crease at the inner boundary and no compression at the outer one. It is the profile that looks most sensible written down and least like glass on screen — soft, thick, slightly rubbery. Moulded plastic, essentially. Compare it against Circular bead with everything else fixed; the two profiles end at the same height and read as different materials.
+
+**Parabola** sits between them: slope rises linearly to a finite maximum at the wall. A reasonable default when the divergent bead is too aggressive.
+
+The offset itself is then almost nothing:
+
+```glsl
+vec2 offset = normal * slope * uThickness * 0.05;
+```
+
+Direction from the field, magnitude from the profile's derivative, scale from a single art-direction uniform. Because `slope` is zero across the interior, so is the offset, and the flat middle is not a special case anyone had to write.
+
+Sampling along `+normal` pulls content inward from outside the silhouette, so the rim shows a compressed ring of the surroundings. Flipping the sign gives a divergent edge that pushes the interior outward. Both are defensible optics; the inward version is what matches the reference and what looks like a solid object sitting on top of a page rather than a hole cut through it.
+
+## Dispersion is one vector at three lengths
+
+The fringe costs three samples:
+
+```glsl
+float spread = uAberration * 0.35;
+vec3 fringe = vec3(
+  scene(uv + offsetUv * (1.0 - spread)).r,
+  scene(uv + offsetUv).g,
+  scene(uv + offsetUv * (1.0 + spread)).b
+);
+```
+
+Green rides the unmodified offset while red and blue scale it down and up, which is what a wavelength-dependent index of refraction does: not three directions, one direction at three strengths. [Chromatic aberration as a card material](/writing/chromatic-aberration-card) takes the other approach, deriving the split direction from the pointer, and it needs a local-contrast estimate to keep the fringe off the flat regions where it would just look like a broken display.
+
+None of that is necessary here. The offset is already zero in the interior and largest at the rim, so scaling it per channel puts the fringe exactly where refraction is strongest and nowhere else. The edge detection is free because the distance field *is* the edge detection. This is the strongest argument for building the material on a field rather than on an image: several effects that normally need their own masks end up sharing one.
+
+It also explains the "subtle" in the original caption. With a bead profile the fringe is invisible across the whole face and intense in a two-pixel band, which is legible as an optical property. A uniform split of the same magnitude would read as a rendering error.
+
+## Frost is where the frame budget actually goes
+
+Everything so far is a handful of arithmetic and three texture-equivalent samples. Frost is different, because scattering means averaging many samples:
+
+```glsl
+float frostRadius = uFrost * (0.006 + 0.03 * slope);
+vec3 frosted = vec3(0.0);
+for (int i = 0; i < FROST_TAPS; i++) {
+  float fi = float(i);
+  float angle = fi * GOLDEN_ANGLE;
+  float r = sqrt((fi + 0.5) / float(FROST_TAPS)) * frostRadius;
+  frosted += scene(uv + offsetUv + vec2(cos(angle), sin(angle)) * r / toAspect);
+}
+frosted /= float(FROST_TAPS);
+```
+
+The golden angle spaces successive taps so they never line up on a spoke, and the `sqrt` distributes them evenly over the disc's *area* rather than clustering them at the centre. Scaling the radius by `slope` rather than using a constant means the frost thickens toward the edge, which is at least gesturally right: a bevelled slab has more material to scatter through near its rim.
+
+Frost and dispersion are computed separately and mixed, and that is a deliberate cost decision rather than a physical one. Doing it properly — three channels through the full tap loop — costs `3 × FROST_TAPS` samples instead of `FROST_TAPS + 3`. At ten taps that is thirty-nine samples against thirteen, for a difference that shows up only where a strong fringe and a strong blur overlap. Frost is treated as a property of the slab, dispersion as a property of the edge, and they meet in one `mix`.
+
+Which brings up the *120 FPS* in the caption. Frame rate is not a property of a shader; it is a property of a shader multiplied by a fragment count. This pass costs roughly a dozen `scene()` evaluations per fragment, and `scene()` is itself four octaves of value noise, so a rough count is a couple of hundred hashes per fragment. At a few hundred pixels square that is trivial and 120Hz is easy. Fullscreen at device pixel ratio 3 is roughly forty times the fragments and the same shader will not hold 60. A frame-rate claim over a six-second capture of a small element mostly tells you the element was small.
+
+Two things in the study take that seriously. The renderer clamps resolution with `dpr={[1, 2]}`, because on a 3× display the extra fragments buy almost nothing visible for an effect this soft. And the expensive half of the shader is skipped where it cannot contribute:
+
+```glsl
+float aa = max(fwidth(d), 1e-5);
+
+if (d > aa) {
+  gl_FragColor = vec4(backdrop * (1.0 - shadow * 0.28), 1.0);
+  return;
+}
+```
+
+Branching in a fragment shader is only cheap when neighbouring fragments agree, since a divergent quad pays for both sides. This branch is close to ideal: the slab covers a contiguous region, so entire quads are inside or outside it, and only the one-pixel silhouette diverges. Most of the canvas is background, so most of the canvas never runs the tap loop at all.
+
+The ordering matters more than it looks. `fwidth` is a derivative, computed by differencing against the other fragments in the same 2×2 quad, so it is only meaningful while all four are still executing. Reading it *after* an early `return` — inside the branch that needs it — gives an undefined result for any quad straddling the silhouette, which is precisely the set of quads the antialiasing exists for. Same discipline as [shader builtins from interpolation to derivatives](/writing/shader-builtins-from-interpolation-to-derivatives): take the derivative while the neighbourhood is intact, then branch.
+
+## A procedural backdrop, for the third time
+
+The scene is a function of a coordinate, not a texture:
+
+```glsl
+vec3 scene(vec2 uv) {
+  if (uScene < 0.5) return sceneBlueFlow(uv);
+  if (uScene < 1.5) return sceneRuleGrid(uv);
+  return sceneWarmField(uv);
+}
+```
+
+[Glass refraction, dispersion, and tinting](/writing/glass-refraction-dispersion-tinting) needs a `WebGLRenderTarget` and a layer mask, because there the refractive object is real geometry sitting in a real scene and the shader has to sample an image of the world that excludes itself. [Fractal glass](/writing/fractal-glass-fluted-refraction) drops that in favour of a closed-form scene, and the same three consequences apply here: the function can be evaluated a dozen times per fragment, it has no borders so an offset that leaves the unit square still returns a colour, and it cannot see its own output so there is no feedback to prevent.
+
+The three backdrops are chosen to be diagnostic. **Framed image** reproduces the reference — a blue flowing field inside a hard-edged rectangle on a pale page — and the rectangle's border is the most useful thing in it, because a straight high-contrast line is the only backdrop feature that makes the shape of the rim distortion readable. **Rule grid** makes compression countable. **Warm field** is a negative control: a smooth gradient has almost no detail to displace, the slab nearly disappears, and it becomes obvious how much of "looks like glass" is really "has something worth bending behind it".
+
+Swapping in a real texture is the interesting future problem, and it is not a one-line change. The rim's offset varies by more than a texel per pixel where the bead profile diverges, so hardware mip selection is being asked to guess from a footprint that is nowhere near isotropic, and the fix is `textureGrad` with an analytic gradient rather than a wrap mode. The frost loop stops being arithmetic and becomes a cache pattern. And clamping the sample coordinate reintroduces the edge policy the procedural version never needed.
+
+## What I would copy
+
+- Use a distance field when a shape needs to keep contributing after its silhouette is settled; the sign is a mask, the magnitude is a coordinate.
+- Take the normal from the field's gradient, and guard the medial axis where that gradient does not exist.
+- Convert an offset back out of any anisotropic space before using it to sample.
+- Design bevels by their derivative, not their height — the slope at each end is what separates glass from plastic.
+- Prefer a profile that diverges at the silhouette when the material should read as thick.
+- Scale one offset per channel for dispersion instead of choosing three directions.
+- Let the field's own falloff be the mask for every effect that should only appear at an edge.
+- Cost effects in samples per fragment, and treat a frame-rate claim as a claim about area.
+- Take derivatives before early returns, then branch on something whole quads agree about.
+- Keep a smooth backdrop in the control set, to find out how much of the effect is the shader and how much is the content behind it.
+
+I worked from a short screen capture of the original clip and know nothing about how it was built; the shader here is an independent single-pass reconstruction of the effect it shows rather than a port. The rounded-box primitive is [Inigo Quilez's](https://iquilezles.org/articles/distfunctions2d/).
