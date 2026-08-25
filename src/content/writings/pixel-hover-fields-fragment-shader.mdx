@@ -1,0 +1,129 @@
+import { WritingPixelHoverFieldPreviewLazy } from '@/components/writings/WritingPixelHoverFieldPreviewLazy'
+
+export const writingMeta = {
+  id: 'pixel-hover-fields-fragment-shader',
+  order: -1,
+  title: 'Pixel hover fields in one fragment shader',
+  date: '2026-09-13',
+  category: 'Creative code',
+  excerpt:
+    'Rebuild a Canvas 2D pixel-card interaction as a procedural grid, radial reveal wave, and analytic shimmer in one WebGL pass.',
+  titleLines: ['Pixel hover fields', 'in one fragment shader'],
+  coverSrc: '/media/writings/pixel-hover-fields-fragment-shader.png',
+  keywords: ['webgl', 'fragment shader', 'canvas', 'pixel art', 'interaction'],
+  asideParagraphs: [
+    'The original creates one JavaScript object per square. The shader creates no squares at all; each fragment discovers which virtual cell it belongs to.',
+    'A GPU port changes the state model more than the appearance. Mutable pixel objects become deterministic functions of cell coordinates and time.',
+  ],
+}
+
+[Ryan Mulligan’s `<pixel-canvas>` Web Component](https://codepen.io/hexagoncircle/pen/KwPpdBZ) turns a quiet card into a field of tiny coloured squares on hover or keyboard focus. Pixels appear in a wave from the centre, settle into independent shimmer cycles, and reverse away when the card becomes inactive.
+
+The original is a thoughtful Canvas 2D implementation. This study asks a narrower question: what changes when the same visual grammar is expressed as one fragment shader?
+
+export const preview = (
+  <WritingPixelHoverFieldPreviewLazy
+    className="writing-generative-play-preview--pixel-field"
+    caption="Hover or focus a card to release its pixel field."
+    hint="One fragment pass renders all four cards. Cell hashes choose palette, size, and phase; radial distance delays the reveal."
+    height={560}
+  />
+)
+
+## The original is an object system
+
+The Web Component creates a `<canvas>` inside a shadow root, observes its size, and fills an array with `Pixel` instances. Every instance owns mutable values for size, speed, delay, direction, and shimmer state.
+
+The grid is built with nested loops:
+
+```js
+for (let x = 0; x < canvas.width; x += gap) {
+  for (let y = 0; y < canvas.height; y += gap) {
+    pixels.push(new Pixel(canvas, context, x, y, color, speed, delay))
+  }
+}
+```
+
+Each animation frame clears the canvas, visits every object, updates its state, and issues a `fillRect`. The delay is the cell’s Euclidean distance from the canvas centre, so central pixels start first and the reveal expands outward.
+
+This design has useful properties. It is easy to read, each pixel can behave independently, and the loop stops when every disappearing pixel becomes idle. `ResizeObserver`, focus events, and `prefers-reduced-motion` are handled at the component boundary rather than mixed into the drawing code.
+
+## A shader has no pixel objects
+
+A fragment shader runs once for each output fragment. It cannot walk an array of JavaScript objects or remember that one square changed direction last frame without an additional state texture.
+
+For this effect, persistent state is unnecessary. The fragment can reconstruct a virtual grid cell from its coordinate:
+
+```glsl
+vec2 cell = floor(cardPixel / gap);
+vec2 withinCell = fract(cardPixel / gap) - 0.5;
+```
+
+Every fragment inside the same cell receives the same integer `cell`. Hashing that coordinate produces stable pseudo-random values for palette choice, maximum square size, and shimmer phase:
+
+```glsl
+float seed = hash21(cell + cardIndex * 37.0);
+float maxSize = mix(0.16, 0.44, hash11(seed + 4.0));
+float phase = hash11(seed + 9.0) * 6.28318;
+```
+
+There is no generated geometry and no array to resize. The squares are an interpretation of coordinates.
+
+## Turn distance into a reveal clock
+
+The Canvas version stores a counter and waits until it exceeds each pixel’s delay. The shader compares a shared reveal value with a threshold derived from distance:
+
+```glsl
+float distanceFromCenter = length(cellUv - 0.5);
+float threshold = distanceFromCenter * waveWidth;
+float appeared = smoothstep(threshold, threshold + softness, reveal);
+```
+
+React only maintains four reveal values, one for each card. Hovering or focusing a card damps its value toward one; leaving damps it toward zero. The shader turns that compact state into hundreds of staggered squares.
+
+Reversing the same value naturally collapses the outside of the field first. No per-cell `isReverse` flag is required.
+
+## Replace mutable shimmer with analytic shimmer
+
+In the original, a pixel grows until it reaches a random maximum, then flips direction whenever it crosses its minimum or maximum size. The shader can approximate that motion with a phase-shifted wave:
+
+```glsl
+float shimmer = 0.72 + 0.28 * sin(time * speed + phase);
+float squareSize = maxSize * appeared * shimmer;
+```
+
+It is not the same state machine. A sine wave is perfectly analytic and repeatable, while the Canvas pixels accumulate small state changes over time. For this restrained sparkle, the visual difference matters less than the simpler GPU state.
+
+Reduced motion sets time to zero and snaps the active reveal to a stable state. The field still communicates focus without continuous shimmer.
+
+## Four cards, one draw call
+
+The preview divides one full-screen pass into four regions: one row when the pane is wide and a two-by-two grid when it is tall. Each region selects its own gap, palette, and shimmer speed. The card borders, radial shade, pixel field, and inactive surface are all composed in the same fragment shader.
+
+The buttons remain ordinary DOM elements above the canvas. That preserves focus order, accessible names, and keyboard activation. Moving drawing to WebGL is not a reason to move semantics there too.
+
+## CPU objects versus procedural fragments
+
+The Canvas version performs work proportional to the number of grid cells and submits one rectangle operation per visible cell. It can stop requesting frames when the field is idle.
+
+The shader submits one draw call, but it shades every fragment in the preview while animation is running. Coarse grids do not make the fragment pass cheaper in the same way they reduce the Canvas object count. The GPU version becomes attractive when several dense cards share one pass, when the field needs richer per-pixel math, or when it will be combined with other shader effects.
+
+For four small cards, the original Web Component is already an excellent engineering choice. The fragment version is valuable because it exposes a different model:
+
+- Canvas stores objects, updates them, then draws them.
+- The shader stores a few global controls and derives the rest from coordinates.
+- Canvas randomness is assigned during construction.
+- Shader randomness must be deterministic for the same cell.
+- Canvas can stop completely when idle.
+- A shader should pause or reduce its render loop when the effect is not visible.
+
+## What I would copy
+
+- Use radial distance as a cheap, legible delay field.
+- Keep hover and focus behaviour identical.
+- Let colour, density, and speed remain data rather than separate implementations.
+- Preserve a static active state under reduced motion.
+- Move only the visual field to the GPU; keep interactive controls in the DOM.
+- Choose the shader port for composability, not because Canvas 2D needs replacing.
+
+Reference implementation: [`<pixel-canvas>` Web Component by Ryan Mulligan](https://codepen.io/hexagoncircle/pen/KwPpdBZ).
