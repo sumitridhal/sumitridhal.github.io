@@ -17,7 +17,7 @@ import { useWritingPreviewReducedMotion } from '@/components/writings/useWriting
 import { WritingPlayWebglBoundary } from '@/components/writings/writingPlayWebglBoundary'
 import { WritingPreviewControls } from '@/components/writings/WritingPreviewControls'
 
-const PHOTO_SRC = '/media/writings/bayer-disc/source.jpg'
+const PHOTO_SRC = '/media/writings/fisheye-hover/source.jpg'
 
 const FULLSCREEN_VERT = /* glsl */ `
 varying vec2 vUv;
@@ -343,7 +343,7 @@ export function WritingFisheyeImagePreview({
     <img
       className="writing-fisheye-image-preview__fallback-image"
       src={PHOTO_SRC}
-      alt="Illustration of a red-haired figure among fruit and blossom"
+      alt="Soft-focus portrait of a person with a white bob against a blue background"
     />
   )
 
@@ -449,7 +449,7 @@ export function WritingFisheyeImagePreview({
           <Canvas
             className="writing-generative-play-preview__canvas"
             role="img"
-            aria-label="Colour illustration with interactive fisheye and chromatic edge distortion"
+            aria-label="Soft-focus portrait with interactive fisheye and chromatic edge distortion"
             dpr={[1, 2]}
             gl={{ antialias: false, alpha: false, powerPreference: 'high-performance' }}
             camera={{ position: [0, 0, 1] }}
@@ -467,7 +467,11 @@ export function WritingFisheyeImagePreview({
       </div>
 
       <footer className="writing-generative-play-preview__credit">
-        Image treatment after{' '}
+        Image by{' '}
+        <a href="https://x.com/hewarsaber" target="_blank" rel="noreferrer">
+          Hewar
+        </a>
+        {' · '}Effect after{' '}
         <a href="https://codepen.io/filipz/pen/dPoyMVB" target="_blank" rel="noreferrer">
           Filip Zrnzevic
         </a>

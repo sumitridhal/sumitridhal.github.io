@@ -1310,8 +1310,6 @@ body.is-split-dragging {
 .writing-page__body .writing-generative-play-preview--reveal
   .writing-generative-play-preview__canvas-wrap,
 .writing-page__body .writing-generative-play-preview--chromatic-card
-  .writing-generative-play-preview__canvas-wrap,
-.writing-page__body .writing-generative-play-preview--fisheye-image
   .writing-generative-play-preview__canvas-wrap {
   max-width: min(100%, 30rem);
   margin-inline: auto;
@@ -1319,6 +1317,8 @@ body.is-split-dragging {
 
 .writing-page__body .writing-generative-play-preview--fisheye-image
   .writing-generative-play-preview__canvas-wrap {
+  max-width: min(100%, 44rem);
+  margin-inline: auto;
   background: #010102;
   cursor: crosshair;
 }
@@ -1342,7 +1342,7 @@ body.is-split-dragging {
   .writing-page__body .writing-generative-play-preview--fisheye-image
     .writing-generative-play-preview__canvas-wrap {
     height: auto;
-    aspect-ratio: 3 / 4;
+    aspect-ratio: 16 / 9;
   }
 }
 
