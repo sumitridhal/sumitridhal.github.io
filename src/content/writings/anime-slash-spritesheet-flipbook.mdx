@@ -1,0 +1,210 @@
+import { WritingPreviewCue } from '@/components/writings/WritingPreviewCue'
+import { WritingSlashFlipbookPreviewLazy } from '@/components/writings/WritingSlashFlipbookPreviewLazy'
+
+export const writingMeta = {
+  id: 'anime-slash-spritesheet-flipbook',
+  order: -1,
+  title: 'Anime slash sheets: sixteen cells and one read head',
+  date: '2026-09-25',
+  category: 'Creative code',
+  excerpt:
+    'A 4×4 sprite sheet is not sixteen pictures. It is a timing curve someone already drew for you, and a fragment shader that reads one cell at a time.',
+  titleLines: ['Anime slash sheets:', 'sixteen cells and one read head'],
+  coverSrc: '/media/writings/anime-slash-spritesheet-flipbook.png',
+  keywords: ['webgl', 'sprite sheet', 'flipbook', 'vfx', 'anime', 'fragment shader'],
+  asideParagraphs: [
+    'The shader is almost nothing: pick a cell, read one channel, threshold it. Everything expressive was decided by whoever drew the sixteen frames.',
+    'The preview is the point. The numbered buttons play a different one of the five sheets; inside each, the contact sheet view shows which cell is being read.',
+  ],
+}
+
+Five sheets, each 1024×1024, each a 4×4 grid of 256-pixel cells. White shapes on black. No colour, no alpha channel, no metadata about timing or pivot or duration. Sixteen cells and an implied reading order.
+
+That austerity is the interesting part. A flipbook sheet pushes almost all of the authorship into the art and leaves the runtime with one job: point at the right cell. So this article is mostly the preview, and the preview is mostly a read head moving across a grid. Each numbered step plays a different one of the five sheets through the same shader; the buttons under the canvas switch sheets without leaving the step.
+
+export const previewSteps = [
+  {
+    id: 'wide-swoosh',
+    label: 'Wide swoosh · playback',
+    node: (
+      <WritingSlashFlipbookPreviewLazy
+        className="writing-generative-play-preview--slash-flipbook"
+        preset="flipbook"
+        sheet={1}
+        caption="Wide swoosh: sixteen cells at twelve frames per second, looping."
+        hint="This is the sheet the coverage table below was measured from. Pause and drag Frame to step through cells one at a time; the readout beside the sheet buttons names the row and column being sampled."
+        height={600}
+      />
+    ),
+  },
+  {
+    id: 'rising-blade',
+    label: 'Rising blade · the read head',
+    node: (
+      <WritingSlashFlipbookPreviewLazy
+        className="writing-generative-play-preview--slash-flipbook"
+        preset="flipbook"
+        sheet={2}
+        caption="Rising blade: the same read head, a different sixteen drawings."
+        hint="Open Controls and switch View to Contact sheet to watch the read head travel the grid in reading order: frame 0 top-left, frame 15 bottom-right."
+        height={600}
+      />
+    ),
+  },
+  {
+    id: 'sliver-flurry',
+    label: 'Sliver flurry · cross-fade',
+    node: (
+      <WritingSlashFlipbookPreviewLazy
+        className="writing-generative-play-preview--slash-flipbook"
+        preset="blend"
+        sheet={0}
+        caption="Sliver flurry at four frames per second, cross-fading between cells."
+        hint="Scattered slivers make the failure obvious: two unrelated drawings dissolve through each other. Switch Frame blend to Hold and the same four frames per second reads as deliberate rather than mushy."
+        height={600}
+      />
+    ),
+  },
+  {
+    id: 'crescent-sweep',
+    label: 'Crescent sweep · rim and glow',
+    node: (
+      <WritingSlashFlipbookPreviewLazy
+        className="writing-generative-play-preview--slash-flipbook"
+        preset="styled"
+        sheet={4}
+        caption="Crescent sweep: one grayscale mask, grown for a rim and added to the backdrop."
+        hint="Threshold erodes or dilates the shape, Rim width grows a second silhouette so the coloured edge has somewhere to live, and Glow controls how much light the slash adds. Palette swaps the two colours."
+        height={600}
+      />
+    ),
+  },
+  {
+    id: 'open-crescent',
+    label: 'Open crescent · widest silhouette',
+    node: (
+      <WritingSlashFlipbookPreviewLazy
+        className="writing-generative-play-preview--slash-flipbook"
+        preset="styled"
+        sheet={3}
+        caption="Open crescent: the widest silhouette of the five."
+        hint="A broad shape is where a grown rim earns its eight extra reads, and where too much Glow saturates the palette to white."
+        height={600}
+      />
+    ),
+  },
+]
+
+<WritingPreviewCue id="wide-swoosh" />
+
+## The sheet is a timing curve
+
+Before writing any shader I measured how much of each cell is actually covered by white. For the wide swoosh sheet, cell by cell in reading order:
+
+```text
+frame  0    1    2    3    4    5    6    7
+cover  0.0  1.9  6.5 11.6  9.8  7.6  4.2  4.1
+
+frame  8    9   10   11   12   13   14   15
+cover  3.0  2.4  1.7  1.2  0.7  0.4  0.1  0.0
+```
+
+Two things fall out of that. Frame 0 and frame 15 are empty, which is a convention worth relying on: the animation is self-terminating, so a looping playhead spends its first and last frame showing nothing and you never have to special-case a spawn or a cleanup.
+
+More usefully, the shape peaks at frame 3 and then takes twelve frames to disappear. The attack is a quarter the length of the decay. That asymmetry is the whole character of an anime slash, and it is already drawn into the cells. Which means the runtime should play the sheet linearly. Easing the playhead to add snap double-counts a decision the artist already made, and the usual symptom is a slash that arrives late and then hangs around looking rubbery.
+
+All five sheets follow the same envelope. Peak coverage sits at frame 3, 5, 6 or 7 depending on the set, and every one of them ends at zero.
+
+<WritingPreviewCue id="rising-blade" />
+
+## Frame index to cell origin
+
+The mapping is two lines of integer arithmetic, with one trap in it:
+
+```glsl
+const float GRID = 4.0;
+const float FRAMES = 16.0;
+
+vec2 cellOrigin(float index) {
+  float i = mod(floor(index), FRAMES);
+  float col = mod(i, GRID);
+  float row = floor(i / GRID);
+  return vec2(col, GRID - 1.0 - row) / GRID;
+}
+```
+
+The trap is `GRID - 1.0 - row`. Sheets are drawn to be read like text, top-left first, but three.js uploads textures with `flipY` enabled, so `v = 1` is the top of the image and row 0 lives at the *high* end of the V axis. Get this wrong and the animation still runs, still loops, and still looks like something: it plays the four rows in the wrong order, bottom band first. It is a bug that survives casual review, which is exactly why the contact sheet view in the preview draws a box around the cell being read. A mapping you can watch is a mapping you can trust.
+
+The cell is then filled by remapping the quad's UV into that cell:
+
+```glsl
+float readFrame(float index, vec2 local) {
+  float halfTexelLocal = 0.5 * GRID / uSheetPx;
+  vec2 inner = clamp(local, halfTexelLocal, 1.0 - halfTexelLocal);
+  return texture2D(uSheet, cellOrigin(index) + inner / GRID).r;
+}
+```
+
+The clamp is the atlas tax. Bilinear filtering reads a 2×2 texel neighbourhood, so a sample taken exactly on a cell wall averages in whatever the adjacent frame happens to be drawing there. Pulling the coordinate half a texel inside the cell keeps the footprint where it belongs. It costs one `clamp` and it removes a class of one-pixel seams that are miserable to diagnose later.
+
+Mip maps are the same problem with the volume turned up, so the textures are uploaded without them. A minified atlas averages across cell walls at every level of the chain, and by the third level a frame is visibly contaminated by its neighbours. If a sheet genuinely needs to be drawn small, the fixes are padding each cell or moving to a texture array, not a mip chain over a grid.
+
+<WritingPreviewCue id="sliver-flurry" />
+
+## Hold, do not blend
+
+Once the playhead is a float rather than an integer, cross-fading is tempting and nearly free to write:
+
+```glsl
+float held = readFrame(floor(uFrame), local);
+float next = readFrame(floor(uFrame) + 1.0, local);
+float mask = mix(held, next, fract(uFrame));
+```
+
+It costs a second read of the atlas, and on these sheets it is the wrong choice. Cross-fading assumes consecutive frames are samples of one continuous motion, so the average of two of them is a plausible in-between. Hand-drawn effects animation is not built that way. Adjacent cells here are different drawings, sometimes with the shape on the other side of the frame, and dissolving between them produces two ghosts at half opacity rather than one shape in an intermediate position.
+
+The sliver flurry step of the preview runs this at four frames per second on purpose. The cross-fade reads as smeared and weightless; the hold, at exactly the same rate, reads as deliberate. Chunky framing is the effect, not a limitation to be smoothed away. Blend when your frames are dense samples of a continuous simulation, and hold when a person drew them.
+
+<WritingPreviewCue id="crescent-sweep" />
+
+## The mask is not a colour
+
+The sheets are white on black, which invites treating them as images. They are better handled as a single-channel field, and two details follow from that.
+
+The first is colour management. These files get uploaded with no colour space conversion rather than as sRGB, because the grayscale ramp along every antialiased edge is coverage data, not brightness. Decoding it as sRGB bends that ramp and quietly changes how thick every shape reads once it is thresholded.
+
+The second is how the coloured edge gets made. The obvious move is to threshold the same mask twice, once low and once high, and call the gap between them a rim. I tried that first and it does not work here, for a reason worth knowing: these sheets are effectively binary. Across a whole 1024-pixel sheet only about a third of a percent of pixels hold an intermediate value, because the only soft pixels are the antialiased boundary itself. A second threshold on that mask buys a rim one texel wide, which at any reasonable display size is a hairline.
+
+A rim you can actually see has to come from growing the silhouette rather than re-cutting it:
+
+```glsl
+float a     = maskAt(local);
+float grown = dilatedMask(local, rim);   // max() of eight offset reads
+
+float core  = smoothstep(threshold, threshold + soft, a);
+float outer = smoothstep(threshold, threshold + soft, grown);
+
+vec3 slash = mix(rimColor, coreColor, core);
+color = mix(color, slash, outer);
+color += slash * outer * glow;
+```
+
+One threshold, two silhouettes: the mask as drawn is the white-hot core, the dilated mask is the outer edge, and the band between them is the rim. It costs eight more texture reads instead of one more comparison, which is the honest price of the effect. That is also where the ice, ember, and violet palettes in the preview come from: not four sets of art, but one mask, one dilation, and two colours.
+
+The general lesson is that a threshold cannot recover information the mask never had. If you want rim width as a continuous control, the mask has to carry distance rather than coverage, and a signed distance field baked into the sheet would give it for one read instead of eight.
+
+The final line matters as much as the two before it. Light is added rather than composited over, because a slash emits; it should brighten what is behind it instead of occluding it. Sliding Threshold with Glow up is also the cheapest dissolve available here, since eroding a soft mask makes the shape retreat along its own edges without any extra texture.
+
+<WritingPreviewCue id="open-crescent" />
+
+## What I would copy
+
+- Measure the sheet before writing the shader. Per-cell coverage tells you the frame count, the loop points, and the attack-to-decay ratio in one pass.
+- Play authored frames linearly. The easing is already in the drawings.
+- Draw the atlas with the active cell outlined during development. Row-order bugs are invisible otherwise.
+- Clamp sample coordinates half a texel inside each cell, and upload sheets without mip maps.
+- Hold frames rather than cross-fading them, unless the frames came from a simulation.
+- Treat the sheet as coverage, not colour: no sRGB decode, one channel, additive output.
+- Grow the silhouette to get a rim. Thresholding a near-binary mask twice only ever yields a hairline.
+
+Sprite sheets: the slash VFX set from [Jettelly](https://jettelly.com/). Five sheets, sixteen frames each, reused here as study material for the playback shader.

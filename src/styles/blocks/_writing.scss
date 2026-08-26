@@ -1313,6 +1313,63 @@ body.is-split-dragging {
   margin-inline: auto;
 }
 
+/* Both the whole atlas and a single cell are square, so keep the canvas box
+   near-square rather than letterboxing a wide one. */
+.writing-page__body .writing-generative-play-preview--slash-flipbook
+  .writing-generative-play-preview__canvas-wrap {
+  max-width: min(100%, 34rem);
+  margin-inline: auto;
+  background: #04050a;
+}
+
+@media (max-width: 900px) {
+  .writing-page__body .writing-generative-play-preview--slash-flipbook
+    .writing-generative-play-preview__canvas-wrap {
+    height: auto;
+    aspect-ratio: 1 / 1;
+  }
+}
+
+/* Numbered sheet picker, borrowed from the article's preview-step pager. */
+.writing-page__body .writing-slash-flipbook-preview__sheets {
+  display: flex;
+  flex-wrap: wrap;
+  align-items: center;
+  gap: 0.3rem;
+}
+
+.writing-page__body .writing-slash-flipbook-preview__sheets button {
+  display: grid;
+  place-items: center;
+  width: 1.45rem;
+  height: 1.45rem;
+  padding: 0;
+  border: 1px solid var(--preview-control-edge);
+  border-radius: 50%;
+  font-family: $font-writing-mono;
+  font-size: 0.62rem;
+  color: var(--preview-ink);
+  background: var(--preview-control-bg);
+  cursor: pointer;
+}
+
+.writing-page__body .writing-slash-flipbook-preview__sheets button:hover,
+.writing-page__body .writing-slash-flipbook-preview__sheets button:focus-visible,
+.writing-page__body .writing-slash-flipbook-preview__sheets button.is-active {
+  color: var(--editorial-accent-ink);
+  border-color: var(--editorial-accent);
+  background: var(--editorial-accent);
+}
+
+.writing-page__body .writing-slash-flipbook-preview__sheets button:focus-visible {
+  @include focus-ring;
+}
+
+.writing-page__body .writing-slash-flipbook-preview__sheet-name {
+  margin-inline-start: 0.15rem;
+  color: var(--preview-ink-faint);
+}
+
 .writing-page__body .writing-invader-fractal-preview {
   margin: 0 0 1.25rem;
   padding: 0;
