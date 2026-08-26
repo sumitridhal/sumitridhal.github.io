@@ -1,0 +1,292 @@
+import { WritingGemSurfacePreviewLazy } from '@/components/writings/WritingGemSurfacePreviewLazy'
+
+export const writingMeta = {
+  id: 'gem-surface-parallax-and-pin-light',
+  order: -4,
+  title: 'Gem surface: tangent-space parallax and a blend mode',
+  date: '2026-08-25',
+  category: 'Creative code',
+  excerpt:
+    'A faceted gem gets its apparent depth from one tangent-space offset, its colour separation from a triangle wave, and its hard flashes from a Pin Light operator whose layer order matters.',
+  titleLines: ['Gem surface:', 'tangent-space parallax', 'and a blend mode'],
+  coverSrc: '/media/writings/gem-surface-parallax-and-pin-light.png',
+  keywords: ['godot', 'shaders', 'glsl', 'parallax', 'tangent space', 'blend modes'],
+  asideParagraphs: [
+    'The surface does not refract a scene. It offsets a pattern in tangent space, recolours it, and uses view direction again as a per-channel phase shift.',
+    'Two details are deliberately exposed in the study: a scalar that becomes a vec2 texture coordinate, and a Pin Light implementation whose inputs are reversed from the canonical formula.',
+  ],
+}
+
+export const preview = (
+  <WritingGemSurfacePreviewLazy
+    className="writing-generative-play-preview--gem"
+    caption="Drag to orbit. Open the controls to compare the shader as written with the conventional operators."
+    hint="Offset follows the tangent-space view direction. Second UV reveals the scalar-to-vec2 dependent read; Pin Light reveals that the blend is not commutative."
+    height={560}
+  />
+)
+
+The surface in the Godot screenshots looks like a refractive object. Facets appear to slide over one another, bright seams flare at grazing angles, and red, green, and blue shards separate as the camera moves. The tempting explanation is glass.
+
+There is no scene refraction in the shader. It never samples a screen texture, traces through the mesh, or bends a ray. The depth comes from offsetting one pattern with the view direction. The colour separation comes from sending three different components of that direction through a triangle wave. The hard flashes come from a Photoshop-style blend mode.
+
+That makes the material more useful as a study than as a physically based gem. It is a stack of small, graphic cheats whose inputs and failure modes stay visible. Drag the preview to orbit it, then open **Controls**. **Offset** exposes the fake depth, **Pin amount** reveals the colour split, and the two switches compare unusual lines in the original against more conventional versions.
+
+## Three dots are a matrix multiply
+
+The fragment function starts by expressing the view direction in the surface's tangent basis:
+
+```gdshader
+float view_tangent = dot(-TANGENT, VIEW);
+float view_binormal = dot(BINORMAL, VIEW);
+float view_normal = dot(NORMAL, VIEW);
+
+vec3 view_TS = normalize(vec3(
+  view_tangent,
+  view_binormal,
+  view_normal
+));
+```
+
+In a Godot spatial fragment shader, `NORMAL`, `TANGENT`, `BINORMAL`, and `VIEW` are available in view space. The three dot products ask how much of `VIEW` points along each basis axis. Written as a matrix operation, the same conversion is:
+
+```glsl
+mat3 worldToTangent = transpose(mat3(
+  -TANGENT,
+  BINORMAL,
+  NORMAL
+));
+vec3 view_TS = normalize(worldToTangent * VIEW);
+```
+
+The explicit dots make the operation easier to inspect. `view_TS.z` says how directly the surface faces the camera. Its `xy` pair says which way the camera lies across the local surface plane. That pair becomes the material's displacement direction.
+
+The minus sign on `TANGENT` is part of this material's convention. It flips the horizontal response so the pattern travels in the desired direction. Tangent bases are sensitive to mesh UV orientation and handedness; a sign that is correct for one imported mesh can make another appear to move backward.
+
+The browser port builds tangents on an indexed icosphere, converts it to non-indexed geometry, and recomputes flat normals. Its vertex shader carries tangent, binormal, normal, and view position to the fragment stage:
+
+```glsl
+vec3 normalVS = normalize(normalMatrix * normal);
+vec3 tangentVS = normalize(normalMatrix * tangent.xyz);
+tangentVS = normalize(
+  tangentVS - normalVS * dot(normalVS, tangentVS)
+);
+vec3 binormalVS =
+  normalize(cross(normalVS, tangentVS) * tangent.w);
+```
+
+The subtraction is Gram-Schmidt orthogonalization. Recomputing flat normals changes the normal without changing the stored tangent, so the shader removes any component of the tangent that now points along that normal.
+
+## Offset mapping, and where it stops being convincing
+
+Once the view vector is in tangent space, the apparent depth is one multiplication:
+
+```gdshader
+vec2 uv_tangent_offset = view_TS.xy * _Offset;
+float t = texture(
+  _Pattern,
+  UV + uv_tangent_offset
+).r;
+```
+
+When the camera faces a facet, `view_TS.xy` is near zero and the pattern stays close to its original UV. At a grazing angle, one or both components grow and the sample travels farther. Neighbouring facets have different tangent frames, so the same camera direction produces a different two-dimensional shift on each face.
+
+This is offset mapping: one view-dependent displacement and one sample. It is related to parallax mapping, but it does not search through a height field. There is no loop to find where a view ray first intersects a virtual surface, and there is no self-occlusion. It buys motion, not geometry.
+
+Push **Offset** toward `0.5` and the failure becomes useful. Features slide too far, seams between UV islands become obvious, and a silhouette never changes. The eye accepts a small mismatch as depth; a large mismatch advertises that the mesh is still a fixed shell.
+
+Offset mapping is therefore strongest when the mesh already supplies a convincing silhouette. Here the faceted icosphere does that work. The shader only has to make its surface appear layered.
+
+## The float that became a vec2
+
+The next line deserves more attention than its size suggests:
+
+```gdshader
+float t = texture(
+  _Pattern,
+  UV + uv_tangent_offset
+).r;
+
+vec2 uv_distorted = t - uv_tangent_offset;
+vec4 albedo = texture(_Pattern, uv_distorted);
+```
+
+`t` is a scalar. The destination is a `vec2`, so the shader language broadcasts it: `t` becomes `vec2(t, t)`. The second lookup is therefore equivalent to:
+
+```glsl
+vec2 uv_distorted =
+  vec2(t, t) - uv_tangent_offset;
+```
+
+This is a dependent texture read. The red value returned by the first sample determines both coordinates of the second sample. It collapses a two-dimensional image into a diagonal lookup, then lets the tangent offset pull that diagonal apart.
+
+The result is load-bearing for the reference look: repeated shards, abrupt jumps, and correlated X/Y motion. It may be intentional, or it may be the residue of an edit where `UV` was meant to remain in the expression. The source alone cannot settle that question.
+
+The preview keeps both readings. With **Second UV = vec2(t)** it follows the shader exactly. With **Second UV = UV** it samples:
+
+```glsl
+vec2 uv_distorted =
+  UV - uv_tangent_offset;
+```
+
+The corrected mode behaves like ordinary offset mapping. The as-written mode behaves more like a lookup table indexing itself. Comparing them is more informative than silently “fixing” the line.
+
+## Three colour stops without a gradient texture
+
+The red channel `t` also drives a three-colour ramp:
+
+```gdshader
+float t_AB = clamp(t, 0.0, 0.5) * 2.0;
+float t_BC =
+  (clamp(t, 0.5, 1.0) - 0.5) * 2.0;
+
+vec3 color_AB =
+  mix(_BaseColor, _MidColor, t_AB);
+vec3 color_BC =
+  mix(color_AB, _HighColor, t_BC);
+
+albedo.rgb *= color_BC;
+```
+
+For the first half of the range, `t_AB` remaps `0.0..0.5` to `0.0..1.0` while `t_BC` stays zero. The result travels from `_BaseColor` to `_MidColor`.
+
+For the second half, `t_AB` remains one, so `color_AB` stays at `_MidColor`. `t_BC` then remaps `0.5..1.0` to `0.0..1.0`, carrying the result from `_MidColor` to `_HighColor`.
+
+At exactly `t = 0.5`, both pieces agree on `_MidColor`. There is no discontinuity and no gradient texture. It is a tiny analytical LUT with one fixed stop.
+
+Multiplication matters. The ramp does not replace the pattern; it tints it. Dark structure in `albedo` stays dark, while bright shards inherit green, magenta, yellow, or whichever three colours the material exposes.
+
+## Why `fract` alone would show a seam
+
+The second view-dependent layer starts with another pattern sample:
+
+```gdshader
+vec3 pin_pattern = texture(
+  _Pattern,
+  UV + uv_pin_offset
+).rgb;
+
+vec3 pin_color =
+  1.0 - abs(
+    (fract(pin_pattern + view_TS) * 2.0) - 1.0
+  );
+```
+
+`fract(x)` is a sawtooth. It climbs from zero toward one, then jumps straight back to zero at every integer. Adding `view_TS` would move that jump through the colour field, producing a hard temporal seam.
+
+The outer expression folds the sawtooth into a triangle wave:
+
+```glsl
+float triangle(float x) {
+  return 1.0 - abs(fract(x) * 2.0 - 1.0);
+}
+```
+
+Each period rises `0 -> 1` and falls `1 -> 0`. The ends now meet at the same value, so phase can move through the period without a bright-to-dark discontinuity.
+
+This is the same principle as folding coordinates for [kaleidoscope symmetry](/writing/kaleidoscope-symmetry-shaders): transform a repeating coordinate before evaluating the visible result. Here the fold is one-dimensional and per channel rather than angular.
+
+## Per-channel phase is the cheapest dispersion there is
+
+The expression operates on `vec3`, so red, green, and blue receive different phase offsets:
+
+```gdshader
+fract(pin_pattern + view_TS)
+```
+
+`view_TS.x`, `.y`, and `.z` are generally different. Adding the whole vector to `pin_pattern` moves each channel to a different point on the triangle wave. As the view changes, those phases travel at different values even though they share one formula.
+
+That produces the visual vocabulary of dispersion — separated colour flashes that reorganize with the camera — without calculating wavelength-dependent refraction. There are no three scene samples and no index of refraction. It is colour-channel phase modulation.
+
+The strength remains explicit:
+
+```gdshader
+pin_color *= _PinAmount;
+```
+
+At zero, this layer disappears. Near one, it becomes a field of hard RGB decisions after the blend mode. The two screenshots use different mid colours and pin amounts, which is enough to move the material from mostly green/yellow to mostly magenta/cyan without changing the construction.
+
+## Pin Light has a layer order
+
+The material combines its tinted albedo and triangle-wave colour with a custom function:
+
+```gdshader
+vec3 pin_light(
+  vec3 base,
+  vec3 blend,
+  float opacity
+) {
+  vec3 check = step(0.5, blend);
+  vec3 result_1 =
+    check * max(2.0 * (base - 0.5), blend);
+  vec3 result_2 =
+    result_1 +
+    (1.0 - check) * min(2.0 * base, blend);
+  return mix(base, result_2, opacity);
+}
+```
+
+Pin Light replaces dark values with the darker of two candidates and bright values with the brighter. Unlike `add` or `multiply`, it is not commutative. Which value is the base and which is the blend changes the result.
+
+The canonical Photoshop-style form is usually written:
+
+```glsl
+vec3 canonicalPinLight(vec3 base, vec3 blend) {
+  vec3 hi = max(base, 2.0 * (blend - 0.5));
+  vec3 lo = min(base, 2.0 * blend);
+  return mix(lo, hi, step(0.5, blend));
+}
+```
+
+The source instead doubles and recentres `base` in the high branch, doubles `base` in the low branch, and compares those values against `blend`. It is equivalent to reversing the operator's layers, not merely rearranging the algebra.
+
+Use the **Pin Light** switch to compare them. The canonical order preserves more of the tinted pattern as its base. The as-written order lets the RGB triangle wave make more of the hard replacement decisions that read as gem facets.
+
+The `opacity` argument is currently ceremonial. Every call passes `1.0`, so the final `mix(base, result_2, opacity)` always returns `result_2`. Keeping the argument is still useful if the function is meant to become a reusable blend-mode helper.
+
+## Deliberately out of range: `RIM = 50.0`
+
+The fragment function ends by handing the result back to Godot's spatial material:
+
+```gdshader
+ALBEDO = blend;
+SPECULAR = 1.0;
+ROUGHNESS = 0.5;
+RIM = 50.0;
+RIM_TINT = 0.01;
+```
+
+`render_mode diffuse_toon` changes the diffuse response from a smooth Lambertian rolloff to a band. That makes every flat face read more clearly. `SPECULAR = 1.0` and `ROUGHNESS = 0.5` add a broad enough highlight to connect those faces without turning the object into a mirror.
+
+`RIM` is documented as a zero-to-one material input. Writing `50.0` is deliberately far outside that nominal range. Whether the renderer clamps immediately or saturates later, the artistic instruction is clear: make the Fresnel-like edge contribution as strong as the pipeline permits. `RIM_TINT = 0.01` leaves it almost white instead of borrowing much colour from `ALBEDO`.
+
+The preview exposes **Rim strength** all the way to fifty rather than normalizing it away. The WebGL port caps the final contribution so it does not destroy the entire image, but high values still collapse the grazing edge into a bright halo.
+
+An empty `vertex()` contributes nothing, and the sampled `albedo.a` never reaches `ALPHA`. Both are safe to remove unless the material is about to gain vertex motion or transparency.
+
+## What the WebGL translation had to change
+
+- Godot supplies `VIEW`, `NORMAL`, `TANGENT`, and `BINORMAL` in a compatible space. Three.js supplies attributes and matrices, so the vertex shader constructs and transports the same basis.
+- The Godot mesh in the screenshots already has faceted geometry and UVs. The study uses an icosphere, computes tangents while it is indexed, then makes it non-indexed and recomputes flat normals.
+- `_Pattern` becomes a procedural kaleidoscope. That removes an image dependency while preserving the role of a colourful, high-frequency source.
+- The source's dependent `vec2(t)` lookup remains available as the default. A switch compares it against conventional `UV - offset` sampling.
+- The source's Pin Light argument order remains the default. A second switch swaps in the canonical Photoshop-style form.
+- `diffuse_toon` becomes a thresholded diffuse term in the fragment shader. A compact half-vector highlight stands in for Godot's spatial specular pass.
+- Godot's rim input becomes a cubic Fresnel term. The strength still runs from zero to fifty so the out-of-range intent stays inspectable.
+- Orbit motion belongs to the React Three Fiber frame loop. With `prefers-reduced-motion`, the object holds its starting angle and remains manually orbitable.
+
+The port does not try to make the shader physically correct. It preserves the important contract: local view direction moves a pattern, moves three colour phases, and changes a hard blend.
+
+## What I would copy
+
+- Convert view direction into tangent space when an effect should follow the surface's UV orientation rather than world axes.
+- Spend one offset sample when a mesh silhouette already sells the form and the interior only needs to appear layered.
+- Build a three-stop ramp from two remapped intervals when a fixed midpoint is enough.
+- Fold `fract` into a triangle wave when phase should wrap without a hard sawtooth seam.
+- Use different vector components as cheap per-channel phase offsets when graphic dispersion is enough.
+- Treat blend modes as ordered operators. Verify the layer convention before porting a formula from an image editor.
+- Keep surprising scalar-to-vector conversions explicit. If a dependent read is intentional, write `vec2(t)` so the next reader does not have to guess.
+- Push a material input out of range only when saturation is the intended art direction, then test how each renderer clamps it.
+- Remove empty stages and unused alpha paths once the experiment settles; short shaders are easier to reason about when every line participates.
+
+This study is based on Jettelly's [“Gemstone Shader in Godot”](https://jettelly.com/tutorials/gemstone-shader-in-godot), version 0.0.1. The source shader on that page is published under [Creative Commons CC0](https://creativecommons.org/publicdomain/zero/1.0/). The WebGL implementation here is an independent translation with a procedural pattern, an orbitable faceted mesh, and comparison controls for the dependent UV read and Pin Light layer order.
