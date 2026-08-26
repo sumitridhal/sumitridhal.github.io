@@ -1346,6 +1346,27 @@ body.is-split-dragging {
   }
 }
 
+.writing-page__body .writing-generative-play-preview--gem
+  .writing-generative-play-preview__canvas-wrap {
+  max-width: min(100%, 38rem);
+  margin-inline: auto;
+  background: #061017;
+  cursor: grab;
+}
+
+.writing-page__body .writing-generative-play-preview--gem
+  .writing-generative-play-preview__canvas-wrap:active {
+  cursor: grabbing;
+}
+
+@media (max-width: 900px) {
+  .writing-page__body .writing-generative-play-preview--gem
+    .writing-generative-play-preview__canvas-wrap {
+    height: auto;
+    aspect-ratio: 1 / 1;
+  }
+}
+
 .writing-page__body .writing-generative-play-preview--css-holographic
   .writing-generative-play-preview__canvas-wrap {
   max-width: min(100%, 30rem);
