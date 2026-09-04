@@ -1,0 +1,77 @@
+import { WritingChromaticAberrationCardPreviewLazy } from '@/components/writings/WritingChromaticAberrationCardPreviewLazy'
+
+export const writingMeta = {
+  id: 'chromatic-aberration-card',
+  order: -1,
+  title: 'Chromatic aberration as a card material',
+  date: '2026-09-05',
+  category: 'Creative code',
+  excerpt:
+    'Split one card texture into red, green, and blue samples, then let the pointer steer their separation through an iridescent field.',
+  titleLines: ['Chromatic aberration', 'as a card material'],
+  coverSrc: '/media/writings/payatlas-chromatic-card/card.webp',
+  keywords: ['webgl', 'shaders', 'chromatic aberration', 'interaction', 'pointer'],
+  asideParagraphs: [
+    'Chromatic aberration is most convincing at high-contrast edges. A uniform RGB offset across the whole card reads as a broken display.',
+    'The pointer supplies direction, the foil map supplies variation, and the card alpha keeps every displaced sample inside the object.',
+  ],
+}
+
+The purple spell card in [Artem Morozov’s PayAtlas project](https://artem.vyraz.studio/) already has the ingredients of a synthetic material: hard cream linework, luminous violet gradients, and a clean transparent silhouette. A small RGB split is enough to make those edges feel refractive.
+
+This is a reconstruction of the visible effect, not a claim about the original implementation. Move across the study to steer the split; the iridescent field changes its strength so the card does not separate like one rigid printing error.
+
+export const preview = (
+  <WritingChromaticAberrationCardPreviewLazy
+    className="writing-generative-play-preview--chromatic-card"
+    caption="Move across the card to steer the RGB split."
+    hint="Red and blue sample opposite sides of the same pointer-driven offset. A foil map breaks up the distance without moving the green reference."
+    height={560}
+  />
+)
+
+## One image, three nearby coordinates
+
+Chromatic aberration does not need three textures. It samples one texture three times:
+
+```glsl
+vec2 split = direction * separation * foil;
+float r = texture2D(uCard, uv + split).r;
+float g = texture2D(uCard, uv).g;
+float b = texture2D(uCard, uv - split).b;
+vec3 color = vec3(r, g, b);
+```
+
+Green stays at the original coordinate while red and blue move in opposite directions. That stationary middle sample keeps the illustration readable. If all three channels move independently, the centre of the image drifts with the effect.
+
+The offset remains small in UV space. Large values stop reading as lens error and become three translucent cards.
+
+## Let edges carry the split
+
+A flat offset is visible everywhere, including broad purple regions where it contributes only muddy colour. The preview estimates local contrast from neighbouring alpha and luminance samples, then gives stronger separation to the card outline and bright linework.
+
+The supplied iridescent image becomes a modulation field rather than a second visible layer. Its luminance scales the offset:
+
+```glsl
+float foil = mix(1.0, texture2D(uFoil, foilUv).r, uFoilInfluence);
+float amount = uSeparation * mix(0.35, 1.0, edge) * foil;
+```
+
+That variation is subtle. The card remains the subject; the map only prevents every edge from producing the same mechanical fringe.
+
+## The pointer chooses direction
+
+Pointer coordinates are normalized around the canvas centre. Their direction becomes the RGB offset vector, and their distance controls strength. The React side damps toward the target instead of copying every event directly, so the colours settle rather than chatter.
+
+Under reduced motion the preview holds a small diagonal split. The construction stays visible, but nothing follows the pointer.
+
+## What I would copy
+
+- Keep one channel fixed so the image retains a stable reference.
+- Spend the largest offsets at silhouettes and high-contrast marks.
+- Use a texture to modulate strength, not to replace the source artwork.
+- Clip displaced samples with the card alpha so colour cannot leak into the frame.
+- Treat pointer distance as intensity and pointer angle as direction.
+- Freeze a readable state for reduced motion instead of removing the effect.
+
+Reference artwork by [Artem Morozov for PayAtlas](https://artem.vyraz.studio/). The original project image is available [here](https://artem.vyraz.studio/projects/pa/pa-4.webp).
