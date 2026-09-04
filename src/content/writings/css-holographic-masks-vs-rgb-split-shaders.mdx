@@ -1,0 +1,125 @@
+import { WritingCssHolographicMaskPreviewLazy } from '@/components/writings/WritingCssHolographicMaskPreviewLazy'
+
+export const writingMeta = {
+  id: 'css-holographic-masks-vs-rgb-split-shaders',
+  order: -1,
+  title: 'CSS holographic masks versus RGB-split shaders',
+  date: '2026-09-09',
+  category: 'Creative code',
+  excerpt:
+    'A CSS blend-mode hologram and a WebGL chromatic split can share the same artwork while solving different visual problems.',
+  titleLines: ['CSS holographic masks', 'versus RGB-split shaders'],
+  coverSrc: '/media/writings/payatlas-chromatic-card/card.webp',
+  keywords: [
+    'css',
+    'mix-blend-mode',
+    'holographic',
+    'webgl',
+    'chromatic aberration',
+  ],
+  asideParagraphs: [
+    'The CSS method composites a gradient and mask over an intact image. The WebGL method resamples the image itself.',
+    'One behaves like a moving surface finish; the other behaves like an optical registration error.',
+  ],
+}
+
+[Christian Alder’s CSS Holographic Masks study](https://codepen.io/HejChristian/pen/YPzLbYX) and my [chromatic-aberration card study](/writing/chromatic-aberration-card) can look related at a glance. Both place spectral colour around an image, both use a texture to stop the result feeling uniform, and both become more convincing when movement changes the colour.
+
+They are not two implementations of the same operation. The CodePen builds a reflective layer with CSS compositing. The WebGL version changes where each colour channel samples the source image. One decorates the surface; the other distorts the image signal.
+
+export const preview = (
+  <WritingCssHolographicMaskPreviewLazy
+    className="writing-generative-play-preview--css-holographic"
+    caption="Scroll inside the panel to move the card through the fixed gradient."
+    hint="A color-dodge gradient is clipped by the card alpha, then multiplied by a texture mask. Switch attachment modes to expose the scroll dependency."
+    height={560}
+  />
+)
+
+## What the CSS version actually does
+
+The CodePen needs no JavaScript. Its useful structure is a base image followed by one absolutely positioned layer:
+
+```html
+<div class="shader">
+  <img src="base.png" alt="..." />
+  <div class="shader-layer specular">
+    <img class="shader-layer mask" src="mask.png" alt="" />
+  </div>
+</div>
+```
+
+Three blend decisions create the result:
+
+```css
+.shader-layer {
+  position: absolute;
+  inset: 0;
+  mix-blend-mode: multiply;
+}
+
+.specular {
+  background-image: linear-gradient(/* spectral stops */);
+  background-attachment: fixed;
+  mix-blend-mode: color-dodge;
+}
+
+.mask {
+  mix-blend-mode: multiply;
+}
+```
+
+`color-dodge` makes the gradient behave like a bright specular contribution over the base image. The nested mask multiplies that contribution, preserving selected details and suppressing the rest.
+
+The important line is `background-attachment: fixed`. The gradient is anchored to the viewport instead of the image. As the image scrolls, its masked surface passes through a stationary field of colour. The apparent reflection changes without an animation loop or pointer listener.
+
+The preview adapts that stack to the PayAtlas card. Its transparent card alpha clips the specular layer, while the foil image acts as the multiplying texture. The internal scroll rail is deliberate: this site keeps desktop previews sticky, so the card needs a small local scrolling space to demonstrate the original viewport-relative idea.
+
+## What the WebGL version changes
+
+The RGB-split study renders one full-screen fragment pass. It does not place a coloured gradient over the card. It reads the card texture at three nearby coordinates:
+
+```glsl
+vec2 split = direction * separation * foil * edgeWeight;
+float red = texture2D(uCard, uv + split).r;
+float green = texture2D(uCard, uv).g;
+float blue = texture2D(uCard, uv - split).b;
+vec3 color = vec3(red, green, blue);
+```
+
+Red and blue move in opposite directions while green remains the reference. High-contrast edges receive a larger displacement, and the foil texture varies the distance. The pointer supplies the offset direction and strength.
+
+That produces coloured registration fringes because the channels no longer agree about where an edge is. CSS `color-dodge` cannot produce the same displacement by itself; it combines colours at one screen position rather than fetching neighbouring pixels.
+
+## Where the CSS method is stronger
+
+The CSS approach keeps the original image in the document. It has an immediate fallback, preserves the image’s accessible text, and does not require a canvas, a rendering library, texture uploads, or shader compilation.
+
+It is also fast to art-direct. A different gradient can make a material look pearlescent, metallic, narrow-band, or rainbow-like. A different mask can assign the finish to feathers, lettering, scales, or selected regions without changing application code.
+
+For editorial decoration, product thumbnails, and a small number of static images, that is a compelling trade. The browser’s compositor performs the work and the author stays in HTML and CSS.
+
+Its weaknesses follow from the same simplicity:
+
+- The result depends on the source colour because blend modes are compositing formulas, not authored final colours.
+- `background-attachment: fixed` has known problems on iOS Safari and can change behaviour around transformed ancestors.
+- Scroll is an indirect input. Pointer angle, velocity, edge detection, and exact per-pixel displacement are outside this method.
+- Many large blended layers can still consume compositor memory, even though no JavaScript runs.
+
+## Where the WebGL method is stronger
+
+WebGL makes every sample explicit. The effect can measure contrast, clip displaced channels with alpha, damp a pointer, respond to pressure or velocity, and guarantee that the same uniform values produce the same shader math.
+
+It also keeps the interaction local. The card reacts to the pointer rather than depending on its relationship to the viewport, which suits a sticky split-pane preview.
+
+The cost is a larger system. The page must load React Three Fiber and Three.js, create a GPU context, decode and upload textures, handle context failure, and provide a meaningful non-canvas fallback. The card is no longer a normal document image once it enters the shader.
+
+## Choosing by material, not novelty
+
+Use the CSS stack when the colour should feel painted onto the surface: foil, iridescent ink, glare, a light leak, or a masked highlight. Use the RGB split when the image should feel optically misregistered: lens dispersion, channel separation, signal damage, or a refractive edge.
+
+They can also be combined. A restrained CSS specular layer can provide broad surface colour while a small shader offset adds edge dispersion. The risk is visual inflation: if both layers peak everywhere, the artwork disappears under the technique.
+
+The useful distinction is simple. CSS blend modes alter how layers combine at the current pixel. The fragment shader alters which pixels are sampled before they combine.
+
+Reference: [CSS Holographic Masks by Christian Alder](https://codepen.io/HejChristian/pen/YPzLbYX), inspired by [Robb Owen’s CSS blend-mode shader guide](https://robbowen.digital/wrote-about/css-blend-mode-shaders/).
